@@ -4,5 +4,7 @@ databaseChangeLog:
       relativeToChangelogFile: false
   - include:
       file: db/changelog/002-add-index-and-constraints.yml
+  - include:
+      file: db/changelog/003-optimize-timestamps.yml
       relativeToChangelogFile: false
   

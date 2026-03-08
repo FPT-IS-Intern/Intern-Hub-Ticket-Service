@@ -18,10 +18,10 @@ public class CancelTicketService implements CancelTicketUseCase {
 
     @Override
     public void cancelTicket(CancelTicketCommand command) {
-        Ticket ticket = ticketRepository.findById(command.getTicketId())
+        Ticket ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        if (!ticket.getUserId().equals(command.getRequesterId())) {
+        if (!ticket.getUserId().equals(command.requesterId())) {
             throw new ForbiddenException("Only the ticket creator can cancel this ticket");
         }
 

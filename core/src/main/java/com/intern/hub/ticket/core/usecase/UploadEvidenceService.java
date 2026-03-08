@@ -24,17 +24,17 @@ public class UploadEvidenceService implements UploadEvidenceUseCase {
         @Override
         public EvidenceDto uploadEvidence(UploadEvidenceCommand command) {
                 // Validate ticket exists
-                ticketRepository.findById(command.getTicketId())
+                ticketRepository.findById(command.ticketId())
                                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
                 Evidence evidence = Evidence.builder()
                                 .evidenceId(idGenerator.nextId())
-                                .ticketId(command.getTicketId())
-                                .evidenceFolder(command.getEvidenceFolder())
-                                .evidenceUrl(command.getEvidenceUrl())
+                                .ticketId(command.ticketId())
+                                .evidenceFolder(command.evidenceFolder())
+                                .evidenceUrl(command.evidenceUrl())
                                 .uploadedAt(LocalDate.now())
-                                .fileType(command.getFileType())
-                                .fileSize(command.getFileSize())
+                                .fileType(command.fileType())
+                                .fileSize(command.fileSize())
                                 .status(EvidenceStatus.UPLOADED) // Assuming initial status
                                 .version(1)
                                 .build();

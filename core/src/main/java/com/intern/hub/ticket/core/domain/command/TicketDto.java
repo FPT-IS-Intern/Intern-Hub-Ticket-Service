@@ -1,23 +1,17 @@
 package com.intern.hub.ticket.core.domain.command;
 
-import java.time.LocalDate;
-
 import com.intern.hub.ticket.core.domain.model.TicketStatus;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Builder
-public class TicketDto {
-    private Long ticketId;
-    private Long userId;
-    private Long ticketTypeId;
-    private String ticketTypeName;
-    private LocalDate startAt;
-    private LocalDate endAt;
-    private String reason;
-    private TicketStatus status;
+public record TicketDto(
+        Long ticketId,
+        Long userId,
+        Long ticketTypeId,
+        String ticketTypeName,
+        java.time.LocalDate startAt,
+        java.time.LocalDate endAt,
+        String reason,
+        TicketStatus status) {
 }

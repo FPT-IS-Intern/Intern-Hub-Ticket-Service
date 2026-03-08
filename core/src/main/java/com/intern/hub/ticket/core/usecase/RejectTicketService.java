@@ -27,7 +27,7 @@ public class RejectTicketService implements RejectTicketUseCase {
 
     @Override
     public TicketApprovalDto rejectTicket(ReviewTicketCommand command) {
-        Ticket ticket = ticketRepository.findById(command.getTicketId())
+        Ticket ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
         if (TicketStatus.PENDING != ticket.getStatus()) {
@@ -42,9 +42,9 @@ public class RejectTicketService implements RejectTicketUseCase {
         TicketApproval approval = TicketApproval.builder()
                 .approvalId(idGenerator.nextId())
                 .ticketId(ticket.getTicketId())
-                .approverId(command.getApproverId())
+                .approverId(command.approverId())
                 .action(TicketApprovalAction.REJECTED)
-                .comment(command.getComment())
+                .comment(command.comment())
                 .actionAt(LocalDate.now())
                 .status(TicketApprovalStatus.COMPLETED)
                 .version(1)

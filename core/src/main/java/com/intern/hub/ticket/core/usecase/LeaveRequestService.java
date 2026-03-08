@@ -25,26 +25,26 @@ public class LeaveRequestService implements LeaveRequestUseCase {
 
         @Override
         public TicketDto createLeaveRequest(CreateLeaveRequestCommand command) {
-                TicketType ticketType = ticketTypeRepository.findById(command.getLeaveTypeId())
+                TicketType ticketType = ticketTypeRepository.findById(command.leaveTypeId())
                                 .orElseThrow(() -> new NotFoundException("Ticket Type not found"));
 
                 Long ticketId = idGenerator.nextId();
 
                 Ticket ticket = Ticket.builder()
                                 .ticketId(ticketId)
-                                .userId(command.getUserId())
+                                .userId(command.userId())
                                 .ticketTypeId(ticketType.getTicketTypeId())
-                                .startAt(command.getStartAt())
-                                .endAt(command.getEndAt())
-                                .reason(command.getReason())
+                                .startAt(command.startAt())
+                                .endAt(command.endAt())
+                                .reason(command.reason())
                                 .status(TicketStatus.PENDING)
                                 .build();
                 ticketRepository.save(ticket);
 
                 LeaveRequest leaveRequest = LeaveRequest.builder()
                                 .ticketId(ticketId)
-                                .leaveTypeId(command.getLeaveTypeId())
-                                .totalDays(command.getTotalDays())
+                                .leaveTypeId(command.leaveTypeId())
+                                .totalDays(command.totalDays())
                                 .status(TicketStatus.PENDING)
                                 .version(1)
                                 .build();

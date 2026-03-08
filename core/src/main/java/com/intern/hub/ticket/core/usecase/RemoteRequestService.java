@@ -38,21 +38,21 @@ public class RemoteRequestService implements RemoteRequestUseCase {
 
                 Ticket ticket = Ticket.builder()
                                 .ticketId(ticketId)
-                                .userId(command.getUserId())
+                                .userId(command.userId())
                                 .ticketTypeId(ticketType.getTicketTypeId())
-                                .startAt(command.getStartAt())
-                                .endAt(command.getEndAt())
-                                .reason(command.getReason())
+                                .startAt(command.startAt())
+                                .endAt(command.endAt())
+                                .reason(command.reason())
                                 .status(TicketStatus.PENDING)
                                 .build();
                 ticketRepository.save(ticket);
 
                 RemoteRequest remoteRequest = RemoteRequest.builder()
                                 .ticketId(ticketId)
-                                .workLocationId(command.getWorkLocationId())
-                                .startTime(command.getStartAt())
-                                .endTime(command.getEndAt())
-                                .remoteType(command.getRemoteType())
+                                .workLocationId(command.workLocationId())
+                                .startTime(command.startAt())
+                                .endTime(command.endAt())
+                                .remoteType(command.remoteType())
                                 .build();
                 remoteRequestRepository.save(remoteRequest);
 

@@ -6,7 +6,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.Getter;
@@ -25,6 +29,11 @@ public class LeaveRequestEntity extends BaseAuditEntity {
     @Id
     @Column(name = "ticket_id")
     private Long ticketId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "ticket_id")
+    private TicketEntity ticket;
 
     @Column(name = "leave_type_id")
     private Long leaveTypeId;
