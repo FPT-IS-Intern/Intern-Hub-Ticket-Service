@@ -24,6 +24,7 @@ spring-boot-starter-kafka = { module = "org.springframework.boot:spring-boot-sta
 
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure" }
 spring-boot-starter-feign = { module = "org.springframework.cloud:spring-cloud-starter-openfeign", version.ref = "feign-version" }
+spring-tx = { module = "org.springframework:spring-tx" }
 openapi-doc = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springDoc" }
 
 # Database

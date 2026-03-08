@@ -24,6 +24,9 @@ spring:
       leak-detection-threshold: 20000
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        default_schema: ${SCHEMA_NAME}
     hibernate:
       ddl-auto: none
     show-sql: false

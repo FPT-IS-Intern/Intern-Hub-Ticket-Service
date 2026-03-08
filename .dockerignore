@@ -1,6 +1,48 @@
+# Git
 .git
+.gitignore
+
+# Docker
+docker-compose.yml
+Dockerfile*
+.dockerignore
+
+# Build systems
 .gradle
-build
-out
+build/
+bin/
+out/
+.history/
+
+# IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache
+
+# OS-specific
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+env/
+!env/template/
+*.p12
+*.pem
+*.jks
+
+# Logs and temp
 *.log
-*.class
+temp/
+tmp/
