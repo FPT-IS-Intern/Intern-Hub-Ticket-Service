@@ -3,7 +3,7 @@ package com.intern.hub.ticket.infra.persistence.adapter;
 import org.springframework.stereotype.Component;
 
 import com.intern.hub.library.common.utils.Snowflake;
-import com.intern.hub.ticket.core.domain.port.IdGenerator;
+import com.intern.hub.ticket.core.port.out.IdGenerator;
 
 import lombok.RequiredArgsConstructor;
 

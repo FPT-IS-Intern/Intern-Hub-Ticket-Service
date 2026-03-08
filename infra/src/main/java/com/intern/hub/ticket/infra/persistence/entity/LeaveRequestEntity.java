@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "leave_requests", schema = "ih_ticket")
+@Table(name = "leave_requests")
 public class LeaveRequestEntity extends BaseAuditEntity {
 
     @Id

@@ -35,6 +35,11 @@ public class TicketRepositoryAdapter implements TicketRepository {
     }
 
     @Override
+    public List<Ticket> findByStatus(String status) {
+        return jpaRepository.findByStatus(status).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public Ticket save(Ticket ticket) {
         var entity = mapper.toEntity(ticket);
         return mapper.toDomain(jpaRepository.save(entity));

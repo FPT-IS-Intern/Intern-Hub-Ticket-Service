@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "remote_requests", schema = "ih_ticket")
+@Table(name = "remote_requests")
 public class RemoteRequestEntity extends BaseAuditEntity {
 
     @Id

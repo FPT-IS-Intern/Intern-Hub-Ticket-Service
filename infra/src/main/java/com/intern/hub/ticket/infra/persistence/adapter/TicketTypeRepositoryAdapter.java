@@ -39,4 +39,9 @@ public class TicketTypeRepositoryAdapter implements TicketTypeRepository {
     public void deleteById(Long ticketTypeId) {
         jpaRepository.deleteById(ticketTypeId);
     }
+
+    @Override
+    public Optional<TicketType> findByTypeName(String typeName) {
+        return jpaRepository.findByTypeName(typeName).map(mapper::toDomain);
+    }
 }

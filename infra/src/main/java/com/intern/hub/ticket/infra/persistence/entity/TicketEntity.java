@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "tickets", schema = "ih_ticket")
+@Table(name = "tickets")
 public class TicketEntity extends BaseAuditEntity {
 
     @Id
