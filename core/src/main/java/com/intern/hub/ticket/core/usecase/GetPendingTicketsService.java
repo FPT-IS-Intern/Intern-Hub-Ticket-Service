@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.intern.hub.ticket.core.domain.command.TicketDto;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.TicketType;
 import com.intern.hub.ticket.core.port.in.GetPendingTicketsUseCase;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
@@ -19,7 +20,7 @@ public class GetPendingTicketsService implements GetPendingTicketsUseCase {
 
     @Override
     public List<TicketDto> getPendingTickets() {
-        return ticketRepository.findByStatus("PENDING").stream()
+        return ticketRepository.findByStatus(TicketStatus.PENDING).stream()
                 .map(ticket -> {
                     String ticketTypeName = ticketTypeRepository.findById(ticket.getTicketTypeId())
                             .map(TicketType::getTypeName)

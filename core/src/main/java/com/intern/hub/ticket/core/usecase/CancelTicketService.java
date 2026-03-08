@@ -5,6 +5,7 @@ import com.intern.hub.library.common.exception.ForbiddenException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.CancelTicketCommand;
 import com.intern.hub.ticket.core.domain.model.Ticket;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.port.in.CancelTicketUseCase;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
 
@@ -24,13 +25,13 @@ public class CancelTicketService implements CancelTicketUseCase {
             throw new ForbiddenException("Only the ticket creator can cancel this ticket");
         }
 
-        if ("APPROVED".equals(ticket.getStatus()) || "REJECTED".equals(ticket.getStatus())
-                || "CANCELLED".equals(ticket.getStatus())) {
+        if (TicketStatus.APPROVED == ticket.getStatus() || TicketStatus.REJECTED == ticket.getStatus()
+                || TicketStatus.CANCELLED == ticket.getStatus()) {
             throw new BadRequestException(
                     "Ticket cannot be cancelled from its current status: " + ticket.getStatus());
         }
 
-        ticket.setStatus("CANCELLED");
+        ticket.setStatus(TicketStatus.CANCELLED);
         ticketRepository.save(ticket);
     }
 }

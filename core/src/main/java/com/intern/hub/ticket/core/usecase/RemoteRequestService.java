@@ -5,6 +5,7 @@ import com.intern.hub.ticket.core.domain.command.CreateRemoteRequestCommand;
 import com.intern.hub.ticket.core.domain.command.TicketDto;
 import com.intern.hub.ticket.core.domain.model.RemoteRequest;
 import com.intern.hub.ticket.core.domain.model.Ticket;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.TicketType;
 import com.intern.hub.ticket.core.port.in.RemoteRequestUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
@@ -42,7 +43,7 @@ public class RemoteRequestService implements RemoteRequestUseCase {
                                 .startAt(command.getStartAt())
                                 .endAt(command.getEndAt())
                                 .reason(command.getReason())
-                                .status("PENDING")
+                                .status(TicketStatus.PENDING)
                                 .build();
                 ticketRepository.save(ticket);
 

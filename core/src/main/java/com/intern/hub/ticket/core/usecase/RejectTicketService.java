@@ -8,6 +8,9 @@ import com.intern.hub.ticket.core.domain.command.ReviewTicketCommand;
 import com.intern.hub.ticket.core.domain.command.TicketApprovalDto;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketApproval;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.port.in.RejectTicketUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.TicketApprovalRepository;
@@ -27,12 +30,12 @@ public class RejectTicketService implements RejectTicketUseCase {
         Ticket ticket = ticketRepository.findById(command.getTicketId())
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        if (!"PENDING".equals(ticket.getStatus())) {
+        if (TicketStatus.PENDING != ticket.getStatus()) {
             throw new BadRequestException("Only PENDING tickets can be rejected");
         }
 
         // Update ticket status
-        ticket.setStatus("REJECTED");
+        ticket.setStatus(TicketStatus.REJECTED);
         ticketRepository.save(ticket);
 
         // Record approval history
@@ -40,10 +43,10 @@ public class RejectTicketService implements RejectTicketUseCase {
                 .approvalId(idGenerator.nextId())
                 .ticketId(ticket.getTicketId())
                 .approverId(command.getApproverId())
-                .action("REJECTED")
+                .action(TicketApprovalAction.REJECTED)
                 .comment(command.getComment())
                 .actionAt(LocalDate.now())
-                .status("COMPLETED")
+                .status(TicketApprovalStatus.COMPLETED)
                 .version(1)
                 .build();
 

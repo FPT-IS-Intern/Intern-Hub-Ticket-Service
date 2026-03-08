@@ -5,6 +5,7 @@ import com.intern.hub.ticket.core.domain.command.CreateLeaveRequestCommand;
 import com.intern.hub.ticket.core.domain.command.TicketDto;
 import com.intern.hub.ticket.core.domain.model.LeaveRequest;
 import com.intern.hub.ticket.core.domain.model.Ticket;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.TicketType;
 import com.intern.hub.ticket.core.port.in.LeaveRequestUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
@@ -36,7 +37,7 @@ public class LeaveRequestService implements LeaveRequestUseCase {
                                 .startAt(command.getStartAt())
                                 .endAt(command.getEndAt())
                                 .reason(command.getReason())
-                                .status("PENDING")
+                                .status(TicketStatus.PENDING)
                                 .build();
                 ticketRepository.save(ticket);
 
@@ -44,7 +45,7 @@ public class LeaveRequestService implements LeaveRequestUseCase {
                                 .ticketId(ticketId)
                                 .leaveTypeId(command.getLeaveTypeId())
                                 .totalDays(command.getTotalDays())
-                                .status("PENDING")
+                                .status(TicketStatus.PENDING)
                                 .version(1)
                                 .build();
                 leaveRequestRepository.save(leaveRequest);
