@@ -8,20 +8,18 @@ spring:
     name: ticket
   threads:
     virtual:
-      enabled: true
+      enabled: false
   datasource:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}?currentSchema=${SCHEMA_NAME}
     driver-class-name: org.postgresql.Driver
     hikari:
-      minimum-idle: 1
-      maximum-pool-size: 2
+      maximum-pool-size: 50
+      minimum-idle: 10
       connection-timeout: 30000
-      idle-timeout: 120000
-      max-lifetime: 300000
-      keepalive-time: 60000
-      leak-detection-threshold: 20000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   jpa:
     open-in-view: false
     properties:
