@@ -4,6 +4,7 @@ dependencies {
     implementation(libs.bundles.custom.libraries)
 
     implementation(libs.bundles.spring.boot.all)
+    implementation(libs.spring.tx)
 
 
 
@@ -11,5 +12,9 @@ dependencies {
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
+
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+    annotationProcessor(libs.lombok.mapstruct.binding)
 }
 
