@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-add-indexes-for-foreign-keys
+      author: internhub-team
+      changes:
+        - createIndex:
+            indexName: idx_tickets_user_id
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_tickets_ticket_type_id
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: ticket_type_id
+        - createIndex:
+            indexName: idx_ticket_approvals_ticket_id
+            schemaName: ih_ticket
+            tableName: ticket_approvals
+            columns:
+              - column:
+                  name: ticket_id
+        - createIndex:
+            indexName: idx_evidences_ticket_id
+            schemaName: ih_ticket
+            tableName: evidences
+            columns:
+              - column:
+                  name: ticket_id
+
+  - changeSet:
+      id: 009-add-check-constraints-for-enums
+      author: internhub-team
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE ih_ticket.tickets ADD CONSTRAINT check_ticket_status 
+              CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'));
+              
+              ALTER TABLE ih_ticket.ticket_approvals ADD CONSTRAINT check_approval_action 
+              CHECK (action IN ('APPROVED', 'REJECTED'));
+              
+              ALTER TABLE ih_ticket.ticket_approvals ADD CONSTRAINT check_approval_status 
+              CHECK (status IN ('PENDING', 'COMPLETED'));
+              
+              ALTER TABLE ih_ticket.leave_requests ADD CONSTRAINT check_leave_status 
+              CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'));
+              
+              ALTER TABLE ih_ticket.evidences ADD CONSTRAINT check_evidence_status 
+              CHECK (status IN ('UPLOADED', 'DELETED'));

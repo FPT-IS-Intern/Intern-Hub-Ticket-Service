@@ -2,4 +2,7 @@ databaseChangeLog:
   - include:
       file: db/changelog/001-create-ticket-table.yml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/002-add-index-and-constraints.yml
+      relativeToChangelogFile: false
   
