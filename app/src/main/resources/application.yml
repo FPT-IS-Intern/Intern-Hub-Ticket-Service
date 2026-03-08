@@ -55,7 +55,7 @@ management:
         enabled: false
 
 security:
-  internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue}
+  internal-secret: ${INTERNAL_SECRET_KEY}
   internal-path-prefix: /ticket/internal
 
 # Feign client configuration for direct URL
