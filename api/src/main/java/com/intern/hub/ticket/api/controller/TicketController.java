@@ -3,7 +3,6 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +36,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/tickets")
 @RequiredArgsConstructor
-@Transactional
 public class TicketController {
 
     private final CancelTicketUseCase cancelTicketUseCase;
