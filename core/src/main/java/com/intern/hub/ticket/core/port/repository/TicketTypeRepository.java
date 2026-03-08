@@ -13,4 +13,6 @@ public interface TicketTypeRepository {
     TicketType save(TicketType ticketType);
 
     void deleteById(Long ticketTypeId);
+
+    Optional<TicketType> findByTypeName(String typeName);
 }

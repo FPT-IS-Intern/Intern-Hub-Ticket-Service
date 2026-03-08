@@ -12,6 +12,8 @@ public interface TicketRepository {
 
     List<Ticket> findByUserId(Long userId);
 
+    List<Ticket> findByStatus(String status);
+
     Ticket save(Ticket ticket);
 
     void deleteById(Long ticketId);
