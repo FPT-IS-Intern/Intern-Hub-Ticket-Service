@@ -11,6 +11,9 @@ import com.intern.hub.ticket.core.domain.command.ReviewTicketCommand;
 import com.intern.hub.ticket.core.domain.command.TicketApprovalDto;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketApproval;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.port.in.ApproveTicketUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.TicketApprovalRepository;
@@ -32,12 +35,12 @@ public class ApproveTicketService implements ApproveTicketUseCase {
         Ticket ticket = ticketRepository.findById(command.getTicketId())
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        if (!"PENDING".equals(ticket.getStatus())) {
+        if (TicketStatus.PENDING != ticket.getStatus()) {
             throw new BadRequestException("Only PENDING tickets can be approved");
         }
 
         // Update ticket status
-        ticket.setStatus("APPROVED");
+        ticket.setStatus(TicketStatus.APPROVED);
         ticketRepository.save(ticket);
 
         // Record approval history
@@ -45,10 +48,10 @@ public class ApproveTicketService implements ApproveTicketUseCase {
                 .approvalId(idGenerator.nextId())
                 .ticketId(ticket.getTicketId())
                 .approverId(command.getApproverId())
-                .action("APPROVED")
+                .action(TicketApprovalAction.APPROVED)
                 .comment(command.getComment())
                 .actionAt(LocalDate.now())
-                .status("COMPLETED")
+                .status(TicketApprovalStatus.COMPLETED)
                 .version(1)
                 .build();
 

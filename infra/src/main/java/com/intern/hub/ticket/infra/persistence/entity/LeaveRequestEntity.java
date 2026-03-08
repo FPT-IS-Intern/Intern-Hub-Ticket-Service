@@ -1,7 +1,11 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -28,8 +32,9 @@ public class LeaveRequestEntity extends BaseAuditEntity {
     @Column(name = "total_days")
     private Integer totalDays;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private String status;
+    private TicketStatus status;
 
     @Version
     @Column(name = "version")

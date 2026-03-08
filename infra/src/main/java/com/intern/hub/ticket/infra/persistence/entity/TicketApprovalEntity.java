@@ -2,8 +2,13 @@ package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.time.LocalDate;
 
+import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -30,8 +35,9 @@ public class TicketApprovalEntity extends BaseAuditEntity {
     @Column(name = "approver_id")
     private Long approverId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "action", length = 50)
-    private String action;
+    private TicketApprovalAction action;
 
     @Column(name = "comment")
     private String comment;
@@ -39,8 +45,9 @@ public class TicketApprovalEntity extends BaseAuditEntity {
     @Column(name = "action_at")
     private LocalDate actionAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)
-    private String status;
+    private TicketApprovalStatus status;
 
     @Version
     @Column(name = "version")

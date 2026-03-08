@@ -8,6 +8,7 @@ import com.intern.hub.ticket.core.domain.command.CreateRemoteRequestCommand;
 import com.intern.hub.ticket.core.domain.command.TicketDto;
 import com.intern.hub.ticket.core.domain.model.RemoteRequest;
 import com.intern.hub.ticket.core.domain.model.Ticket;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.TicketType;
 import com.intern.hub.ticket.core.port.in.RemoteRequestUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
@@ -22,50 +23,50 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RemoteRequestService implements RemoteRequestUseCase {
 
-    private final TicketRepository ticketRepository;
-    private final RemoteRequestRepository remoteRequestRepository;
-    private final TicketTypeRepository ticketTypeRepository;
-    private final IdGenerator idGenerator;
+        private final TicketRepository ticketRepository;
+        private final RemoteRequestRepository remoteRequestRepository;
+        private final TicketTypeRepository ticketTypeRepository;
+        private final IdGenerator idGenerator;
 
-    @Override
-    public TicketDto createRemoteRequest(CreateRemoteRequestCommand command) {
+        @Override
+        public TicketDto createRemoteRequest(CreateRemoteRequestCommand command) {
 
-        TicketType ticketType = ticketTypeRepository.findByTypeName("Remote Work")
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Ticket Type 'Remote Work' not found"));
+                TicketType ticketType = ticketTypeRepository.findByTypeName("Remote Work")
+                                .stream()
+                                .findFirst()
+                                .orElseThrow(() -> new NotFoundException("Ticket Type 'Remote Work' not found"));
 
-        Long ticketId = idGenerator.nextId();
+                Long ticketId = idGenerator.nextId();
 
-        Ticket ticket = Ticket.builder()
-                .ticketId(ticketId)
-                .userId(command.getUserId())
-                .ticketTypeId(ticketType.getTicketTypeId())
-                .startAt(command.getStartAt())
-                .endAt(command.getEndAt())
-                .reason(command.getReason())
-                .status("PENDING")
-                .build();
-        ticketRepository.save(ticket);
+                Ticket ticket = Ticket.builder()
+                                .ticketId(ticketId)
+                                .userId(command.getUserId())
+                                .ticketTypeId(ticketType.getTicketTypeId())
+                                .startAt(command.getStartAt())
+                                .endAt(command.getEndAt())
+                                .reason(command.getReason())
+                                .status(TicketStatus.PENDING)
+                                .build();
+                ticketRepository.save(ticket);
 
-        RemoteRequest remoteRequest = RemoteRequest.builder()
-                .ticketId(ticketId)
-                .workLocationId(command.getWorkLocationId())
-                .startTime(command.getStartAt())
-                .endTime(command.getEndAt())
-                .remoteType(command.getRemoteType())
-                .build();
-        remoteRequestRepository.save(remoteRequest);
+                RemoteRequest remoteRequest = RemoteRequest.builder()
+                                .ticketId(ticketId)
+                                .workLocationId(command.getWorkLocationId())
+                                .startTime(command.getStartAt())
+                                .endTime(command.getEndAt())
+                                .remoteType(command.getRemoteType())
+                                .build();
+                remoteRequestRepository.save(remoteRequest);
 
-        return TicketDto.builder()
-                .ticketId(ticket.getTicketId())
-                .userId(ticket.getUserId())
-                .ticketTypeId(ticket.getTicketTypeId())
-                .ticketTypeName(ticketType.getTypeName())
-                .startAt(ticket.getStartAt())
-                .endAt(ticket.getEndAt())
-                .reason(ticket.getReason())
-                .status(ticket.getStatus())
-                .build();
-    }
+                return TicketDto.builder()
+                                .ticketId(ticket.getTicketId())
+                                .userId(ticket.getUserId())
+                                .ticketTypeId(ticket.getTicketTypeId())
+                                .ticketTypeName(ticketType.getTypeName())
+                                .startAt(ticket.getStartAt())
+                                .endAt(ticket.getEndAt())
+                                .reason(ticket.getReason())
+                                .status(ticket.getStatus())
+                                .build();
+        }
 }

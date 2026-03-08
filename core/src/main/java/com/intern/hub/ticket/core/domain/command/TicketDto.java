@@ -2,6 +2,8 @@ package com.intern.hub.ticket.core.domain.command;
 
 import java.time.LocalDate;
 
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +19,5 @@ public class TicketDto {
     private LocalDate startAt;
     private LocalDate endAt;
     private String reason;
-    private String status;
+    private TicketStatus status;
 }

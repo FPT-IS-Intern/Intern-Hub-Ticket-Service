@@ -3,6 +3,8 @@ package com.intern.hub.ticket.core.domain.command;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +21,7 @@ public class TicketDetailDto {
     private LocalDate startAt;
     private LocalDate endAt;
     private String reason;
-    private String status;
+    private TicketStatus status;
 
     // Type-specific details (only one will be non-null)
     private LeaveRequestDto leaveRequest;

@@ -13,9 +13,9 @@ public class TicketApproval extends BaseAuditDomain {
     private Long approvalId;
     private Long ticketId;
     private Long approverId;
-    private String action;
+    private TicketApprovalAction action;
     private String comment;
     private LocalDate actionAt;
-    private String status;
+    private TicketApprovalStatus status;
     private Integer version;
 }

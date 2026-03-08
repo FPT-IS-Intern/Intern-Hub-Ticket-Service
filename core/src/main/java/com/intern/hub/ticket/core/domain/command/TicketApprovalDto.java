@@ -2,6 +2,9 @@ package com.intern.hub.ticket.core.domain.command;
 
 import java.time.LocalDate;
 
+import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +16,8 @@ public class TicketApprovalDto {
     private Long approvalId;
     private Long ticketId;
     private Long approverId;
-    private String action;
+    private TicketApprovalAction action;
     private String comment;
     private LocalDate actionAt;
-    private String status;
+    private TicketApprovalStatus status;
 }

@@ -2,8 +2,12 @@ package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.time.LocalDate;
 
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -38,6 +42,7 @@ public class TicketEntity extends BaseAuditEntity {
     @Column(name = "reason")
     private String reason;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status;
+    private TicketStatus status;
 }

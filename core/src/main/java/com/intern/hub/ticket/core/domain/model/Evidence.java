@@ -17,6 +17,6 @@ public class Evidence extends BaseAuditDomain {
     private LocalDate uploadedAt;
     private String fileType;
     private Long fileSize;
-    private String status;
+    private EvidenceStatus status;
     private Integer version;
 }

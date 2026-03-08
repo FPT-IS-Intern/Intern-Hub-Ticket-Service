@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.intern.hub.ticket.core.domain.model.Ticket;
+import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
 import com.intern.hub.ticket.infra.persistence.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.repository.JpaTicketRepository;
@@ -35,7 +36,7 @@ public class TicketRepositoryAdapter implements TicketRepository {
     }
 
     @Override
-    public List<Ticket> findByStatus(String status) {
+    public List<Ticket> findByStatus(TicketStatus status) {
         return jpaRepository.findByStatus(status).stream().map(mapper::toDomain).toList();
     }
 

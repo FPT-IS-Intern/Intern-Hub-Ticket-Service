@@ -9,6 +9,7 @@ import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.EvidenceDto;
 import com.intern.hub.ticket.core.domain.command.UploadEvidenceCommand;
 import com.intern.hub.ticket.core.domain.model.Evidence;
+import com.intern.hub.ticket.core.domain.model.EvidenceStatus;
 import com.intern.hub.ticket.core.port.in.UploadEvidenceUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.EvidenceRepository;
@@ -39,7 +40,7 @@ public class UploadEvidenceService implements UploadEvidenceUseCase {
                 .uploadedAt(LocalDate.now())
                 .fileType(command.getFileType())
                 .fileSize(command.getFileSize())
-                .status("UPLOADED") // Assuming initial status
+                .status(EvidenceStatus.UPLOADED) // Assuming initial status
                 .version(1)
                 .build();
 
