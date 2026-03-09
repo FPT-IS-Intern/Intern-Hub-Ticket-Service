@@ -44,4 +44,9 @@ public class TicketTypeRepositoryAdapter implements TicketTypeRepository {
     public Optional<TicketType> findByTypeName(String typeName) {
         return jpaRepository.findByTypeName(typeName).map(mapper::toDomain);
     }
+
+    @Override
+    public List<TicketType> findAllById(List<Long> ticketTypeIds) {
+        return jpaRepository.findAllById(ticketTypeIds).stream().map(mapper::toDomain).toList();
+    }
 }

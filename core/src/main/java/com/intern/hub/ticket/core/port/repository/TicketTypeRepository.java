@@ -15,4 +15,6 @@ public interface TicketTypeRepository {
     void deleteById(Long ticketTypeId);
 
     Optional<TicketType> findByTypeName(String typeName);
+
+    List<TicketType> findAllById(List<Long> ticketTypeIds);
 }

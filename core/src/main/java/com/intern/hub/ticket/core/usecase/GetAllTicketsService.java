@@ -1,9 +1,11 @@
 package com.intern.hub.ticket.core.usecase;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.intern.hub.ticket.core.domain.dto.TicketDto;
+import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketType;
 import com.intern.hub.ticket.core.port.in.GetAllTicketsUseCase;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
@@ -19,23 +21,25 @@ public class GetAllTicketsService implements GetAllTicketsUseCase {
 
     @Override
     public List<TicketDto> getAllTickets() {
-        return ticketRepository.findAll().stream()
-                .map(ticket -> {
-                    String ticketTypeName = ticketTypeRepository.findById(ticket.getTicketTypeId())
-                            .map(TicketType::getTypeName)
-                            .orElse("Unknown Type");
+        List<Ticket> tickets = ticketRepository.findAll();
 
-                    return TicketDto.builder()
-                            .ticketId(ticket.getTicketId())
-                            .userId(ticket.getUserId())
-                            .ticketTypeId(ticket.getTicketTypeId())
-                            .ticketTypeName(ticketTypeName)
-                            .startAt(ticket.getStartAt())
-                            .endAt(ticket.getEndAt())
-                            .reason(ticket.getReason())
-                            .status(ticket.getStatus())
-                            .build();
-                })
-                .collect(Collectors.toList());
+        List<Long> typeIds = tickets.stream()
+                .map(Ticket::getTicketTypeId)
+                .distinct()
+                .toList();
+
+        Map<Long, String> typeNames = ticketTypeRepository.findAllById(typeIds).stream()
+                .collect(Collectors.toMap(TicketType::getTicketTypeId, TicketType::getTypeName));
+        return tickets.stream().map(ticket -> TicketDto.builder()
+                .ticketId(ticket.getTicketId())
+                .userId(ticket.getUserId())
+                .ticketTypeId(ticket.getTicketTypeId())
+                .ticketTypeName(typeNames.getOrDefault(ticket.getTicketTypeId(), "Unknown Type"))
+                .startAt(ticket.getStartAt())
+                .endAt(ticket.getEndAt())
+                .reason(ticket.getReason())
+                .status(ticket.getStatus())
+                .build())
+                .toList();
     }
 }
