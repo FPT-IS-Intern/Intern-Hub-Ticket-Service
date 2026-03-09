@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.intern.hub.ticket.core.domain.model.TicketStatus;
 
@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "tickets")
+@Table(name = "tickets", schema = "ih_ticket")
 public class TicketEntity extends BaseAuditEntity {
 
     @Id
@@ -42,10 +42,10 @@ public class TicketEntity extends BaseAuditEntity {
     private TicketTypeEntity ticketType;
 
     @Column(name = "start_at")
-    private LocalDate startAt;
+    private OffsetDateTime startAt;
 
     @Column(name = "end_at")
-    private LocalDate endAt;
+    private OffsetDateTime endAt;
 
     @Column(name = "reason")
     private String reason;
@@ -57,4 +57,7 @@ public class TicketEntity extends BaseAuditEntity {
     @Version
     @Column(name = "version")
     private Integer version;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
 }
