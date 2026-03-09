@@ -8,9 +8,11 @@ import org.springframework.stereotype.Repository;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
+import com.intern.hub.ticket.infra.persistence.entity.TicketTypeEntity;
 import com.intern.hub.ticket.infra.persistence.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.repository.JpaTicketRepository;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -19,6 +21,7 @@ public class TicketRepositoryAdapter implements TicketRepository {
 
     private final JpaTicketRepository jpaRepository;
     private final TicketMapper mapper;
+    private final EntityManager entityManager;
 
     @Override
     public Optional<Ticket> findById(Long ticketId) {
@@ -43,6 +46,9 @@ public class TicketRepositoryAdapter implements TicketRepository {
     @Override
     public Ticket save(Ticket ticket) {
         var entity = mapper.toEntity(ticket);
+        if (ticket.getTicketTypeId() != null) {
+            entity.setTicketType(entityManager.find(TicketTypeEntity.class, ticket.getTicketTypeId()));
+        }
         return mapper.toDomain(jpaRepository.save(entity));
     }
 

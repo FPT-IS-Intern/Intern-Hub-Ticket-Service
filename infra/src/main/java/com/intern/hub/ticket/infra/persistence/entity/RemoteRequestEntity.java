@@ -1,7 +1,5 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "remote_requests")
+@Table(name = "remote_requests", schema = "ih_ticket")
 public class RemoteRequestEntity extends BaseAuditEntity {
 
     @Id
@@ -35,12 +33,6 @@ public class RemoteRequestEntity extends BaseAuditEntity {
 
     @Column(name = "work_location_id")
     private Long workLocationId;
-
-    @Column(name = "start_time")
-    private LocalDate startTime;
-
-    @Column(name = "end_time")
-    private LocalDate endTime;
 
     @Column(name = "remote_type", length = 50)
     private String remoteType;

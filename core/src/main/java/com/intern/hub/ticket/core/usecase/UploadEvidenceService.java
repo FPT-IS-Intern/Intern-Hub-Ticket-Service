@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.core.usecase;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.UploadEvidenceCommand;
@@ -32,7 +32,7 @@ public class UploadEvidenceService implements UploadEvidenceUseCase {
                                 .ticketId(command.ticketId())
                                 .evidenceFolder(command.evidenceFolder())
                                 .evidenceUrl(command.evidenceUrl())
-                                .uploadedAt(LocalDate.now())
+                                .uploadedAt(OffsetDateTime.now())
                                 .fileType(command.fileType())
                                 .fileSize(command.fileSize())
                                 .status(EvidenceStatus.UPLOADED) // Assuming initial status

@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.core.usecase;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
@@ -45,7 +45,7 @@ public class ApproveTicketService implements ApproveTicketUseCase {
                 .approverId(command.approverId())
                 .action(TicketApprovalAction.APPROVED)
                 .comment(command.comment())
-                .actionAt(LocalDate.now())
+                .actionAt(OffsetDateTime.now())
                 .status(TicketApprovalStatus.COMPLETED)
                 .version(1)
                 .build();

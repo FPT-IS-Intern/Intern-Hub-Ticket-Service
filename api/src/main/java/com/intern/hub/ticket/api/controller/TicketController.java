@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.LeaveRequestItem;
 import com.intern.hub.ticket.api.dto.request.RemoteRequestItem;
 import com.intern.hub.ticket.api.mapper.TicketApiMapper;
@@ -49,37 +48,37 @@ public class TicketController {
     private final TicketApiMapper mapper;
 
     @GetMapping("/{ticketId}")
-    @Authenticated
+    // @Authenticated
     public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
         return ResponseApi.ok(getTicketDetailUseCase.getTicketDetail(ticketId));
     }
 
     @GetMapping("/pending")
-    @Authenticated
+    // @Authenticated
     public ResponseApi<List<TicketDto>> getPendingTickets() {
         return ResponseApi.ok(getPendingTicketsUseCase.getPendingTickets());
     }
 
     @GetMapping("/all")
-    @Authenticated
+    // @Authenticated
     public ResponseApi<List<TicketDto>> getAllTickets() {
         return ResponseApi.ok(getAllTicketsUseCase.getAllTickets());
     }
 
     @GetMapping("/types")
-    @Authenticated
+    // @Authenticated
     public ResponseApi<List<TicketTypeDto>> getTicketTypes() {
         return ResponseApi.ok(getTicketTypesUseCase.getTicketTypes());
     }
 
     @GetMapping
-    @Authenticated
+    // @Authenticated
     public ResponseApi<List<TicketDto>> getUserTickets(@RequestHeader("X-User-Id") Long userId) {
         return ResponseApi.ok(getUserTicketsUseCase.getUserTickets(userId));
     }
 
     @PostMapping("/{ticketId}/cancel")
-    @Authenticated
+    // @Authenticated
     public ResponseApi<Void> cancelTicket(@PathVariable Long ticketId, @RequestHeader("X-User-Id") Long requesterId) {
         CancelTicketCommand command = CancelTicketCommand.builder()
                 .ticketId(ticketId)
@@ -92,7 +91,7 @@ public class TicketController {
 
     @PostMapping("/leave")
     @ResponseStatus(HttpStatus.CREATED)
-    @Authenticated
+    // @Authenticated
     public ResponseApi<TicketDto> createLeaveRequest(
             @Valid @RequestBody LeaveRequestItem request,
             @RequestHeader("X-User-Id") Long userId) {
@@ -103,7 +102,7 @@ public class TicketController {
 
     @PostMapping("/remote")
     @ResponseStatus(HttpStatus.CREATED)
-    @Authenticated
+    // @Authenticated
     public ResponseApi<TicketDto> createRemoteRequest(
             @Valid @RequestBody RemoteRequestItem request,
             @RequestHeader("X-User-Id") Long userId) {

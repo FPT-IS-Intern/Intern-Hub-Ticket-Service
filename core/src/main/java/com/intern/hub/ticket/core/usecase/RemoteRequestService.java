@@ -44,15 +44,12 @@ public class RemoteRequestService implements RemoteRequestUseCase {
                                 .endAt(command.endAt())
                                 .reason(command.reason())
                                 .status(TicketStatus.PENDING)
-                                .version(1)
                                 .build();
                 ticketRepository.save(ticket);
 
                 RemoteRequest remoteRequest = RemoteRequest.builder()
                                 .ticketId(ticketId)
                                 .workLocationId(command.workLocationId())
-                                .startTime(command.startAt())
-                                .endTime(command.endAt())
                                 .remoteType(command.remoteType())
                                 .build();
                 remoteRequestRepository.save(remoteRequest);

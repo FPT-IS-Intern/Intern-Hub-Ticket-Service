@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "ticket_approvals")
+@Table(name = "ticket_approvals", schema = "ih_ticket")
 public class TicketApprovalEntity extends BaseAuditEntity {
 
     @Id
@@ -43,7 +43,7 @@ public class TicketApprovalEntity extends BaseAuditEntity {
     private String comment;
 
     @Column(name = "action_at")
-    private LocalDate actionAt;
+    private OffsetDateTime actionAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50)

@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.api.dto.request;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,10 +14,10 @@ public class LeaveRequestItem {
     private Long leaveTypeId;
 
     @NotNull(message = "Start date is required")
-    private LocalDate startAt;
+    private OffsetDateTime startAt;
 
     @NotNull(message = "End date is required")
-    private LocalDate endAt;
+    private OffsetDateTime endAt;
 
     @NotBlank(message = "Reason is required")
     private String reason;

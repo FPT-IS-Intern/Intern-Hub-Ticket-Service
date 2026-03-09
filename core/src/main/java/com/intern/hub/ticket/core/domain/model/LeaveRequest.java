@@ -11,6 +11,5 @@ public class LeaveRequest extends BaseAuditDomain {
     private Long ticketId;
     private Long leaveTypeId;
     private Integer totalDays;
-    private TicketStatus status;
     private Integer version;
 }

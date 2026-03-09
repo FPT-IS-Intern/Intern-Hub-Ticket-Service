@@ -38,7 +38,6 @@ public class LeaveRequestService implements LeaveRequestUseCase {
                                 .endAt(command.endAt())
                                 .reason(command.reason())
                                 .status(TicketStatus.PENDING)
-                                .version(1)
                                 .build();
                 ticketRepository.save(ticket);
 
@@ -46,8 +45,6 @@ public class LeaveRequestService implements LeaveRequestUseCase {
                                 .ticketId(ticketId)
                                 .leaveTypeId(command.leaveTypeId())
                                 .totalDays(command.totalDays())
-                                .status(TicketStatus.PENDING)
-                                .version(1)
                                 .build();
                 leaveRequestRepository.save(leaveRequest);
 

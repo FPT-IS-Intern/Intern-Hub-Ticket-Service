@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.core.domain.model;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ public class TicketApproval extends BaseAuditDomain {
     private Long approverId;
     private TicketApprovalAction action;
     private String comment;
-    private LocalDate actionAt;
+    private OffsetDateTime actionAt;
     private TicketApprovalStatus status;
     private Integer version;
 }

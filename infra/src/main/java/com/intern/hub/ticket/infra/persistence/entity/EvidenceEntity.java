@@ -1,6 +1,6 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.intern.hub.ticket.core.domain.model.EvidenceStatus;
 
@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Entity
-@Table(name = "evidences")
+@Table(name = "evidences", schema = "ih_ticket")
 public class EvidenceEntity extends BaseAuditEntity {
 
     @Id
@@ -38,7 +38,7 @@ public class EvidenceEntity extends BaseAuditEntity {
     private String evidenceUrl;
 
     @Column(name = "uploaded_at")
-    private LocalDate uploadedAt;
+    private OffsetDateTime uploadedAt;
 
     @Column(name = "file_type", length = 100)
     private String fileType;
