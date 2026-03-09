@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.core.domain.model;
 
+import java.time.OffsetDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -8,8 +10,8 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 public abstract class BaseAuditDomain {
-    private Long createdAt;
-    private Long updatedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
     private Long createdBy;
     private Long updatedBy;
 }

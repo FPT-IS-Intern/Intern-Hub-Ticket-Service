@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
+import java.time.OffsetDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -15,10 +17,10 @@ import lombok.experimental.SuperBuilder;
 public abstract class BaseAuditEntity {
 
     @Column(name = "created_at")
-    private Long createdAt;
+    private OffsetDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Long updatedAt;
+    private OffsetDateTime updatedAt;
 
     @Column(name = "created_by")
     private Long createdBy;
