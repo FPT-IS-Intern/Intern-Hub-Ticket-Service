@@ -14,20 +14,22 @@ spring:
     password: ${DB_PASSWORD}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME}?currentSchema=${SCHEMA_NAME}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 50
-      minimum-idle: 10
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+  hikari:
+    maximum-pool-size: 50
+    minimum-idle: 10
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
   jpa:
     open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
     properties:
       hibernate:
         default_schema: ${SCHEMA_NAME}
-    hibernate:
-      ddl-auto: none
-    show-sql: false
+        format_sql: true
+        use_sql_comments: true
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yml
@@ -53,6 +55,12 @@ management:
     metrics:
       export:
         enabled: false
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.results: TRACE
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY}

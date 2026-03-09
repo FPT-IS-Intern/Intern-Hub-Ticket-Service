@@ -22,18 +22,10 @@ databaseChangeLog:
               - column:
                   name: description
                   type: text
-              - column:
-                  name: created_at
-                  type: timestamptz
-              - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
   - changeSet:
       id: 003-create-tickets-table
@@ -62,28 +54,32 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: start_at
-                  type: date
+                  type: timestamptz    
               - column:
                   name: end_at
-                  type: date
+                  type: timestamptz    
               - column:
                   name: reason
                   type: text
               - column:
                   name: status
-                  type: varchar(20)
+                  type: varchar(50)
               - column:
-                  name: created_at
-                  type: timestamptz
+                  name: version        
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
               - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+                  name: is_deleted     
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
         - addForeignKeyConstraint:
             constraintName: fk_tickets_ticket_type
@@ -112,26 +108,18 @@ databaseChangeLog:
                   name: work_location_id
                   type: bigint
               - column:
-                  name: start_time
-                  type: date
-              - column:
-                  name: end_time
-                  type: date
-              - column:
                   name: remote_type
                   type: varchar(50)
               - column:
-                  name: created_at
-                  type: timestamptz
-              - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+                  name: version        
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
         - addForeignKeyConstraint:
             constraintName: fk_remote_requests_ticket
@@ -163,23 +151,13 @@ databaseChangeLog:
                   name: total_days
                   type: integer
               - column:
-                  name: status
-                  type: varchar(50)
-              - column:
                   name: version
                   type: integer
-              - column:
-                  name: created_at
-                  type: timestamptz
-              - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+                  defaultValueNumeric: 0
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
         - addForeignKeyConstraint:
             constraintName: fk_leave_requests_ticket
@@ -228,18 +206,11 @@ databaseChangeLog:
               - column:
                   name: version
                   type: integer
-              - column:
-                  name: created_at
-                  type: timestamptz
-              - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+                  defaultValueNumeric: 0
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
         - addForeignKeyConstraint:
             constraintName: fk_ticket_approvals_ticket
@@ -289,18 +260,11 @@ databaseChangeLog:
               - column:
                   name: version
                   type: integer
-              - column:
-                  name: created_at
-                  type: timestamptz
-              - column:
-                  name: updated_at
-                  type: timestamptz
-              - column:
-                  name: created_by
-                  type: bigint
-              - column:
-                  name: updated_by
-                  type: bigint
+                  defaultValueNumeric: 0
+              - column: { name: created_at, type: timestamptz }
+              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
         - addForeignKeyConstraint:
             constraintName: fk_evidences_ticket
@@ -310,3 +274,52 @@ databaseChangeLog:
             referencedTableSchemaName: ih_ticket
             referencedTableName: tickets
             referencedColumnNames: ticket_id
+
+  - changeSet:
+      id: 008-add-indexes
+      author: internhub-team
+      changes:
+        - createIndex:
+            indexName: idx_tickets_user_status
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column: { name: user_id }
+              - column: { name: status }
+
+        - createIndex:
+            indexName: idx_tickets_ticket_type
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column: { name: ticket_type_id }
+
+        - createIndex:
+            indexName: idx_tickets_created_at
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column: { name: created_at }
+
+        - createIndex:
+            indexName: idx_ticket_approvals_ticket_status
+            schemaName: ih_ticket
+            tableName: ticket_approvals
+            columns:
+              - column: { name: ticket_id }
+              - column: { name: status }
+
+        - createIndex:
+            indexName: idx_ticket_approvals_approver_status 
+            schemaName: ih_ticket
+            tableName: ticket_approvals
+            columns:
+              - column: { name: approver_id }
+              - column: { name: status }
+
+        - createIndex:
+            indexName: idx_evidences_ticket
+            schemaName: ih_ticket
+            tableName: evidences
+            columns:
+              - column: { name: ticket_id }

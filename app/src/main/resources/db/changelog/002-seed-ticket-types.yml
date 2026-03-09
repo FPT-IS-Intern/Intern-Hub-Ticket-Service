@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-seed-ticket-types
+      author: Linh
+      changes:
+        - insert:
+            schemaName: ih_ticket
+            tableName: ticket_types
+            columns:
+              - column: { name: ticket_type_id, valueNumeric: 1 }
+              - column: { name: type_name, value: "Nghỉ phép" }
+              - column: { name: description, value: "Nghỉ phép năm, nghỉ việc riêng..." }
+        - insert:
+            schemaName: ih_ticket
+            tableName: ticket_types
+            columns:
+              - column: { name: ticket_type_id, valueNumeric: 2 }
+              - column: { name: type_name, value: "Remote Work" }
+              - column: { name: description, value: "Làm việc từ xa" }

@@ -3,13 +3,7 @@ databaseChangeLog:
       file: db/changelog/001-create-ticket-table.yml
       relativeToChangelogFile: false
   - include:
-      file: db/changelog/002-add-index-and-constraints.yml
-      relativeToChangelogFile: false
-  - include:
-      file: db/changelog/003-add-version-to-remote-requests.yml
-      relativeToChangelogFile: false
-  - include:
-      file: db/changelog/004-add-version-to-tickets.yml
+      file: db/changelog/002-seed-ticket-types.yml
       relativeToChangelogFile: false
 
 
