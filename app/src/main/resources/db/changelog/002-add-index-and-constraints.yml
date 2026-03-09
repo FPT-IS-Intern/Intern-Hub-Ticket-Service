@@ -50,3 +50,22 @@ databaseChangeLog:
             columns:
               - column:
                   name: ticket_id
+        
+        # leave requests
+        - createIndex:
+            indexName: idx_leave_requests_ticket_id
+            schemaName: ih_ticket
+            tableName: leave_requests
+            columns:
+              - column:
+                  name: ticket_id
+
+        # remote requests
+        - createIndex:
+            indexName: idx_remote_requests_ticket_id
+            schemaName: ih_ticket
+            tableName: remote_requests
+            columns:
+              - column:
+                  name: ticket_id
+
