@@ -3,8 +3,8 @@ package com.intern.hub.ticket.core.usecase;
 import java.time.LocalDate;
 
 import com.intern.hub.library.common.exception.NotFoundException;
-import com.intern.hub.ticket.core.domain.command.EvidenceDto;
 import com.intern.hub.ticket.core.domain.command.UploadEvidenceCommand;
+import com.intern.hub.ticket.core.domain.dto.EvidenceDto;
 import com.intern.hub.ticket.core.domain.model.Evidence;
 import com.intern.hub.ticket.core.domain.model.EvidenceStatus;
 import com.intern.hub.ticket.core.port.in.UploadEvidenceUseCase;

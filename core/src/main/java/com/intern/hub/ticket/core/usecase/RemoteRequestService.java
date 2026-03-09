@@ -2,7 +2,7 @@ package com.intern.hub.ticket.core.usecase;
 
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.CreateRemoteRequestCommand;
-import com.intern.hub.ticket.core.domain.command.TicketDto;
+import com.intern.hub.ticket.core.domain.dto.TicketDto;
 import com.intern.hub.ticket.core.domain.model.RemoteRequest;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketStatus;

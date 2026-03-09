@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.ReviewTicketCommand;
-import com.intern.hub.ticket.core.domain.command.TicketApprovalDto;
+import com.intern.hub.ticket.core.domain.dto.TicketApprovalDto;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketApproval;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;

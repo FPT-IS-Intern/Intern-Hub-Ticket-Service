@@ -3,7 +3,7 @@ package com.intern.hub.ticket.core.usecase;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.intern.hub.ticket.core.domain.command.TicketApprovalDto;
+import com.intern.hub.ticket.core.domain.dto.TicketApprovalDto;
 import com.intern.hub.ticket.core.port.in.GetApprovalHistoryUseCase;
 import com.intern.hub.ticket.core.port.repository.TicketApprovalRepository;
 

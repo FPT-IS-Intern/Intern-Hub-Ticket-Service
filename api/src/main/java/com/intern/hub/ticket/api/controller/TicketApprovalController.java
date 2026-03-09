@@ -14,7 +14,7 @@ import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.TicketApprovalRequest;
 import com.intern.hub.ticket.core.domain.command.ReviewTicketCommand;
-import com.intern.hub.ticket.core.domain.command.TicketApprovalDto;
+import com.intern.hub.ticket.core.domain.dto.TicketApprovalDto;
 import com.intern.hub.ticket.core.port.in.ApproveTicketUseCase;
 import com.intern.hub.ticket.core.port.in.GetApprovalHistoryUseCase;
 import com.intern.hub.ticket.core.port.in.RejectTicketUseCase;

@@ -3,7 +3,7 @@ package com.intern.hub.ticket.core.usecase;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.intern.hub.ticket.core.domain.command.EvidenceDto;
+import com.intern.hub.ticket.core.domain.dto.EvidenceDto;
 import com.intern.hub.ticket.core.port.in.GetEvidenceUseCase;
 import com.intern.hub.ticket.core.port.repository.EvidenceRepository;
 

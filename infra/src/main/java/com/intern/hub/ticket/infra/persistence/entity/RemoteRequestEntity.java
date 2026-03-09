@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,4 +44,8 @@ public class RemoteRequestEntity extends BaseAuditEntity {
 
     @Column(name = "remote_type", length = 50)
     private String remoteType;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }

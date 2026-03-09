@@ -15,4 +15,5 @@ public class RemoteRequest extends BaseAuditDomain {
     private LocalDate startTime;
     private LocalDate endTime;
     private String remoteType;
+    private Integer version;
 }

@@ -9,6 +9,7 @@ import com.intern.hub.ticket.core.port.repository.EvidenceRepository;
 import com.intern.hub.ticket.core.port.repository.LeaveRequestRepository;
 import com.intern.hub.ticket.core.port.repository.RemoteRequestRepository;
 import com.intern.hub.ticket.core.port.repository.TicketApprovalRepository;
+import com.intern.hub.ticket.core.port.repository.TicketDetailQueryRepository;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
 import com.intern.hub.ticket.core.port.repository.TicketTypeRepository;
 import com.intern.hub.ticket.core.usecase.ApproveTicketService;
@@ -72,19 +73,8 @@ public class UseCaseConfig {
 
     @Bean
     public GetTicketDetailService getTicketDetailService(
-            TicketRepository ticketRepository,
-            TicketTypeRepository ticketTypeRepository,
-            LeaveRequestRepository leaveRequestRepository,
-            RemoteRequestRepository remoteRequestRepository,
-            EvidenceRepository evidenceRepository,
-            TicketApprovalRepository ticketApprovalRepository) {
-        return new GetTicketDetailService(
-                ticketRepository,
-                ticketTypeRepository,
-                leaveRequestRepository,
-                remoteRequestRepository,
-                evidenceRepository,
-                ticketApprovalRepository);
+            TicketDetailQueryRepository ticketDetailQueryRepository) {
+        return new GetTicketDetailService(ticketDetailQueryRepository);
     }
 
     @Bean

@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
-import com.intern.hub.ticket.core.domain.command.EvidenceDto;
 import com.intern.hub.ticket.core.domain.command.UploadEvidenceCommand;
+import com.intern.hub.ticket.core.domain.dto.EvidenceDto;
 import com.intern.hub.ticket.core.port.in.GetEvidenceUseCase;
 import com.intern.hub.ticket.core.port.in.UploadEvidenceUseCase;
 
