@@ -15,12 +15,7 @@ import com.intern.hub.library.common.annotation.EnableGlobalExceptionHandler;
 @EntityScan(basePackages = "com.intern.hub.ticket.infra.persistence.entity")
 public class TicketServiceApplication {
 
-    static {
-        System.err.println("--- DIAGNOSTIC: STATIC BLOCK STARTED ---");
-    }
-
     public static void main(String[] args) {
-        System.err.println("--- DIAGNOSTIC: MAIN STARTED ---");
         SpringApplication.run(TicketServiceApplication.class, args);
     }
 }
