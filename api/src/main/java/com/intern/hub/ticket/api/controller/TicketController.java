@@ -3,7 +3,6 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,7 +80,6 @@ public class TicketController {
 
     @PostMapping("/{ticketId}/cancel")
     @Authenticated
-    @Transactional
     public ResponseApi<Void> cancelTicket(@PathVariable Long ticketId, @RequestHeader("X-User-Id") Long requesterId) {
         CancelTicketCommand command = CancelTicketCommand.builder()
                 .ticketId(ticketId)
@@ -95,7 +93,6 @@ public class TicketController {
     @PostMapping("/leave")
     @ResponseStatus(HttpStatus.CREATED)
     @Authenticated
-    @Transactional
     public ResponseApi<TicketDto> createLeaveRequest(
             @Valid @RequestBody LeaveRequestItem request,
             @RequestHeader("X-User-Id") Long userId) {
@@ -107,7 +104,6 @@ public class TicketController {
     @PostMapping("/remote")
     @ResponseStatus(HttpStatus.CREATED)
     @Authenticated
-    @Transactional
     public ResponseApi<TicketDto> createRemoteRequest(
             @Valid @RequestBody RemoteRequestItem request,
             @RequestHeader("X-User-Id") Long userId) {

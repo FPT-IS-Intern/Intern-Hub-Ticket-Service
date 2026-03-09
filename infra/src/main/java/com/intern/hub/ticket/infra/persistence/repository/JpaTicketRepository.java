@@ -12,6 +12,9 @@ import com.intern.hub.ticket.infra.persistence.entity.TicketEntity;
 @Repository
 public interface JpaTicketRepository extends JpaRepository<TicketEntity, Long> {
     @EntityGraph(attributePaths = { "ticketType" })
+    List<TicketEntity> findAll();
+
+    @EntityGraph(attributePaths = { "ticketType" })
     List<TicketEntity> findByUserId(Long userId);
 
     @EntityGraph(attributePaths = { "ticketType" })

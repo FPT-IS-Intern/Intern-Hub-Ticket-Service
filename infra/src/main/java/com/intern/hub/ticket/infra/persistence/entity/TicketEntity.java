@@ -2,6 +2,8 @@ package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.time.LocalDate;
 
+import org.springframework.data.annotation.Version;
+
 import com.intern.hub.ticket.core.domain.model.TicketStatus;
 
 import jakarta.persistence.Column;
@@ -52,4 +54,8 @@ public class TicketEntity extends BaseAuditEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private TicketStatus status;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }

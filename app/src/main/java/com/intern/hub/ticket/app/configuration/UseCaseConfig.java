@@ -2,6 +2,7 @@ package com.intern.hub.ticket.app.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
@@ -35,7 +36,9 @@ public class UseCaseConfig {
     }
 
     @Bean
+    @Transactional
     public ApproveTicketService approveTicketService(
+
             TicketRepository ticketRepository,
             TicketApprovalRepository ticketApprovalRepository,
             IdGenerator idGenerator) {
@@ -43,15 +46,16 @@ public class UseCaseConfig {
     }
 
     @Bean
+    @Transactional
     public CancelTicketService cancelTicketService(TicketRepository ticketRepository) {
+
         return new CancelTicketService(ticketRepository);
     }
 
     @Bean
     public GetAllTicketsService getAllTicketsService(
-            TicketRepository ticketRepository,
-            TicketTypeRepository ticketTypeRepository) {
-        return new GetAllTicketsService(ticketRepository, ticketTypeRepository);
+            TicketRepository ticketRepository) {
+        return new GetAllTicketsService(ticketRepository);
     }
 
     @Bean
@@ -66,9 +70,8 @@ public class UseCaseConfig {
 
     @Bean
     public GetPendingTicketsService getPendingTicketsService(
-            TicketRepository ticketRepository,
-            TicketTypeRepository ticketTypeRepository) {
-        return new GetPendingTicketsService(ticketRepository, ticketTypeRepository);
+            TicketRepository ticketRepository) {
+        return new GetPendingTicketsService(ticketRepository);
     }
 
     @Bean
@@ -84,13 +87,14 @@ public class UseCaseConfig {
 
     @Bean
     public GetUserTicketsService getUserTicketsService(
-            TicketRepository ticketRepository,
-            TicketTypeRepository ticketTypeRepository) {
-        return new GetUserTicketsService(ticketRepository, ticketTypeRepository);
+            TicketRepository ticketRepository) {
+        return new GetUserTicketsService(ticketRepository);
     }
 
     @Bean
+    @Transactional
     public LeaveRequestService leaveRequestService(
+
             TicketRepository ticketRepository,
             LeaveRequestRepository leaveRequestRepository,
             TicketTypeRepository ticketTypeRepository,
@@ -99,7 +103,9 @@ public class UseCaseConfig {
     }
 
     @Bean
+    @Transactional
     public RejectTicketService rejectTicketService(
+
             TicketRepository ticketRepository,
             TicketApprovalRepository ticketApprovalRepository,
             IdGenerator idGenerator) {
@@ -107,7 +113,9 @@ public class UseCaseConfig {
     }
 
     @Bean
+    @Transactional
     public RemoteRequestService remoteRequestService(
+
             TicketRepository ticketRepository,
             RemoteRequestRepository remoteRequestRepository,
             TicketTypeRepository ticketTypeRepository,
@@ -116,7 +124,9 @@ public class UseCaseConfig {
     }
 
     @Bean
+    @Transactional
     public UploadEvidenceService uploadEvidenceService(
+
             TicketRepository ticketRepository,
             EvidenceRepository evidenceRepository,
             IdGenerator idGenerator) {

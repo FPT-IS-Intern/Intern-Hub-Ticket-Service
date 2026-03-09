@@ -17,4 +17,6 @@ public class Ticket extends BaseAuditDomain {
     private LocalDate endAt;
     private String reason;
     private TicketStatus status;
+    private String ticketTypeName;
+    private Integer version;
 }
