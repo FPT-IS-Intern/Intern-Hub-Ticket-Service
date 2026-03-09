@@ -3,6 +3,7 @@ package com.intern.hub.ticket.app.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.EvidenceRepository;
 import com.intern.hub.ticket.core.port.repository.LeaveRequestRepository;
@@ -26,6 +27,11 @@ import com.intern.hub.ticket.core.usecase.UploadEvidenceService;
 
 @Configuration
 public class UseCaseConfig {
+
+    @Bean
+    public Snowflake snowflake() {
+        return new Snowflake(1, 1);
+    }
 
     @Bean
     public ApproveTicketService approveTicketService(

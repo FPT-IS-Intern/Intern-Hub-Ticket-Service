@@ -64,7 +64,27 @@ feign:
     config:
       hrm:
 
-
 services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
+
+common:
+  logging:
+    enabled: ${COMMON_LOGGING_ENABLED:true}
+    request: ${COMMON_LOGGING_REQUEST:true}
+    response: ${COMMON_LOGGING_RESPONSE:true}
+    header: ${COMMON_LOGGING_HEADER:true}
+    mask-headers:
+      - authorization
+      - cookie
+      - set-cookie
+      - x-api-key
+      - x-internal-secret
+    mask-fields:
+      - password
+      - newPassword
+      - confirmPassword
+      - otp
+      - accessToken
+      - refreshToken
+      - x-internal-secret

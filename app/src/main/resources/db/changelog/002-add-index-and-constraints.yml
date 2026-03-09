@@ -1,55 +1,52 @@
 databaseChangeLog:
   - changeSet:
-      id: 008-add-indexes-for-foreign-keys
+      id: 008-add-indexes
       author: internhub-team
       changes:
+
+        # tickets
         - createIndex:
-            indexName: idx_tickets_user_id
+            indexName: idx_tickets_user_status
             schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
                   name: user_id
+              - column:
+                  name: status
+
         - createIndex:
-            indexName: idx_tickets_ticket_type_id
+            indexName: idx_tickets_ticket_type
             schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
                   name: ticket_type_id
+
         - createIndex:
-            indexName: idx_ticket_approvals_ticket_id
+            indexName: idx_tickets_created_at
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: created_at
+
+        # ticket approvals
+        - createIndex:
+            indexName: idx_ticket_approvals_ticket_status
             schemaName: ih_ticket
             tableName: ticket_approvals
             columns:
               - column:
                   name: ticket_id
+              - column:
+                  name: status
+
+        # evidences
         - createIndex:
-            indexName: idx_evidences_ticket_id
+            indexName: idx_evidences_ticket
             schemaName: ih_ticket
             tableName: evidences
             columns:
               - column:
                   name: ticket_id
-
-  - changeSet:
-      id: 009-add-check-constraints-for-enums
-      author: internhub-team
-      changes:
-        - sql:
-            dbms: postgresql
-            sql: |
-              ALTER TABLE ih_ticket.tickets ADD CONSTRAINT check_ticket_status 
-              CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'));
-              
-              ALTER TABLE ih_ticket.ticket_approvals ADD CONSTRAINT check_approval_action 
-              CHECK (action IN ('APPROVED', 'REJECTED'));
-              
-              ALTER TABLE ih_ticket.ticket_approvals ADD CONSTRAINT check_approval_status 
-              CHECK (status IN ('PENDING', 'COMPLETED'));
-              
-              ALTER TABLE ih_ticket.leave_requests ADD CONSTRAINT check_leave_status 
-              CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'));
-              
-              ALTER TABLE ih_ticket.evidences ADD CONSTRAINT check_evidence_status 
-              CHECK (status IN ('UPLOADED', 'DELETED'));

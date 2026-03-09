@@ -21,6 +21,9 @@ dependencies {
     // Lombok
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
+
+    // Testing
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 tasks.jar {

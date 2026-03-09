@@ -10,27 +10,31 @@ databaseChangeLog:
               - column:
                   name: ticket_type_id
                   type: bigint
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
                   name: type_name
                   type: varchar(255)
+                  constraints:
+                    nullable: false
               - column:
                   name: description
                   type: text
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
   - changeSet:
       id: 003-create-tickets-table
       author: internhub-team
@@ -42,6 +46,7 @@ databaseChangeLog:
               - column:
                   name: ticket_id
                   type: bigint
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -69,16 +74,17 @@ databaseChangeLog:
                   type: varchar(20)
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
         - addForeignKeyConstraint:
             constraintName: fk_tickets_ticket_type
             baseTableSchemaName: ih_ticket
@@ -87,6 +93,7 @@ databaseChangeLog:
             referencedTableSchemaName: ih_ticket
             referencedTableName: ticket_types
             referencedColumnNames: ticket_type_id
+
   - changeSet:
       id: 004-create-remote-requests-table
       author: internhub-team
@@ -115,16 +122,17 @@ databaseChangeLog:
                   type: varchar(50)
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
         - addForeignKeyConstraint:
             constraintName: fk_remote_requests_ticket
             baseTableSchemaName: ih_ticket
@@ -163,16 +171,17 @@ databaseChangeLog:
                   type: integer
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
         - addForeignKeyConstraint:
             constraintName: fk_leave_requests_ticket
             baseTableSchemaName: ih_ticket
@@ -194,6 +203,7 @@ databaseChangeLog:
               - column:
                   name: approval_id
                   type: bigint
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -213,7 +223,7 @@ databaseChangeLog:
                   type: text
               - column:
                   name: action_at
-                  type: date
+                  type: timestamptz
               - column:
                   name: status
                   type: varchar(50)
@@ -222,16 +232,17 @@ databaseChangeLog:
                   type: integer
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
         - addForeignKeyConstraint:
             constraintName: fk_ticket_approvals_ticket
             baseTableSchemaName: ih_ticket
@@ -253,6 +264,7 @@ databaseChangeLog:
               - column:
                   name: evidence_id
                   type: bigint
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -267,7 +279,7 @@ databaseChangeLog:
                   type: text
               - column:
                   name: uploaded_at
-                  type: date
+                  type: timestamptz
               - column:
                   name: file_type
                   type: varchar(100)
@@ -282,16 +294,17 @@ databaseChangeLog:
                   type: integer
               - column:
                   name: created_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: updated_at
-                  type: bigint
+                  type: timestamptz
               - column:
                   name: created_by
                   type: bigint
               - column:
                   name: updated_by
                   type: bigint
+
         - addForeignKeyConstraint:
             constraintName: fk_evidences_ticket
             baseTableSchemaName: ih_ticket
