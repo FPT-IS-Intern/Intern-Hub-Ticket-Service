@@ -38,6 +38,7 @@ public class LeaveRequestService implements LeaveRequestUseCase {
                                 .endAt(command.endAt())
                                 .reason(command.reason())
                                 .status(TicketStatus.PENDING)
+                                .version(1)
                                 .build();
                 ticketRepository.save(ticket);
 
