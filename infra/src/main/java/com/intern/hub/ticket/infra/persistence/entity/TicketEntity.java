@@ -2,7 +2,8 @@ package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.time.OffsetDateTime;
 
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.starter.security.entity.AuditEntity;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,18 +15,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "tickets", schema = "ih_ticket")
-public class TicketEntity extends BaseAuditEntity {
+public class TicketEntity extends AuditEntity {
 
     @Id
     @Column(name = "ticket_id")

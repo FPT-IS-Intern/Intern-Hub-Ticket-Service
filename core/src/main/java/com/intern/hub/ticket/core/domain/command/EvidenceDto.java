@@ -2,6 +2,8 @@ package com.intern.hub.ticket.core.domain.command;
 
 import java.time.LocalDate;
 
+import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
+
 import lombok.Builder;
 
 @Builder
@@ -13,5 +15,5 @@ public record EvidenceDto(
         LocalDate uploadedAt,
         String fileType,
         Long fileSize,
-        com.intern.hub.ticket.core.domain.model.EvidenceStatus status) {
+        EvidenceStatus status) {
 }

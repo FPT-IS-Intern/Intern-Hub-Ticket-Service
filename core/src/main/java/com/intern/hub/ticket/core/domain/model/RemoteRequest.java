@@ -1,13 +1,19 @@
 package com.intern.hub.ticket.core.domain.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import com.intern.hub.starter.security.entity.AuditEntity;
 
-@Getter
-@Setter
-@SuperBuilder
-public class RemoteRequest extends BaseAuditDomain {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class RemoteRequest extends AuditEntity {
     private Long ticketId;
     private Long workLocationId;
     private String remoteType;

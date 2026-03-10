@@ -2,7 +2,7 @@ package com.intern.hub.ticket.app.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional;
+
 
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
@@ -36,7 +36,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public ApproveTicketService approveTicketService(
 
             TicketRepository ticketRepository,
@@ -46,7 +46,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public CancelTicketService cancelTicketService(TicketRepository ticketRepository) {
 
         return new CancelTicketService(ticketRepository);
@@ -92,7 +92,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public LeaveRequestService leaveRequestService(
 
             TicketRepository ticketRepository,
@@ -103,7 +103,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public RejectTicketService rejectTicketService(
 
             TicketRepository ticketRepository,
@@ -113,7 +113,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public RemoteRequestService remoteRequestService(
 
             TicketRepository ticketRepository,
@@ -124,7 +124,7 @@ public class UseCaseConfig {
     }
 
     @Bean
-    @Transactional
+
     public UploadEvidenceService uploadEvidenceService(
 
             TicketRepository ticketRepository,

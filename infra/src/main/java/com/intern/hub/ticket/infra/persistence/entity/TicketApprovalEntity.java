@@ -2,8 +2,9 @@ package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.time.OffsetDateTime;
 
-import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
-import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
+import com.intern.hub.starter.security.entity.AuditEntity;
+import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,18 +13,20 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "ticket_approvals", schema = "ih_ticket")
-public class TicketApprovalEntity extends BaseAuditEntity {
+public class TicketApprovalEntity extends AuditEntity {
 
     @Id
     @Column(name = "approval_id")

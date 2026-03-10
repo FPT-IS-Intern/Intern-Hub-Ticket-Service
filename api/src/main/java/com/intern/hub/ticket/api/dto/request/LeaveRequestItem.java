@@ -22,6 +22,4 @@ public class LeaveRequestItem {
     @NotBlank(message = "Reason is required")
     private String reason;
 
-    @NotNull(message = "Total days is required")
-    private Integer totalDays;
 }

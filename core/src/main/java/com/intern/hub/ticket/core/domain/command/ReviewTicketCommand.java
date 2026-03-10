@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ReviewTicketCommand(
-        Long ticketId,
-        Long approverId,
-        String comment) {
+                Long ticketId,
+                Long approverId,
+                String comment) {
 }

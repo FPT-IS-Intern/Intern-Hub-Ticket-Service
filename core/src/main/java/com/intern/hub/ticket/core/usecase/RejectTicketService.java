@@ -2,15 +2,17 @@ package com.intern.hub.ticket.core.usecase;
 
 import java.time.OffsetDateTime;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.ReviewTicketCommand;
 import com.intern.hub.ticket.core.domain.dto.TicketApprovalDto;
 import com.intern.hub.ticket.core.domain.model.Ticket;
 import com.intern.hub.ticket.core.domain.model.TicketApproval;
-import com.intern.hub.ticket.core.domain.model.TicketApprovalAction;
-import com.intern.hub.ticket.core.domain.model.TicketApprovalStatus;
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
+import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.port.in.RejectTicketUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.TicketApprovalRepository;
@@ -19,6 +21,7 @@ import com.intern.hub.ticket.core.port.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Transactional
 public class RejectTicketService implements RejectTicketUseCase {
 
     private final TicketRepository ticketRepository;
@@ -36,7 +39,7 @@ public class RejectTicketService implements RejectTicketUseCase {
 
         // Update ticket status
         ticket.setStatus(TicketStatus.REJECTED);
-        ticketRepository.save(ticket);
+        ticket = ticketRepository.save(ticket);
 
         // Record approval history
         TicketApproval approval = TicketApproval.builder()
@@ -46,8 +49,7 @@ public class RejectTicketService implements RejectTicketUseCase {
                 .action(TicketApprovalAction.REJECTED)
                 .comment(command.comment())
                 .actionAt(OffsetDateTime.now())
-                .status(TicketApprovalStatus.COMPLETED)
-                .version(1)
+                .status(TicketApprovalStatus.APPROVED)
                 .build();
 
         ticketApprovalRepository.save(approval);

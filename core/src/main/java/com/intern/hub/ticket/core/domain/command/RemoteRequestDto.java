@@ -1,12 +1,14 @@
 package com.intern.hub.ticket.core.domain.command;
 
+import java.time.LocalDate;
+
 import lombok.Builder;
 
 @Builder
 public record RemoteRequestDto(
-        Long ticketId,
-        Long workLocationId,
-        java.time.LocalDate startTime,
-        java.time.LocalDate endTime,
-        String remoteType) {
+                Long ticketId,
+                Long workLocationId,
+                LocalDate startTime,
+                LocalDate endTime,
+                String remoteType) {
 }

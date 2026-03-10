@@ -11,5 +11,9 @@ public record CreateRemoteRequestCommand(
                 OffsetDateTime endAt,
                 String reason,
                 Long workLocationId,
-                String remoteType) {
+                String remoteType,
+                OffsetDateTime createdAt,
+                OffsetDateTime updatedAt,
+                Long createdBy,
+                Long updatedBy) {
 }

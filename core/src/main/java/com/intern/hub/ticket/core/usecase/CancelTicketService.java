@@ -1,17 +1,20 @@
 package com.intern.hub.ticket.core.usecase;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.ForbiddenException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.CancelTicketCommand;
 import com.intern.hub.ticket.core.domain.model.Ticket;
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.port.in.CancelTicketUseCase;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Transactional
 public class CancelTicketService implements CancelTicketUseCase {
 
     private final TicketRepository ticketRepository;

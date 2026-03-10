@@ -1,6 +1,8 @@
 package com.intern.hub.ticket.core.domain.command;
 
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import java.time.LocalDate;
+
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 
 import lombok.Builder;
 
@@ -10,8 +12,8 @@ public record TicketDto(
         Long userId,
         Long ticketTypeId,
         String ticketTypeName,
-        java.time.LocalDate startAt,
-        java.time.LocalDate endAt,
+        LocalDate startAt,
+        LocalDate endAt,
         String reason,
         TicketStatus status) {
 }

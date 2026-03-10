@@ -22,8 +22,8 @@ databaseChangeLog:
               - column:
                   name: description
                   type: text
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 
@@ -76,8 +76,8 @@ databaseChangeLog:
                   defaultValueBoolean: false
                   constraints:
                     nullable: false
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 
@@ -116,8 +116,8 @@ databaseChangeLog:
                   defaultValueNumeric: 0
                   constraints:
                     nullable: false
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 
@@ -154,8 +154,8 @@ databaseChangeLog:
                   name: version
                   type: integer
                   defaultValueNumeric: 0
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 
@@ -207,8 +207,8 @@ databaseChangeLog:
                   name: version
                   type: integer
                   defaultValueNumeric: 0
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 
@@ -261,8 +261,8 @@ databaseChangeLog:
                   name: version
                   type: integer
                   defaultValueNumeric: 0
-              - column: { name: created_at, type: timestamptz }
-              - column: { name: updated_at, type: timestamptz }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
 

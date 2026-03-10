@@ -1,12 +1,18 @@
 package com.intern.hub.ticket.core.usecase;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+
+import org.springframework.transaction.annotation.Transactional;
+
+import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.command.CreateRemoteRequestCommand;
 import com.intern.hub.ticket.core.domain.dto.TicketDto;
 import com.intern.hub.ticket.core.domain.model.RemoteRequest;
 import com.intern.hub.ticket.core.domain.model.Ticket;
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.TicketType;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.port.in.RemoteRequestUseCase;
 import com.intern.hub.ticket.core.port.out.IdGenerator;
 import com.intern.hub.ticket.core.port.repository.RemoteRequestRepository;
@@ -16,6 +22,7 @@ import com.intern.hub.ticket.core.port.repository.TicketTypeRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Transactional
 public class RemoteRequestService implements RemoteRequestUseCase {
 
         private final TicketRepository ticketRepository;
@@ -36,6 +43,40 @@ public class RemoteRequestService implements RemoteRequestUseCase {
 
                 Long ticketId = idGenerator.nextId();
 
+                if (command.startAt() == null || command.endAt() == null) {
+                        throw new BadRequestException("startAt and endAt are required");
+                }
+
+                OffsetDateTime start = command.startAt();
+                OffsetDateTime end = command.endAt();
+
+                if (!start.isBefore(end)) {
+                        throw new BadRequestException("startAt must be before endAt");
+                }
+
+                OffsetDateTime now = OffsetDateTime.now();
+                if (start.isBefore(now)) {
+                        throw new BadRequestException("startAt cannot be in the past");
+                }
+
+                if (command.reason() == null || command.reason().isBlank()) {
+                        throw new BadRequestException("reason cannot be empty");
+                }
+
+                if (command.workLocationId() == null) {
+                        throw new BadRequestException("workLocationId is required");
+                }
+
+                if (command.remoteType() == null) {
+                        throw new BadRequestException("remoteType required");
+                }
+
+                long daysInclusive = ChronoUnit.DAYS.between(start.toLocalDate(), end.toLocalDate()) + 1;
+                if (daysInclusive > 365) {
+                        throw new BadRequestException("requested period too long");
+                }
+                int totalDays = Math.toIntExact(daysInclusive);
+
                 Ticket ticket = Ticket.builder()
                                 .ticketId(ticketId)
                                 .userId(command.userId())
@@ -45,7 +86,7 @@ public class RemoteRequestService implements RemoteRequestUseCase {
                                 .reason(command.reason())
                                 .status(TicketStatus.PENDING)
                                 .build();
-                ticketRepository.save(ticket);
+                ticket = ticketRepository.save(ticket);
 
                 RemoteRequest remoteRequest = RemoteRequest.builder()
                                 .ticketId(ticketId)
@@ -63,6 +104,10 @@ public class RemoteRequestService implements RemoteRequestUseCase {
                                 .endAt(ticket.getEndAt())
                                 .reason(ticket.getReason())
                                 .status(ticket.getStatus())
+                                .createdAt(TicketDto.toOffsetDateTime(ticket.getCreatedAt()))
+                                .updatedAt(TicketDto.toOffsetDateTime(ticket.getUpdatedAt()))
+                                .createdBy(ticket.getCreatedBy())
+                                .updatedBy(ticket.getUpdatedBy())
                                 .build();
         }
 }

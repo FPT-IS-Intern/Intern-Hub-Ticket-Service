@@ -9,6 +9,7 @@ common-library = "2.1.1"
 security-starter = "1.0.9"
 feign-version = "5.0.1"
 springDoc = "3.0.1"
+audit-client = "1.0.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -44,6 +45,7 @@ mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.re
 # Custom Libraries
 common-library = { module = "com.github.FPT-IS-Intern:Intern-Hub-Common-Library", version.ref = "common-library" }
 security-starter = { module = "com.github.FPT-IS-Intern:Intern-Hub-Security-Starter", version.ref = "security-starter" }
+audit-client = { module = "com.github.FPT-IS-Intern:Intern-Hub-Audit-Client", version.ref = "audit-client" }
 
 # Spring Boot Redis
 spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
@@ -64,7 +66,8 @@ spring-boot-database = [
 # Custom Libraries bundle
 custom-libraries = [
     "common-library",
-    "security-starter"
+    "security-starter",
+    "audit-client"
 ]
 
 

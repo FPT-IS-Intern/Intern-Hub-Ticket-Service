@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.intern.hub.ticket.core.domain.model.Ticket;
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 
 public interface TicketRepository {
     Optional<Ticket> findById(Long ticketId);

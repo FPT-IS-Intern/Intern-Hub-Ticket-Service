@@ -3,7 +3,7 @@ package com.intern.hub.ticket.core.domain.command;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 
 import lombok.Builder;
 

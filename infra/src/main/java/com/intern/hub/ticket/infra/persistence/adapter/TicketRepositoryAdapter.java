@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.intern.hub.ticket.core.domain.model.Ticket;
-import com.intern.hub.ticket.core.domain.model.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.port.repository.TicketRepository;
 import com.intern.hub.ticket.infra.persistence.entity.TicketTypeEntity;
 import com.intern.hub.ticket.infra.persistence.mapper.TicketMapper;

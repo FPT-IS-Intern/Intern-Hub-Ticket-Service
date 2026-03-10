@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
 import com.intern.hub.ticket.core.domain.command.UploadEvidenceCommand;
 import com.intern.hub.ticket.core.domain.dto.EvidenceDto;
@@ -32,7 +31,7 @@ public class EvidenceController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Authenticated
+    // @Authenticated
     public ResponseApi<EvidenceDto> uploadEvidence(
             @PathVariable Long ticketId,
             @Valid @RequestBody UploadEvidenceRequest request) {
@@ -49,7 +48,7 @@ public class EvidenceController {
     }
 
     @GetMapping
-    @Authenticated
+    // @Authenticated
     public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
         return ResponseApi.ok(getEvidenceUseCase.getEvidences(ticketId));
     }

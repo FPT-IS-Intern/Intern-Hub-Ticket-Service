@@ -20,11 +20,14 @@ public class GetUserTicketsService implements GetUserTicketsUseCase {
                         .ticketId(ticket.getTicketId())
                         .userId(ticket.getUserId())
                         .ticketTypeId(ticket.getTicketTypeId())
-                        .ticketTypeName(ticket.getTicketTypeName())
                         .startAt(ticket.getStartAt())
                         .endAt(ticket.getEndAt())
                         .reason(ticket.getReason())
                         .status(ticket.getStatus())
+                        .createdAt(TicketDto.toOffsetDateTime(ticket.getCreatedAt()))
+                        .updatedAt(TicketDto.toOffsetDateTime(ticket.getUpdatedAt()))
+                        .createdBy(ticket.getCreatedBy())
+                        .updatedBy(ticket.getUpdatedBy())
                         .build())
                 .toList();
     }
