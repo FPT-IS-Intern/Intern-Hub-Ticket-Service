@@ -8,6 +8,8 @@ dependencies {
 
 
 
+    implementation(libs.spring.boot.starter.security)
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation(libs.openapi.doc)
 
     compileOnly(libs.lombok)

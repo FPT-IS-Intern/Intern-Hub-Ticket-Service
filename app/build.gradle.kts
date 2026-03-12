@@ -17,6 +17,8 @@ dependencies {
     implementation(libs.spring.boot.starter.liquibase)
     // Kafka
     implementation(libs.spring.boot.starter.kafka)
+    // Feign
+    implementation(libs.spring.boot.starter.feign)
 
     // Lombok
     compileOnly(libs.lombok)

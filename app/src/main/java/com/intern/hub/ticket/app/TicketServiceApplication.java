@@ -7,12 +7,17 @@ import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoCon
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.intern.hub.library.common.annotation.EnableGlobalExceptionHandler;
+import com.intern.hub.starter.security.annotation.EnableSecurity;
+
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = "com.intern.hub.ticket", exclude = {
         UserDetailsServiceAutoConfiguration.class })
+@EnableSecurity
 @EnableGlobalExceptionHandler
 @EnableJpaRepositories(basePackages = "com.intern.hub.ticket.infra.persistence.repository")
 @EntityScan(basePackages = "com.intern.hub.ticket.infra.persistence.entity")
+@EnableFeignClients(basePackages = "com.intern.hub.ticket.infra.intergration")
 public class TicketServiceApplication {
 
     public static void main(String[] args) {
