@@ -110,20 +110,47 @@ databaseChangeLog:
             tableName: outbox_events
             schemaName: ih_ticket
             columns:
-              - column: { name: event_id, type: varchar(36), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: event_id, type: bigint, constraints: { primaryKey: true, nullable: false } }
               - column: { name: aggregate_type, type: varchar(255), constraints: { nullable: false } }
               - column: { name: aggregate_id, type: varchar(255), constraints: { nullable: false } }
               - column: { name: event_type, type: varchar(255), constraints: { nullable: false } }
               - column: { name: payload, type: jsonb, constraints: { nullable: false } }
               - column: { name: status, type: varchar(50), constraints: { nullable: false } }
+              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
 
   - changeSet:
       id: 007-add-indexes
       author: internhub-team
       changes:
-        - createIndex: { indexName: idx_tickets_user_status, schemaName: ih_ticket, tableName: tickets, columns: [{ name: user_id }, { name: status }] }
-        - createIndex: { indexName: idx_tickets_ticket_type, schemaName: ih_ticket, tableName: tickets, columns: [{ name: ticket_type_id }] }
-        - createIndex: { indexName: idx_tickets_created_at, schemaName: ih_ticket, tableName: tickets, columns: [{ name: created_at }] }
+        - createIndex:
+            indexName: idx_tickets_user_status
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: status
+
+        - createIndex:
+            indexName: idx_tickets_ticket_type
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: ticket_type_id
+
+        - createIndex:
+            indexName: idx_tickets_created_at
+            schemaName: ih_ticket
+            tableName: tickets
+            columns:
+              - column:
+                  name: created_at
+
         - sql:
             sql: CREATE INDEX idx_tickets_payload_gin ON ih_ticket.tickets USING GIN (payload);

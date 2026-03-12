@@ -1,4 +1,3 @@
-//version 2
 package com.intern.hub.ticket.infra.persistence.entity;
 
 import java.util.Map;
@@ -7,11 +6,14 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.intern.hub.starter.security.entity.AuditEntity;
+import com.intern.hub.ticket.core.domain.model.enums.OutboxStatus;
 import com.intern.hub.ticket.infra.persistence.entity.converter.JpaConverterJson;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -25,37 +27,30 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "tickets")
-public class Ticket extends AuditEntity {
+@Table(name = "outbox_events")
+public class OutboxEvent extends AuditEntity {
 
     @Id
-    @Column(name = "ticket_id")
-    Long ticketId;
+    @Column(name = "event_id")
+    Long id;
 
-    @Column(nullable = false)
-    Long userId;
-
-    @Column(nullable = false)
-    Long ticketTypeId;
-
-    @Column(length = 50)
-    String status;
+    String aggregateType;
+    String aggregateId;
+    String eventType;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     @Convert(converter = JpaConverterJson.class)
     Map<String, Object> payload;
 
-    @Version
-    @Column(nullable = false)
-    Integer version;
+    @Enumerated(EnumType.STRING)
+    OutboxStatus status;
 
-    @Builder.Default
-    @Column(nullable = false)
-    Boolean isDeleted = false;
+    @Version
+    Integer version;
 }

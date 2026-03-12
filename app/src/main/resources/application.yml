@@ -9,7 +9,7 @@ spring:
     name: intern-hub-ticket-service
   threads:
     virtual:
-      enabled: true # Chuẩn Java 21
+      enabled: true 
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
@@ -53,7 +53,7 @@ spring:
 
 ticket:
   kafka:
-    approval-requests-topic: ticket-approval-requests
+    approval-requests-topic: ticket.ticket.approved
     approval-consumer-group: ${spring.application.name}-approval-worker
 
 management:
@@ -83,6 +83,11 @@ logging:
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue} 
   internal-path-prefix: /ticket/internal
+  excluded-paths:
+    #- /v3/api-docs/**
+    #- /swagger-ui/**
+    #- /swagger-ui.html
+    #/api/v1/tickets/**
 
 feign:
   client:
@@ -90,12 +95,6 @@ feign:
       default:
         connectTimeout: 5000
         readTimeout: 5000
-      hrm:
-        url: ${HRM_SERVICE_URL:http://localhost:8081} 
-        connectTimeout: 10000
-        readTimeout: 10000
-      noti:
-        url: ${NOTI_SERVICE_URL:http://localhost:8082}
 
 services:
   gateway:

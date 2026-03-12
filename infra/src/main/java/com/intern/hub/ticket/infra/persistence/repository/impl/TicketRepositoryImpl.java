@@ -1,13 +1,15 @@
 package com.intern.hub.ticket.infra.persistence.repository.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import com.intern.hub.ticket.core.domain.model.TicketModel;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.infra.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
-import com.intern.hub.ticket.infra.persistence.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.repository.jpa.TicketJpaRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,15 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public Optional<TicketModel> findById(Long id) {
         return jpaRepository.findById(id).map(mapper::toModel);
+    }
+
+    @Override
+    public List<TicketModel> findAll() {
+        return jpaRepository.findAll().stream().map(mapper::toModel).toList();
+    }
+
+    @Override
+    public List<TicketModel> findByStatus(TicketStatus status) {
+        return jpaRepository.findByStatus(status).stream().map(mapper::toModel).toList();
     }
 }

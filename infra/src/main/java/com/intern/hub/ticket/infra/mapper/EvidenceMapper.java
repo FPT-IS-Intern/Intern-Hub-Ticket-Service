@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.persistence.mapper;
+package com.intern.hub.ticket.infra.mapper;
 
 import java.util.List;
 
@@ -7,27 +7,25 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-import com.intern.hub.ticket.core.domain.model.TicketModel;
-import com.intern.hub.ticket.infra.persistence.entity.Ticket;
+import com.intern.hub.ticket.core.domain.model.EvidenceModel;
+import com.intern.hub.ticket.infra.persistence.entity.Evidence;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface TicketMapper {
+public interface EvidenceMapper {
+    EvidenceModel toModel(Evidence entity);
 
-    TicketModel toModel(Ticket entity);
+    Evidence toEntity(EvidenceModel model);
 
-    Ticket toEntity(TicketModel model);
-
-    List<TicketModel> toModels(List<Ticket> entities);
+    List<EvidenceModel> toModels(List<Evidence> entities);
 
     @AfterMapping
-    default void mapAuditFields(TicketModel model, @MappingTarget Ticket entity) {
+    default void mapAuditFields(EvidenceModel model, @MappingTarget Evidence entity) {
         if (model == null || entity == null)
             return;
-
         entity.setCreatedAt(model.getCreatedAt());
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
-        entity.setVersion(model.getVersion());
+        entity.setVersion(model.getVersion()); //
     }
 }
