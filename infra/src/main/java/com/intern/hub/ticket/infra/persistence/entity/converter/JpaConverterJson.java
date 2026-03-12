@@ -1,11 +1,11 @@
 package com.intern.hub.ticket.infra.persistence.entity.converter;
 
+import java.util.Map;
+
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.Map;
 
 @Converter(autoApply = true)
 public class JpaConverterJson implements AttributeConverter<Map<String, Object>, String> {

@@ -8,8 +8,11 @@ dependencies {
     implementation(libs.spring.boot.starter.data.redis)
 
     implementation(libs.spring.boot.starter.feign)
+    implementation(libs.spring.boot.starter.web)
     implementation("commons-fileupload:commons-fileupload:1.6.0")
     implementation(libs.spring.boot.starter.kafka)
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
 
     implementation(libs.mapstruct)
     annotationProcessor(libs.mapstruct.processor)

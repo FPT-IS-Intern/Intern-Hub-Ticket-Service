@@ -67,7 +67,6 @@ spring-boot-database = [
 custom-libraries = [
     "common-library",
     "security-starter",
-    "audit-client"
 ]
 
 
