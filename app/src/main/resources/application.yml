@@ -3,26 +3,27 @@ server:
   tomcat:
     connection-timeout: 20000
     accept-count: 30
+
 spring:
   application:
-    name: ticket
+    name: intern-hub-ticket-service
   threads:
     virtual:
-      enabled: true
+      enabled: true # Chuẩn Java 21
   datasource:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:password}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=${SCHEMA_NAME:public}
     driver-class-name: org.postgresql.Driver
-  hikari:
-    maximum-pool-size: 50
-    minimum-idle: 10
-    connection-timeout: 30000
-    idle-timeout: 600000
-    max-lifetime: 1800000
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   jpa:
     open-in-view: false
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
     properties:
@@ -37,6 +38,24 @@ spring:
   web:
     resources:
       add-mappings: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+ticket:
+  kafka:
+    approval-requests-topic: ticket-approval-requests
+    approval-consumer-group: ${spring.application.name}-approval-worker
+
 management:
   opentelemetry:
     resource-attributes:
@@ -59,24 +78,32 @@ management:
 logging:
   level:
     org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.orm.results: TRACE
+    org.hibernate.type.descriptor.sql: TRACE
 
 security:
-  internal-secret: ${INTERNAL_SECRET_KEY:secret}
+  internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue} 
   internal-path-prefix: /ticket/internal
 
-# Feign client configuration for direct URL
 feign:
   client:
     config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
       hrm:
+        url: ${HRM_SERVICE_URL:http://localhost:8081} 
+        connectTimeout: 10000
+        readTimeout: 10000
+      noti:
+        url: ${NOTI_SERVICE_URL:http://localhost:8082}
 
 services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
 
 common:
+  context:
+    enabled: true 
   logging:
     enabled: ${COMMON_LOGGING_ENABLED:true}
     request: ${COMMON_LOGGING_REQUEST:true}

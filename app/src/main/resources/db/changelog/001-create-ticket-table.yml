@@ -7,21 +7,9 @@ databaseChangeLog:
             tableName: ticket_types
             schemaName: ih_ticket
             columns:
-              - column:
-                  name: ticket_type_id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: type_name
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: description
-                  type: text
+              - column: { name: ticket_type_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: type_name, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: description, type: text }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
@@ -35,52 +23,17 @@ databaseChangeLog:
             tableName: tickets
             schemaName: ih_ticket
             columns:
-              - column:
-                  name: ticket_id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: user_id
-                  type: bigint
-                  constraints:
-                    nullable: false
-              - column:
-                  name: ticket_type_id
-                  type: bigint
-                  constraints:
-                    nullable: false
-              - column:
-                  name: start_at
-                  type: timestamptz    
-              - column:
-                  name: end_at
-                  type: timestamptz    
-              - column:
-                  name: reason
-                  type: text
-              - column:
-                  name: status
-                  type: varchar(50)
-              - column:
-                  name: version        
-                  type: integer
-                  defaultValueNumeric: 0
-                  constraints:
-                    nullable: false
-              - column:
-                  name: is_deleted     
-                  type: boolean
-                  defaultValueBoolean: false
-                  constraints:
-                    nullable: false
+              - column: { name: ticket_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: user_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: ticket_type_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: status, type: varchar(50) }
+              - column: { name: payload, type: jsonb }
+              - column: { name: version, type: integer, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: is_deleted, type: boolean, defaultValueBoolean: false, constraints: { nullable: false } }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
-
         - addForeignKeyConstraint:
             constraintName: fk_tickets_ticket_type
             baseTableSchemaName: ih_ticket
@@ -91,127 +44,26 @@ databaseChangeLog:
             referencedColumnNames: ticket_type_id
 
   - changeSet:
-      id: 004-create-remote-requests-table
-      author: internhub-team
-      changes:
-        - createTable:
-            tableName: remote_requests
-            schemaName: ih_ticket
-            columns:
-              - column:
-                  name: ticket_id
-                  type: bigint
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: work_location_id
-                  type: bigint
-              - column:
-                  name: remote_type
-                  type: varchar(50)
-              - column:
-                  name: version        
-                  type: integer
-                  defaultValueNumeric: 0
-                  constraints:
-                    nullable: false
-              - column: { name: created_at, type: bigint }
-              - column: { name: updated_at, type: bigint }
-              - column: { name: created_by, type: bigint }
-              - column: { name: updated_by, type: bigint }
-
-        - addForeignKeyConstraint:
-            constraintName: fk_remote_requests_ticket
-            baseTableSchemaName: ih_ticket
-            baseTableName: remote_requests
-            baseColumnNames: ticket_id
-            referencedTableSchemaName: ih_ticket
-            referencedTableName: tickets
-            referencedColumnNames: ticket_id
-
-  - changeSet:
-      id: 005-create-leave-requests-table
-      author: internhub-team
-      changes:
-        - createTable:
-            tableName: leave_requests
-            schemaName: ih_ticket
-            columns:
-              - column:
-                  name: ticket_id
-                  type: bigint
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: leave_type_id
-                  type: bigint
-              - column:
-                  name: total_days
-                  type: integer
-              - column:
-                  name: version
-                  type: integer
-                  defaultValueNumeric: 0
-              - column: { name: created_at, type: bigint }
-              - column: { name: updated_at, type: bigint }
-              - column: { name: created_by, type: bigint }
-              - column: { name: updated_by, type: bigint }
-
-        - addForeignKeyConstraint:
-            constraintName: fk_leave_requests_ticket
-            baseTableSchemaName: ih_ticket
-            baseTableName: leave_requests
-            baseColumnNames: ticket_id
-            referencedTableSchemaName: ih_ticket
-            referencedTableName: tickets
-            referencedColumnNames: ticket_id
-
-  - changeSet:
-      id: 006-create-ticket-approvals-table
+      id: 004-create-ticket-approvals-table
       author: internhub-team
       changes:
         - createTable:
             tableName: ticket_approvals
             schemaName: ih_ticket
             columns:
-              - column:
-                  name: approval_id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: ticket_id
-                  type: bigint
-                  constraints:
-                    nullable: false
-              - column:
-                  name: approver_id
-                  type: bigint
-              - column:
-                  name: action
-                  type: varchar(50)
-              - column:
-                  name: comment
-                  type: text
-              - column:
-                  name: action_at
-                  type: timestamptz
-              - column:
-                  name: status
-                  type: varchar(50)
-              - column:
-                  name: version
-                  type: integer
-                  defaultValueNumeric: 0
+              - column: { name: approval_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: ticket_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: approver_id, type: bigint }
+              - column: { name: action, type: varchar(50) }
+              - column: { name: comment, type: text }
+              - column: { name: idempotency_key, type: varchar(255), constraints: { unique: true } }
+              - column: { name: action_at, type: bigint }
+              - column: { name: status, type: varchar(50) }
+              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
-
         - addForeignKeyConstraint:
             constraintName: fk_ticket_approvals_ticket
             baseTableSchemaName: ih_ticket
@@ -222,50 +74,25 @@ databaseChangeLog:
             referencedColumnNames: ticket_id
 
   - changeSet:
-      id: 007-create-evidences-table
+      id: 005-create-evidences-table
       author: internhub-team
       changes:
         - createTable:
             tableName: evidences
             schemaName: ih_ticket
             columns:
-              - column:
-                  name: evidence_id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: ticket_id
-                  type: bigint
-              - column:
-                  name: evidence_folder
-                  type: varchar(255)
-              - column:
-                  name: evidence_url
-                  type: text
-              - column:
-                  name: uploaded_at
-                  type: timestamptz
-              - column:
-                  name: file_type
-                  type: varchar(100)
-              - column:
-                  name: file_size
-                  type: bigint
-              - column:
-                  name: status
-                  type: varchar(50)
-              - column:
-                  name: version
-                  type: integer
-                  defaultValueNumeric: 0
+              - column: { name: evidence_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: ticket_id, type: bigint }
+              - column: { name: evidence_folder, type: varchar(255) }
+              - column: { name: evidence_url, type: text }
+              - column: { name: file_type, type: varchar(100) }
+              - column: { name: file_size, type: bigint }
+              - column: { name: status, type: varchar(50) }
+              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
               - column: { name: updated_by, type: bigint }
-
         - addForeignKeyConstraint:
             constraintName: fk_evidences_ticket
             baseTableSchemaName: ih_ticket
@@ -276,50 +103,27 @@ databaseChangeLog:
             referencedColumnNames: ticket_id
 
   - changeSet:
-      id: 008-add-indexes
+      id: 006-create-outbox-events-table
       author: internhub-team
       changes:
-        - createIndex:
-            indexName: idx_tickets_user_status
+        - createTable:
+            tableName: outbox_events
             schemaName: ih_ticket
-            tableName: tickets
             columns:
-              - column: { name: user_id }
-              - column: { name: status }
+              - column: { name: event_id, type: varchar(36), constraints: { primaryKey: true, nullable: false } }
+              - column: { name: aggregate_type, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: aggregate_id, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: event_type, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: payload, type: jsonb, constraints: { nullable: false } }
+              - column: { name: status, type: varchar(50), constraints: { nullable: false } }
+              - column: { name: created_at, type: bigint }
 
-        - createIndex:
-            indexName: idx_tickets_ticket_type
-            schemaName: ih_ticket
-            tableName: tickets
-            columns:
-              - column: { name: ticket_type_id }
-
-        - createIndex:
-            indexName: idx_tickets_created_at
-            schemaName: ih_ticket
-            tableName: tickets
-            columns:
-              - column: { name: created_at }
-
-        - createIndex:
-            indexName: idx_ticket_approvals_ticket_status
-            schemaName: ih_ticket
-            tableName: ticket_approvals
-            columns:
-              - column: { name: ticket_id }
-              - column: { name: status }
-
-        - createIndex:
-            indexName: idx_ticket_approvals_approver_status 
-            schemaName: ih_ticket
-            tableName: ticket_approvals
-            columns:
-              - column: { name: approver_id }
-              - column: { name: status }
-
-        - createIndex:
-            indexName: idx_evidences_ticket
-            schemaName: ih_ticket
-            tableName: evidences
-            columns:
-              - column: { name: ticket_id }
+  - changeSet:
+      id: 007-add-indexes
+      author: internhub-team
+      changes:
+        - createIndex: { indexName: idx_tickets_user_status, schemaName: ih_ticket, tableName: tickets, columns: [{ name: user_id }, { name: status }] }
+        - createIndex: { indexName: idx_tickets_ticket_type, schemaName: ih_ticket, tableName: tickets, columns: [{ name: ticket_type_id }] }
+        - createIndex: { indexName: idx_tickets_created_at, schemaName: ih_ticket, tableName: tickets, columns: [{ name: created_at }] }
+        - sql:
+            sql: CREATE INDEX idx_tickets_payload_gin ON ih_ticket.tickets USING GIN (payload);
