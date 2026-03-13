@@ -139,3 +139,8 @@ springdoc:
   show-actuator: false
   servers:
     - url: https://internhub-v2.bbtech.io.vn
+
+openapi:
+  server:
+    url: https://internhub-v2.bbtech.io.vn/api
+    description: Gateway Server
