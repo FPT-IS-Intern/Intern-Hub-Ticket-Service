@@ -12,7 +12,7 @@ spring:
       enabled: true 
   datasource:
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    password: ${DB_PASSWORD:123qwe!@#4}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=${SCHEMA_NAME:public}
     driver-class-name: org.postgresql.Driver
     hikari:
@@ -77,8 +77,9 @@ management:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: OFF
 
 security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue} 
