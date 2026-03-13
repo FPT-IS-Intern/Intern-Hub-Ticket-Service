@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/{ticketId}/evidences")
+@RequestMapping("/ticket/api/v1/{ticketId}/evidences")
 @RequiredArgsConstructor
 public class EvidenceController {
 

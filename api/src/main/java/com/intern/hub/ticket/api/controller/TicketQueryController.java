@@ -19,7 +19,7 @@ import com.intern.hub.ticket.core.domain.usecase.GetTicketUsecase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/ticket/api/v1")
 @RequiredArgsConstructor
 public class TicketQueryController {
 

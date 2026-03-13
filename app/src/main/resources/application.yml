@@ -138,4 +138,4 @@ springdoc:
   override-with-generic-response: false
   show-actuator: false
   servers:
-    - url: https://internhub-v2.bbtech.io.vn/ticket
+    - url: https://internhub-v2.bbtech.io.vn
