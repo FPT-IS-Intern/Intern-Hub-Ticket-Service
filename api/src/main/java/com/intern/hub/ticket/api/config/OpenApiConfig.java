@@ -1,12 +1,11 @@
 package com.intern.hub.ticket.api.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class OpenApiConfig {
@@ -18,11 +17,13 @@ public class OpenApiConfig {
     private String serverDescription;
 
     @Bean
-    public OpenAPI customOpenAPI() {
-        Server server = new Server();
-        server.setUrl(serverUrl);
-        server.setDescription(serverDescription);
+    public OpenApiCustomizer customOpenApiCustomizer() {
+        return openApi -> {
+            Server customServer = new Server();
+            customServer.setUrl(serverUrl);
+            customServer.setDescription(serverDescription);
 
-        return new OpenAPI().servers(List.of(server));
+            openApi.addServersItem(customServer);
+        };
     }
 }
