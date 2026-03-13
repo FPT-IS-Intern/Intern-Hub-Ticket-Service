@@ -3,7 +3,6 @@ name: Docker Build & Push to Docker Hub
 on:
   push:
     branches:
-      - master
       - main
     paths:
       - 'api/**'
