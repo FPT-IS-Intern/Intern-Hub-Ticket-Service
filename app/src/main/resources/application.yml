@@ -12,15 +12,17 @@ spring:
       enabled: true 
   datasource:
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:123qwe!@#4}
+    password: ${DB_PASSWORD:password}
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?currentSchema=${SCHEMA_NAME:public}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 50
-      minimum-idle: 10
+      minimum-idle: 1
+      maximum-pool-size: 2
       connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      idle-timeout: 120000
+      max-lifetime: 300000
+      keepalive-time: 60000
+      leak-detection-threshold: 20000
   jpa:
     open-in-view: false
     show-sql: false
@@ -85,10 +87,11 @@ security:
   internal-secret: ${INTERNAL_SECRET_KEY:defaultSecretValue} 
   internal-path-prefix: /ticket/internal
   excluded-paths:
-    #- /v3/api-docs/**
-    #- /swagger-ui/**
-    #- /swagger-ui.html
-    #/api/v1/tickets/**
+    - /ticket/health
+    - /ticket/login
+    - /v3/api-docs/**
+    - /swagger-ui/**
+    - /swagger-ui.html
 
 feign:
   client:
@@ -123,3 +126,7 @@ common:
       - accessToken
       - refreshToken
       - x-internal-secret
+    exclude-paths:
+      - /v3/api-docs/**
+      - /swagger-ui/**
+      - /swagger-ui.html
