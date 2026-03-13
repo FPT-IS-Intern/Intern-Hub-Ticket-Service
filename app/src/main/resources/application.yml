@@ -3,6 +3,7 @@ server:
   tomcat:
     connection-timeout: 20000
     accept-count: 30
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -37,9 +38,7 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yml
     default-schema: ${SCHEMA_NAME:public}
-  web:
-    resources:
-      add-mappings: false
+    
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
@@ -130,3 +129,13 @@ common:
       - /v3/api-docs/**
       - /swagger-ui/**
       - /swagger-ui.html
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+  api-docs:
+    enabled: true
+  override-with-generic-response: false
+  show-actuator: false
+  servers:
+    - url: https://internhub-v2.bbtech.io.vn
