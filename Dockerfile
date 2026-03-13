@@ -15,6 +15,8 @@ COPY core/ core/
 COPY infra/ infra/
 COPY app/ app/
 
+RUN chmod +x gradlew
+
 # Build the application
 RUN ./gradlew :app:bootJar --no-daemon
 
