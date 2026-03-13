@@ -13,7 +13,6 @@ on:
       - 'build.gradle.kts'
       - 'Dockerfile'
       - '.github/workflows/docker.yml'
-      
 
 concurrency:
   group: docker-${{ github.ref }}
