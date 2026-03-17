@@ -10,6 +10,8 @@ databaseChangeLog:
               - column: { name: ticket_type_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: type_name, type: varchar(255), constraints: { nullable: false } }
               - column: { name: description, type: text }
+              - column: { name: version, type: integer, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: is_deleted, type: boolean, defaultValueBoolean: false, constraints: { nullable: false } }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
@@ -59,7 +61,6 @@ databaseChangeLog:
               - column: { name: idempotency_key, type: varchar(255), constraints: { unique: true } }
               - column: { name: action_at, type: bigint }
               - column: { name: status, type: varchar(50) }
-              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
@@ -88,7 +89,6 @@ databaseChangeLog:
               - column: { name: file_type, type: varchar(100) }
               - column: { name: file_size, type: bigint }
               - column: { name: status, type: varchar(50) }
-              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }
@@ -116,7 +116,6 @@ databaseChangeLog:
               - column: { name: event_type, type: varchar(255), constraints: { nullable: false } }
               - column: { name: payload, type: jsonb, constraints: { nullable: false } }
               - column: { name: status, type: varchar(50), constraints: { nullable: false } }
-              - column: { name: version, type: integer, defaultValueNumeric: 0 }
               - column: { name: created_at, type: bigint }
               - column: { name: updated_at, type: bigint }
               - column: { name: created_by, type: bigint }

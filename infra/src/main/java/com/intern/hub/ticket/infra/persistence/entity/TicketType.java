@@ -4,8 +4,11 @@ import com.intern.hub.starter.security.entity.AuditEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,29 +24,23 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "ticket_approvals")
-public class TicketApproval extends AuditEntity {
+@Table(name = "ticket_types")
+public class TicketType extends AuditEntity {
     @Id
-    @Column(name = "approval_id")
-    Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ticket_type_id")
+    Long ticketTypeId;
 
     @Column(nullable = false)
-    Long ticketId;
+    String typeName;
 
-    Long approverId;
+    String description;
 
-    @Column(length = 50)
-    String action;
+    @Version
+    @Column(nullable = false)
+    Integer version;
 
-    @Column(columnDefinition = "text")
-    String comment;
-
-    @Column(unique = true)
-    String idempotencyKey;
-
-    Long actionAt;
-
-    @Column(length = 50)
-    String status;
-
+    @Builder.Default
+    @Column(nullable = false)
+    Boolean isDeleted = false;
 }

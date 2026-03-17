@@ -7,7 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +42,4 @@ public class Evidence extends AuditEntity {
 
     EvidenceStatus status;
 
-    @Version
-    Integer version;
 }

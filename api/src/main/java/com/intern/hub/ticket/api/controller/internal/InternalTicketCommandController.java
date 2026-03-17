@@ -36,4 +36,6 @@ public class InternalTicketCommandController {
         return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
     }
 
+    
+
 }

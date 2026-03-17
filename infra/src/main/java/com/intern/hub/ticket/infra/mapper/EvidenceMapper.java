@@ -26,6 +26,5 @@ public interface EvidenceMapper {
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
-        entity.setVersion(model.getVersion()); //
     }
 }
