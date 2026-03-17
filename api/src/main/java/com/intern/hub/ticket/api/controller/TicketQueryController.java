@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
@@ -27,7 +28,9 @@ public class TicketQueryController {
 
     @GetMapping("/all")
     @HasPermission(action = Action.READ, resource = "ticket")
-    public ResponseApi<List<TicketDto>> getAllTickets() {
+    public ResponseApi<List<TicketDto>> getAllTickets(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         List<TicketDto> response = getTicketUsecase.getAllTickets().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());

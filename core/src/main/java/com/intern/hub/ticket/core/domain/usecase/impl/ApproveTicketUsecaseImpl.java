@@ -15,6 +15,7 @@ import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final Snowflake snowflake;
 
     @Override
+    @Transactional
     public void approve(ApproveTicketCommand command) {
 
         // Kiểm tra tính lũy đẳng (Idempotency) để chống spam

@@ -10,6 +10,7 @@ import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
     private final Snowflake snowflake;
 
     @Override
+    @Transactional
     public TicketModel create(CreateTicketCommand command) {
 
         TicketModel ticket = TicketModel.builder()

@@ -91,6 +91,7 @@ security:
     - /v3/api-docs/**
     - /swagger-ui/**
     - /swagger-ui.html
+    - /ticket/internal/**
 
 feign:
   client:
@@ -132,15 +133,10 @@ common:
 
 springdoc:
   swagger-ui:
-    disable-swagger-default-url: true
+    enabled: ${SWAGGER_ENABLED:true}   
   api-docs:
-    enabled: true
-  override-with-generic-response: false
-  show-actuator: false
-  servers:
-    - url: https://internhub-v2.bbtech.io.vn
+    enabled: ${SWAGGER_ENABLED:true}
 
 openapi:
   server:
     url: https://internhub-v2.bbtech.io.vn/api
-    description: Gateway Server
