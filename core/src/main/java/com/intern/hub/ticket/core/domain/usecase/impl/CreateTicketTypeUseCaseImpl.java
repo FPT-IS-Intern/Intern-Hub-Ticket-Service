@@ -23,6 +23,7 @@ public class CreateTicketTypeUseCaseImpl implements CreateTicketTypeUseCase {
         TicketTypeModel newType = TicketTypeModel.builder()
                 .typeName(command.typeName())
                 .description(command.description())
+                .template(command.template())
                 .isDeleted(false) 
                 .build();
 

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.intern.hub.starter.security.entity.AuditEntity;
 import com.intern.hub.ticket.core.domain.model.enums.OutboxStatus;
@@ -12,6 +13,7 @@ import com.intern.hub.ticket.infra.persistence.entity.converter.JpaConverterJson
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -32,6 +34,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "outbox_events")
+@EntityListeners(AuditingEntityListener.class)
 public class OutboxEvent extends AuditEntity {
 
     @Id

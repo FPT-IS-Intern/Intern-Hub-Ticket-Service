@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.core.domain.model;
 
+import java.util.List;
+
 import com.intern.hub.starter.security.entity.AuditEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,8 +21,9 @@ public class TicketTypeModel extends AuditEntity{
     Long ticketTypeId;
     String typeName;
     String description;
+    List<TicketTemplateField> template;
     @Setter(AccessLevel.NONE)
     Integer version;
     @Builder.Default
     Boolean isDeleted = false;
-}
+}

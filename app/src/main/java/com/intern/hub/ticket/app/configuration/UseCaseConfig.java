@@ -54,9 +54,10 @@ public class UseCaseConfig {
     @Transactional
     public CreateTicketUsecase createTicketUsecase(
             TicketRepository ticketRepository,
+            TicketTypeRepository ticketTypeRepository,
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake) {
-        return new CreateTicketUsecaseImpl(ticketRepository, ticketEventPublisher, snowflake);
+        return new CreateTicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake);
     }
 
     @Bean

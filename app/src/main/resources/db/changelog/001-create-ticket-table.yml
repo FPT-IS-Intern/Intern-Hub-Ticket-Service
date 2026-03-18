@@ -184,4 +184,15 @@ databaseChangeLog:
             schemaName: ih_ticket
             tableName: ticket_type_approvers
             columnNames: ticket_type_id, approver_id
- 
+
+  - changeSet:
+      id: 009-add-template-to-ticket-types
+      author: internhub-team
+      changes:
+        - addColumn:
+            schemaName: ih_ticket
+            tableName: ticket_types
+            columns:
+              - column:
+                  name: template
+                  type: jsonb

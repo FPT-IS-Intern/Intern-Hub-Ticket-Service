@@ -25,7 +25,8 @@ public class AdminTicketTypeCommandController {
 
         CreateTicketTypeCommand command = new CreateTicketTypeCommand(
                 request.typeName(), 
-                request.description()
+                request.description(),
+                request.template()
         );
         
         var createdType = createTicketTypeUseCase.create(command);
