@@ -13,6 +13,7 @@ import com.intern.hub.ticket.api.dto.response.TicketResponse;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
 
@@ -61,4 +62,26 @@ public class TicketCommandController {
 
         return ResponseApi.noContent();
     }
+
+    @PostMapping("/{ticketId}/reject")
+    // @HasPermission(action = Action.REVIEW, resource = "ticket")
+    public ResponseApi<?> rejectTicket(
+            @PathVariable Long ticketId,
+            @Valid @RequestBody ApproveTicketRequest request) {
+
+        // Long approverId = UserContext.requiredUserId();
+        Long approverId = 123L;
+
+        RejectTicketCommand command = new RejectTicketCommand(
+                ticketId,
+                approverId,
+                request.comment(),
+                request.idempotencyKey(),
+                request.version());
+
+        approveTicketUsecase.reject(command);
+
+        return ResponseApi.noContent();
+    }
+
 }

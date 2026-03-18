@@ -3,6 +3,7 @@ package com.intern.hub.ticket.core.domain.model.enums;
 
 public enum TicketStatus {
     PENDING,
+    REVIEWING,
     APPROVED,
     REJECTED,
     CANCELLED

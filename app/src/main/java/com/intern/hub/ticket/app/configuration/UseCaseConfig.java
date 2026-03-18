@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
+import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -34,13 +36,13 @@ public class UseCaseConfig {
             TicketApprovalRepository ticketApprovalRepository,
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
-            TicketTypeApproverRepository ticketTypeApproverRepository) { 
+            TicketTaskPermissionPort permissionPort) { 
         return new ApproveTicketUsecaseImpl(
                 ticketRepository, 
                 ticketApprovalRepository, 
                 ticketEventPublisher, 
                 snowflake, 
-                ticketTypeApproverRepository 
+                permissionPort 
         );
     }
 
@@ -56,8 +58,9 @@ public class UseCaseConfig {
             TicketRepository ticketRepository,
             TicketTypeRepository ticketTypeRepository,
             TicketEventPublisher ticketEventPublisher,
-            Snowflake snowflake) {
-        return new CreateTicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake);
+            Snowflake snowflake,
+            RuleEvaluatorPort ruleEvaluatorPort) {
+        return new CreateTicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake, ruleEvaluatorPort);
     }
 
     @Bean

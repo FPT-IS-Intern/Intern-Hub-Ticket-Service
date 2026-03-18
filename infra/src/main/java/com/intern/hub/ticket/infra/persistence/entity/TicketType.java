@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import com.intern.hub.ticket.core.domain.model.ApprovalRule;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,6 +53,10 @@ public class TicketType extends AuditEntity {
     @Column(columnDefinition = "jsonb")
     @Convert(converter = JpaConverterListTicketTemplateField.class)
     List<TicketTemplateField> template;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    ApprovalRule approvalRule;
 
     @Version
     @Column(nullable = false)

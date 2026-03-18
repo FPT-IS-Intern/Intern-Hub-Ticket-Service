@@ -26,6 +26,9 @@ public class TicketModel extends AuditEntity {
     Long ticketTypeId;
     TicketStatus status;
     Map<String, Object> payload;
+    Integer requiredApprovals;
+    @Builder.Default
+    Integer currentApprovalLevel = 1;
     @Setter(AccessLevel.NONE)
     Integer version;
     @Builder.Default

@@ -1,6 +1,5 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
@@ -26,6 +26,7 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
     private final TicketTypeRepository ticketTypeRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
+    private final RuleEvaluatorPort ruleEvaluator;
 
     @Override
     public TicketModel create(CreateTicketCommand command) {
@@ -35,12 +36,20 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
 
         validatePayloadAgainstTemplate(command.payload(), ticketType.getTemplate());
 
+        int requiredApprovals = 1;
+        if (ticketType.getApprovalRule() != null) {
+            boolean isTrue = ruleEvaluator.evaluate(ticketType.getApprovalRule().getCondition(), command.payload());
+            requiredApprovals = isTrue ? ticketType.getApprovalRule().getLevelsIfTrue() : ticketType.getApprovalRule().getLevelsIfFalse();
+        }
+
         TicketModel ticket = TicketModel.builder()
                 .ticketId(snowflake.next())
                 .userId(command.userId())
                 .ticketTypeId(command.ticketTypeId())
                 .status(TicketStatus.PENDING)
                 .payload(command.payload() != null ? command.payload() : new HashMap<>())
+                .requiredApprovals(requiredApprovals)
+                .currentApprovalLevel(1)
                 .isDeleted(false)
                 .build();
 
@@ -59,25 +68,11 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
         if (template == null || template.isEmpty()) {
             return;
         }
-
-        Map<String, Object> safePayload = (payload != null) ? payload : Map.of();
-        List<String> missingFields = new ArrayList<>();
-
-        for (TicketTemplateField fieldDef : template) {
-            String fieldCode = fieldDef.getFieldCode();
-            boolean required = fieldDef.isRequired();
-
-            if (fieldCode != null && required) {
-                Object value = safePayload.get(fieldCode);
-                if (value == null || (value instanceof String && ((String) value).isBlank())) {
-                    missingFields.add(fieldCode);
-                }
+        Map<String, Object> safePayload = payload != null ? payload : new HashMap<>();
+        for (TicketTemplateField field : template) {
+            if (field.isRequired() && !safePayload.containsKey(field.getFieldCode())) {
+                throw new BadRequestException("bad.request", "Missing required field: " + field.getFieldCode());
             }
-        }
-
-        if (!missingFields.isEmpty()) {
-            throw new BadRequestException("bad.request",
-                    "Missing required fields: " + String.join(", ", missingFields));
         }
     }
 }

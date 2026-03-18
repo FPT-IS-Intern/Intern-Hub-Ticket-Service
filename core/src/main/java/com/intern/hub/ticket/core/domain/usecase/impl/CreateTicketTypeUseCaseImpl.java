@@ -24,6 +24,7 @@ public class CreateTicketTypeUseCaseImpl implements CreateTicketTypeUseCase {
                 .typeName(command.typeName())
                 .description(command.description())
                 .template(command.template())
+                .approvalRule(command.approvalRule())
                 .isDeleted(false) 
                 .build();
 

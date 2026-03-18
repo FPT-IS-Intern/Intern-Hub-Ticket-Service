@@ -50,4 +50,7 @@ public class TicketApproval extends AuditEntity {
     @Column(length = 50)
     String status;
 
+    @Column(name = "approval_level")
+    Integer approvalLevel;
+
 }

@@ -8,6 +8,7 @@ import com.intern.hub.ticket.api.dto.request.CreateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.response.TicketTypeResponse;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketTypeCommand;
 import com.intern.hub.ticket.core.domain.usecase.CreateTicketTypeUseCase;
+import com.intern.hub.ticket.core.domain.model.ApprovalRule;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -23,10 +24,20 @@ public class AdminTicketTypeCommandController {
     public ResponseApi<TicketTypeResponse> createTicketType(
             @Valid @RequestBody CreateTicketTypeRequest request) {
 
+        ApprovalRule ruleModel = null;
+        if (request.approvalRule() != null) {
+            ruleModel = ApprovalRule.builder()
+                .condition(request.approvalRule().condition())
+                .levelsIfTrue(request.approvalRule().levelsIfTrue())
+                .levelsIfFalse(request.approvalRule().levelsIfFalse())
+                .build();
+        }
+
         CreateTicketTypeCommand command = new CreateTicketTypeCommand(
                 request.typeName(), 
                 request.description(),
-                request.template()
+                request.template(),
+                ruleModel
         );
         
         var createdType = createTicketTypeUseCase.create(command);

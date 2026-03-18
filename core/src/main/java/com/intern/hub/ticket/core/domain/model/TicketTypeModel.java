@@ -22,6 +22,7 @@ public class TicketTypeModel extends AuditEntity{
     String typeName;
     String description;
     List<TicketTemplateField> template;
+    ApprovalRule approvalRule;
     @Setter(AccessLevel.NONE)
     Integer version;
     @Builder.Default

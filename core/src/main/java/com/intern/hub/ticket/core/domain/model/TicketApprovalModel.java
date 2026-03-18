@@ -36,6 +36,8 @@ public class TicketApprovalModel extends AuditModel {
 
     TicketApprovalStatus status;
 
+    Integer approvalLevel;
+
     @Setter(AccessLevel.NONE)
     Integer version;
 }

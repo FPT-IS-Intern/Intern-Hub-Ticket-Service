@@ -54,6 +54,13 @@ public class Ticket extends AuditEntity {
     @Convert(converter = JpaConverterJson.class)
     Map<String, Object> payload;
 
+    @Column(name = "required_approvals")
+    Integer requiredApprovals;
+
+    @Builder.Default
+    @Column(name = "current_approval_level")
+    Integer currentApprovalLevel = 1;
+
     @Version
     @Column(nullable = false)
     Integer version;
