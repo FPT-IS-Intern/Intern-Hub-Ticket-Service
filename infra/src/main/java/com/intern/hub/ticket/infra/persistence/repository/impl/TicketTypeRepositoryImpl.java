@@ -45,6 +45,10 @@ public class TicketTypeRepositoryImpl implements TicketTypeRepository {
         return mapper.toModels(entities);
     }
     
+    @Override
+    public List<TicketTypeModel> findAllActive() {
+        return mapper.toModels(jpaRepository.findAllByIsDeletedFalse());
+    }
 
    
 }

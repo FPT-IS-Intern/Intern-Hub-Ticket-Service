@@ -13,4 +13,8 @@ public interface TicketTypeRepository {
     Optional<TicketTypeModel> findById(Long id);
 
     List<TicketTypeModel> findAll();
+
+    List<TicketTypeModel> findAllActive();
+
+    
 }

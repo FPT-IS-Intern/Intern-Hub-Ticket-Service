@@ -2,6 +2,7 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.ConflictDataException;
+import com.intern.hub.library.common.exception.ForbiddenException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
@@ -13,6 +14,7 @@ import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final TicketApprovalRepository ticketApprovalRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
+    private final TicketTypeApproverRepository ticketTypeApproverRepository;
 
     @Override
     public void approve(ApproveTicketCommand command) {
@@ -43,6 +46,10 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         if (!ticket.getVersion().equals(command.version())) {
             throw new ConflictDataException("conflict.data","The request form has been changed");
+        }
+        boolean isAuthorized = ticketTypeApproverRepository.exists(ticket.getTicketTypeId(), command.approverId());
+        if (!isAuthorized) {
+            throw new ForbiddenException("forbidden", "Bạn không được phân quyền để duyệt loại phiếu này!");
         }
 
         // Cập nhật trạng thái phiếu chính

@@ -9,16 +9,19 @@ import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.CreateTicketTypeUseCase;
 import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
+import com.intern.hub.ticket.core.domain.usecase.ManageTicketTypeApproverUseCase;
 import com.intern.hub.ticket.core.domain.usecase.GetTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.impl.ApproveTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.CreateTicketTypeUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.CreateTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.EvidenceUsecaseImpl;
+import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketTypeApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.GetTicketUsecaseImpl;
 
 @Configuration
@@ -30,8 +33,15 @@ public class UseCaseConfig {
             TicketRepository ticketRepository,
             TicketApprovalRepository ticketApprovalRepository,
             TicketEventPublisher ticketEventPublisher,
-            Snowflake snowflake) {
-        return new ApproveTicketUsecaseImpl(ticketRepository, ticketApprovalRepository, ticketEventPublisher, snowflake);
+            Snowflake snowflake,
+            TicketTypeApproverRepository ticketTypeApproverRepository) { 
+        return new ApproveTicketUsecaseImpl(
+                ticketRepository, 
+                ticketApprovalRepository, 
+                ticketEventPublisher, 
+                snowflake, 
+                ticketTypeApproverRepository 
+        );
     }
 
     @Bean
@@ -62,5 +72,13 @@ public class UseCaseConfig {
     @Transactional(readOnly = true)
     public GetTicketUsecase getTicketUsecase(TicketRepository ticketRepository) {
         return new GetTicketUsecaseImpl(ticketRepository);
+    }
+
+    @Bean
+    @Transactional
+    public ManageTicketTypeApproverUseCase manageTicketTypeApproverUseCase(
+            TicketTypeApproverRepository approverRepository,
+            Snowflake snowflake) {
+        return new ManageTicketTypeApproverUseCaseImpl(approverRepository, snowflake);
     }
 }

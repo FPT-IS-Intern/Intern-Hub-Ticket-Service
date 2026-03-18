@@ -153,3 +153,35 @@ databaseChangeLog:
 
         - sql:
             sql: CREATE INDEX idx_tickets_payload_gin ON ih_ticket.tickets USING GIN (payload);
+  
+  - changeSet:
+      id: 008-create-ticket-type-approvers-table
+      author: internhub-team
+      changes:
+        - createTable:
+            tableName: ticket_type_approvers
+            schemaName: ih_ticket
+            columns:
+              - column: { name: id, type: bigint, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: ticket_type_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: approver_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
+
+        - addForeignKeyConstraint:
+            constraintName: fk_ticket_type_approvers_type
+            baseTableSchemaName: ih_ticket
+            baseTableName: ticket_type_approvers
+            baseColumnNames: ticket_type_id
+            referencedTableSchemaName: ih_ticket
+            referencedTableName: ticket_types
+            referencedColumnNames: ticket_type_id
+
+        - addUniqueConstraint:
+            constraintName: uk_ticket_type_approver
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            columnNames: ticket_type_id, approver_id
+ 

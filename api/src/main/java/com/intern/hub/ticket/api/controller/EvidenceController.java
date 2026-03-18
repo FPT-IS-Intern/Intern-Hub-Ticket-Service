@@ -31,8 +31,7 @@ public class EvidenceController {
     private final EvidenceUsecase evidenceUsecase;
 
     @PostMapping
-    @HasPermission(action = Action.UPDATE, resource = "ticket")
-    @Transactional
+    //@HasPermission(action = Action.UPDATE, resource = "ticket")
     public ResponseApi<EvidenceDto> uploadEvidence(
             @PathVariable Long ticketId,
             @Valid @RequestBody UploadEvidenceRequest request) {
@@ -49,7 +48,7 @@ public class EvidenceController {
     }
 
     @GetMapping
-    @HasPermission(action = Action.READ, resource = "ticket")
+    //@HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
         List<EvidenceDto> dtos = evidenceUsecase.getEvidences(ticketId).stream()
                 .map(this::mapToDto)

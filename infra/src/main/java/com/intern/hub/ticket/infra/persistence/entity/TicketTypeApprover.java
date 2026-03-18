@@ -6,9 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,29 +21,16 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "ticket_approvals")
-public class TicketApproval extends AuditEntity {
+@Table(name = "ticket_type_approvers")
+public class TicketTypeApprover extends AuditEntity{
+
     @Id
-    @Column(name = "approval_id")
-    Long approvalId;
+    @Column(name = "id")
+    Long ticketTypeApproverId;
 
     @Column(nullable = false)
-    Long ticketId;
+    Long ticketTypeId;
 
+    @Column(nullable = false)
     Long approverId;
-
-    @Column(length = 50)
-    String action;
-
-    @Column(columnDefinition = "text")
-    String comment;
-
-    @Column(unique = true)
-    String idempotencyKey;
-
-    Long actionAt;
-
-    @Column(length = 50)
-    String status;
-
 }
