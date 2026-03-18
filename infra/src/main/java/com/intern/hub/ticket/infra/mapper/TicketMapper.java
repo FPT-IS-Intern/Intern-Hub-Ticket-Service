@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
+import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 
@@ -28,6 +29,26 @@ public interface TicketMapper {
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
-        entity.setVersion(model.getVersion());
+    }
+
+    @AfterMapping
+    default void mapAuditFieldsToModel(Ticket entity, @MappingTarget TicketModel model) {
+        if (entity == null || model == null) return;
+
+        model.setCreatedAt(entity.getCreatedAt());
+        model.setUpdatedAt(entity.getUpdatedAt());
+        model.setCreatedBy(entity.getCreatedBy());
+        model.setUpdatedBy(entity.getUpdatedBy());
+    }
+
+    default PaginatedData<TicketModel> toPaginatedModel(org.springframework.data.domain.Page<Ticket> page) {
+        if (page == null || page.isEmpty()) {
+            return PaginatedData.empty();
+        }
+        return PaginatedData.<TicketModel>builder()
+                .items(toModels(page.getContent())) 
+                .totalItems(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .build();
     }
 }

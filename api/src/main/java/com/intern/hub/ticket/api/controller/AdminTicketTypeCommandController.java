@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/admin/ticket-types")
+@RequestMapping("/ticket/ticket-types")
 @RequiredArgsConstructor
 public class AdminTicketTypeCommandController {
 

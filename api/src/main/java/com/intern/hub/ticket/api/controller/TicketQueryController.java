@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.starter.security.annotation.HasPermission;
 import com.intern.hub.starter.security.entity.Action;
@@ -20,7 +21,7 @@ import com.intern.hub.ticket.core.domain.usecase.GetTicketUsecase;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/ticket/api/v1")
+@RequestMapping("/ticket")
 @RequiredArgsConstructor
 public class TicketQueryController {
 
@@ -28,18 +29,19 @@ public class TicketQueryController {
 
     @GetMapping("/all")
     @HasPermission(action = Action.READ, resource = "ticket")
-    public ResponseApi<List<TicketDto>> getAllTickets(
+    public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        List<TicketDto> response = getTicketUsecase.getAllTickets().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-        return ResponseApi.ok(response);
+            
+        PaginatedData<TicketModel> modelPage = getTicketUsecase.getAllTickets(page, size);
+        return ResponseApi.ok(mapToPaginatedDto(modelPage));
     }
 
     @GetMapping("/pending")
     @HasPermission(action = Action.READ, resource = "ticket")
-    public ResponseApi<List<TicketDto>> getPendingTickets() {
+    public ResponseApi<List<TicketDto>> getPendingTickets(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         List<TicketDto> response = getTicketUsecase.getPendingTickets().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -58,7 +60,9 @@ public class TicketQueryController {
                 model.getStatus(),
                 model.getPayload(),
                 model.getCreatedAt(),
-                model.getUpdatedAt());
+                model.getUpdatedAt(),
+                model.getCreatedBy(),
+                model.getUpdatedBy());
         return ResponseApi.ok(detailDto);
     }
 
@@ -68,6 +72,22 @@ public class TicketQueryController {
                 model.getUserId(),
                 model.getTicketTypeId(),
                 model.getStatus(),
-                model.getCreatedAt());
+                model.getCreatedAt(),
+                model.getUpdatedAt(),
+                model.getCreatedBy(),
+                model.getUpdatedBy());
+    }
+
+    private PaginatedData<TicketDto> mapToPaginatedDto(PaginatedData<TicketModel> modelPage) {
+        if (modelPage == null || modelPage.getItems() == null || modelPage.getItems().isEmpty()) {
+            return PaginatedData.empty();
+        }
+        List<TicketDto> dtos = modelPage.getItems().stream().map(this::mapToDto).toList();
+        
+        return PaginatedData.<TicketDto>builder()
+                .items(dtos)
+                .totalItems(modelPage.getTotalItems())
+                .totalPages(modelPage.getTotalPages())
+                .build();
     }
 }

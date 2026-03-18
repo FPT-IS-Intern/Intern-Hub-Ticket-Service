@@ -15,7 +15,6 @@ import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,24 +26,28 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final Snowflake snowflake;
 
     @Override
-    @Transactional
     public void approve(ApproveTicketCommand command) {
 
         // Kiểm tra tính lũy đẳng (Idempotency) để chống spam
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
-            throw new ConflictDataException("ticket.already_processed", "Request has already been processed");
+            throw new ConflictDataException("conflict.data", "Request has already been processed");
         }
 
         TicketModel ticket = ticketRepository.findById(command.ticketId())
-                .orElseThrow(() -> new NotFoundException("ticket.not_found", "Ticket not found"));
+                .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
         // Validation nghiệp vụ
         if (!TicketStatus.PENDING.equals(ticket.getStatus())) {
-            throw new BadRequestException("ticket.invalid_status", "Only PENDING tickets can be approved");
+            throw new BadRequestException("bad.request", "Only PENDING tickets can be approved");
+        }
+
+        if (!ticket.getVersion().equals(command.version())) {
+            throw new ConflictDataException("conflict.data","The request form has been changed");
         }
 
         // Cập nhật trạng thái phiếu chính
         ticket.setStatus(TicketStatus.APPROVED);
+        ticket.setUpdatedBy(command.approverId());
         ticketRepository.save(ticket);
 
         // Tạo và lưu log lịch sử duyệt

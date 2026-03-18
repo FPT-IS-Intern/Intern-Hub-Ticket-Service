@@ -12,5 +12,9 @@ public record TicketDto(
         @JsonSerialize(using = ToStringSerializer.class) Long ticketTypeId,
 
         TicketStatus status,
-        Long createdAt) {
+        Long createdAt,
+        Long updatedAt,
+        Long createdBy,
+        Long updatedBy
+        ) {
 }

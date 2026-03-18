@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/ticket/api/v1/{ticketId}/evidences")
+@RequestMapping("/ticket/{ticketId}/evidences")
 @RequiredArgsConstructor
 public class EvidenceController {
 
@@ -61,6 +61,10 @@ public class EvidenceController {
         return new EvidenceDto(
                 model.getEvidenceId(), model.getTicketId(), model.getEvidenceFolder(),
                 model.getEvidenceUrl(), model.getFileType(), model.getFileSize(),
-                model.getStatus(), model.getCreatedAt());
+                model.getStatus(), 
+                model.getCreatedAt(),
+                model.getUpdatedAt(),
+                model.getCreatedBy(),
+                model.getUpdatedBy());
     }
 }

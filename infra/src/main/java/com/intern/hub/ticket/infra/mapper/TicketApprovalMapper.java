@@ -25,4 +25,14 @@ public interface TicketApprovalMapper {
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
     }
+
+    @AfterMapping
+    default void mapAuditFieldsToModel(TicketApproval entity, @MappingTarget TicketApprovalModel model) {
+        if (entity == null || model == null) return;
+
+        model.setCreatedAt(entity.getCreatedAt());
+        model.setUpdatedAt(entity.getUpdatedAt());
+        model.setCreatedBy(entity.getCreatedBy());
+        model.setUpdatedBy(entity.getUpdatedBy());
+    }
 }

@@ -4,5 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record ApproveTicketRequest(
         String comment,
-        @NotBlank(message = "Idempotency key is required") String idempotencyKey) {
+        @NotBlank(message = "Idempotency key is required") String idempotencyKey,
+        @NotBlank(message = "Version is required")Integer version) {
 }

@@ -2,6 +2,7 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 
 import java.util.List;
 
+import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
@@ -18,7 +19,7 @@ public class GetTicketUsecaseImpl implements GetTicketUsecase {
     @Override
     public TicketModel getTicketDetail(Long ticketId) {
         return ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new NotFoundException("ticket.not_found", "Ticket not found with id: " + ticketId));
+                .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found with id: " + ticketId));
     }
 
     @Override
@@ -27,7 +28,8 @@ public class GetTicketUsecaseImpl implements GetTicketUsecase {
     }
 
     @Override
-    public List<TicketModel> getAllTickets() {
-        return ticketRepository.findAll();
+    public PaginatedData<TicketModel> getAllTickets(int page, int size) {
+        return ticketRepository.findAllPaginated(page, size);
     }
+
 }

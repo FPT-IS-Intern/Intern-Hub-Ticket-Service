@@ -28,6 +28,14 @@ public interface TicketTypeMapper {
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
-        entity.setVersion(model.getVersion());
+    }
+    @AfterMapping
+    default void mapAuditFieldsToModel(TicketType entity, @MappingTarget TicketTypeModel model) {
+        if (entity == null || model == null) return;
+
+        model.setCreatedAt(entity.getCreatedAt());
+        model.setUpdatedAt(entity.getUpdatedAt());
+        model.setCreatedBy(entity.getCreatedBy());
+        model.setUpdatedBy(entity.getUpdatedBy());
     }
 }

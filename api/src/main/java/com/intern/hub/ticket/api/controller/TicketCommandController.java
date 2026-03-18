@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/ticket/api/v1")
+@RequestMapping("/ticket")
 @RequiredArgsConstructor
 public class TicketCommandController {
 
@@ -56,7 +56,9 @@ public class TicketCommandController {
                 ticketId,
                 approverId,
                 request.comment(),
-                request.idempotencyKey());
+                request.idempotencyKey(),
+                request.version()
+                );
 
         approveTicketUsecase.approve(command);
 

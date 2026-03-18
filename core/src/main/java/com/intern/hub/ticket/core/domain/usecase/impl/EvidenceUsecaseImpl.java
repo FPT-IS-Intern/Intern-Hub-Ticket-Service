@@ -23,7 +23,7 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
     @Override
     public EvidenceModel uploadEvidence(UploadEvidenceCommand command) {
         ticketRepository.findById(command.ticketId())
-                .orElseThrow(() -> new NotFoundException("ticket.not_found", "Ticket not found"));
+                .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
         EvidenceModel model = EvidenceModel.builder()
                 .evidenceId(snowflake.next())

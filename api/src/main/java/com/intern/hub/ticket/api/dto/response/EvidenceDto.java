@@ -16,5 +16,8 @@ public record EvidenceDto(
         String fileType,
         Long fileSize,
         EvidenceStatus status,
-        Long createdAt) {
+        Long createdAt,
+        Long updatedAt,
+        Long createdBy,
+        Long updatedBy) {
 }

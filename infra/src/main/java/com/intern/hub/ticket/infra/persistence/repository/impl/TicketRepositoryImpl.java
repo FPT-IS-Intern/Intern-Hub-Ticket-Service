@@ -3,8 +3,11 @@ package com.intern.hub.ticket.infra.persistence.repository.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -41,4 +44,10 @@ public class TicketRepositoryImpl implements TicketRepository {
     public List<TicketModel> findByStatus(TicketStatus status) {
         return jpaRepository.findByStatus(status).stream().map(mapper::toModel).toList();
     }
+    @Override
+    public PaginatedData<TicketModel> findAllPaginated(int page, int size) {
+        Page<Ticket> ticketPage = jpaRepository.findAll(PageRequest.of(page, size));
+        return mapper.toPaginatedModel(ticketPage); 
+    }
+
 }

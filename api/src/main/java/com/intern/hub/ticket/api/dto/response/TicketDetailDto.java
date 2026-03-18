@@ -16,5 +16,8 @@ public record TicketDetailDto(
         TicketStatus status,
         Map<String, Object> payload,
         Long createdAt,
-        Long updatedAt) {
+        Long updatedAt,
+        Long createdBy,
+        Long updatedBy
+        ) {
 }

@@ -4,5 +4,6 @@ public record ApproveTicketCommand(
         Long ticketId,
         Long approverId,
         String comment,
-        String idempotencyKey) {
+        String idempotencyKey,
+        Integer version) {
 }
