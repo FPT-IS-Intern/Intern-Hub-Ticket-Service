@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.HasPermission;
-import com.intern.hub.starter.security.entity.Action;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -28,17 +27,19 @@ public class TicketQueryController {
     private final GetTicketUsecase getTicketUsecase;
 
     @GetMapping("/all")
-    //@HasPermission(action = Action.READ, resource = "ticket")
+    @Authenticated
+    // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-            
+
         PaginatedData<TicketModel> modelPage = getTicketUsecase.getAllTickets(page, size);
         return ResponseApi.ok(mapToPaginatedDto(modelPage));
     }
 
     @GetMapping("/pending")
-    //@HasPermission(action = Action.READ, resource = "ticket")
+    @Authenticated
+    // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getPendingTickets(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -49,7 +50,8 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    //@HasPermission(action = Action.READ, resource = "ticket")
+    @Authenticated
+    // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
         TicketModel model = getTicketUsecase.getTicketDetail(ticketId);
 
@@ -83,7 +85,7 @@ public class TicketQueryController {
             return PaginatedData.empty();
         }
         List<TicketDto> dtos = modelPage.getItems().stream().map(this::mapToDto).toList();
-        
+
         return PaginatedData.<TicketDto>builder()
                 .items(dtos)
                 .totalItems(modelPage.getTotalItems())

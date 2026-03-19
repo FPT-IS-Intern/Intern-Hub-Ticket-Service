@@ -21,6 +21,7 @@ import com.intern.hub.starter.security.annotation.EnableSecurity;
 @EntityScan(basePackages = "com.intern.hub.ticket.infra.persistence.entity")
 @EnableFeignClients(basePackages = "com.intern.hub.ticket.infra.intergration")
 @EnableScheduling
+@EnableOpenApi
 public class TicketServiceApplication {
 
     public static void main(String[] args) {

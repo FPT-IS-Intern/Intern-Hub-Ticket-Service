@@ -3,7 +3,6 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.HasPermission;
-import com.intern.hub.starter.security.entity.Action;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
 import com.intern.hub.ticket.api.dto.response.EvidenceDto;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
@@ -31,7 +29,8 @@ public class EvidenceController {
     private final EvidenceUsecase evidenceUsecase;
 
     @PostMapping
-    //@HasPermission(action = Action.UPDATE, resource = "ticket")
+    @Authenticated
+    // @HasPermission(action = Action.UPDATE, resource = "ticket")
     public ResponseApi<EvidenceDto> uploadEvidence(
             @PathVariable Long ticketId,
             @Valid @RequestBody UploadEvidenceRequest request) {
@@ -48,7 +47,8 @@ public class EvidenceController {
     }
 
     @GetMapping
-    //@HasPermission(action = Action.READ, resource = "ticket")
+    @Authenticated
+    // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
         List<EvidenceDto> dtos = evidenceUsecase.getEvidences(ticketId).stream()
                 .map(this::mapToDto)
@@ -60,7 +60,7 @@ public class EvidenceController {
         return new EvidenceDto(
                 model.getEvidenceId(), model.getTicketId(), model.getEvidenceFolder(),
                 model.getEvidenceUrl(), model.getFileType(), model.getFileSize(),
-                model.getStatus(), 
+                model.getStatus(),
                 model.getCreatedAt(),
                 model.getUpdatedAt(),
                 model.getCreatedBy(),
