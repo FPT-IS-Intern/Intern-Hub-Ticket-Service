@@ -39,7 +39,13 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
         TicketTypeModel ticketType = ticketTypeRepository.findById(command.ticketTypeId())
                 .orElseThrow(() -> new BadRequestException("bad.request", "Ticket type not found"));
 
-        validatePayloadAgainstTemplate(command.payload(), ticketType.getTemplate());
+        if (ticketType.getIsDeleted() == true) {
+            throw new BadRequestException("bad.request", "Ticket type is deleted");
+        }
+
+        if (ticketType.getTemplate() != null && !ticketType.getTemplate().isEmpty()) {
+            validatePayloadAgainstTemplate(command.payload(), ticketType.getTemplate());
+        }
 
         int requiredApprovals = 1;
         if (ticketType.getApprovalRule() != null) {
@@ -71,12 +77,6 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
     }
 
     private void validatePayloadAgainstTemplate(Map<String, Object> payload, List<TicketTemplateField> template) {
-        if (template == null || template.isEmpty()) {
-            if (payload != null && !payload.isEmpty()) {
-                throw new BadRequestException("bad.request", "Template is empty but payload contains data.");
-            }
-            return;
-        }
 
         Map<String, Object> safePayload = payload != null ? payload : new HashMap<>();
 

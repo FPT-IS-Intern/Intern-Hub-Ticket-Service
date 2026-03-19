@@ -16,5 +16,4 @@ public interface TicketTypeRepository {
 
     List<TicketTypeModel> findAllActive();
 
-    
 }
