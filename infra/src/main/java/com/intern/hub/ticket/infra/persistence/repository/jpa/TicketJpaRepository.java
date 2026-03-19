@@ -11,4 +11,6 @@ import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 @Repository
 public interface TicketJpaRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByStatus(TicketStatus status);
+
+    List<Ticket> findByUserId(Long userId);
 }

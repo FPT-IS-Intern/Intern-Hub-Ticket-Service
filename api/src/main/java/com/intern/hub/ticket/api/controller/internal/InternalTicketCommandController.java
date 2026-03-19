@@ -14,8 +14,7 @@ import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketResponse;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
-import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
-import com.intern.hub.ticket.core.domain.usecase.GetTicketUsecase;
+import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InternalTicketCommandController {
 
-    private final CreateTicketUsecase createTicketUsecase;
-    private final GetTicketUsecase getTicketUsecase;
+    private final TicketUsecase ticketUsecase;
 
     @PostMapping
     @Internal
@@ -36,7 +34,7 @@ public class InternalTicketCommandController {
         Long systemUserId = 0L;
 
         CreateTicketCommand command = new CreateTicketCommand(systemUserId, request.ticketTypeId(), request.payload());
-        TicketModel createdTicket = createTicketUsecase.create(command);
+        TicketModel createdTicket = ticketUsecase.create(command);
 
         return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
     }
@@ -44,7 +42,7 @@ public class InternalTicketCommandController {
     @GetMapping("/{ticketId}")
     @Internal
     public ResponseApi<TicketDetailDto> getTicketDetailInternal(@PathVariable Long ticketId) {
-        TicketModel model = getTicketUsecase.getTicketDetail(ticketId);
+        TicketModel model = ticketUsecase.getTicketDetail(ticketId);
 
         TicketDetailDto detailDto = new TicketDetailDto(
                 model.getTicketId(),
@@ -58,9 +56,5 @@ public class InternalTicketCommandController {
                 model.getUpdatedBy());
         return ResponseApi.ok(detailDto);
     }
-
-
-
-    
 
 }

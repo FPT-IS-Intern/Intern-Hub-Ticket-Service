@@ -84,8 +84,7 @@ databaseChangeLog:
             columns:
               - column: { name: evidence_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: ticket_id, type: bigint }
-              - column: { name: evidence_folder, type: varchar(255) }
-              - column: { name: evidence_url, type: text }
+              - column: { name: evidence_key, type: varchar(500) }
               - column: { name: file_type, type: varchar(100) }
               - column: { name: file_size, type: bigint }
               - column: { name: status, type: varchar(50) }
@@ -235,4 +234,18 @@ databaseChangeLog:
             columns:
               - column:
                   name: approval_level
-                  type: int
+                  type: int
+
+  - changeSet:
+      id: 013-add-column-require-evidence-to-ticket-types
+      author: internhub-team
+      changes:
+        - addColumn:
+            schemaName: ih_ticket
+            tableName: ticket_types
+            columns:
+              - column:
+                  name: require_evidence
+                  type: boolean
+                  defaultValueBoolean: false
+

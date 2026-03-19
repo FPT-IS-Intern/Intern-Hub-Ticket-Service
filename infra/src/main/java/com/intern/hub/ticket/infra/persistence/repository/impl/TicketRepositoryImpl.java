@@ -1,5 +1,6 @@
 package com.intern.hub.ticket.infra.persistence.repository.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,10 +45,16 @@ public class TicketRepositoryImpl implements TicketRepository {
     public List<TicketModel> findByStatus(TicketStatus status) {
         return jpaRepository.findByStatus(status).stream().map(mapper::toModel).toList();
     }
+
     @Override
     public PaginatedData<TicketModel> findAllPaginated(int page, int size) {
         Page<Ticket> ticketPage = jpaRepository.findAll(PageRequest.of(page, size));
-        return mapper.toPaginatedModel(ticketPage); 
+        return mapper.toPaginatedModel(ticketPage);
+    }
+
+    @Override
+    public Collection<TicketModel> findByUserId(Long userId) {
+        return jpaRepository.findByUserId(userId).stream().map(mapper::toModel).toList();
     }
 
 }

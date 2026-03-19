@@ -1,5 +1,6 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
+import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
@@ -19,18 +22,36 @@ import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
-import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
+import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
+public class TicketUsecaseImpl implements TicketUsecase {
 
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final RuleEvaluatorPort ruleEvaluator;
+
+    @Override
+    @Transactional(readOnly = true)
+    public TicketModel getTicketDetail(Long ticketId) {
+        return ticketRepository.findById(ticketId)
+                .orElseThrow(
+                        () -> new NotFoundException("resource.not.found", "Ticket not found with id: " + ticketId));
+    }
+
+    @Override
+    public List<TicketModel> getPendingTickets() {
+        return ticketRepository.findByStatus(TicketStatus.PENDING);
+    }
+
+    @Override
+    public PaginatedData<TicketModel> getAllTickets(int page, int size) {
+        return ticketRepository.findAllPaginated(page, size);
+    }
 
     @Override
     @Transactional
@@ -216,5 +237,10 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
                 // Log cảnh báo nếu có type mới mà chưa được support
                 break;
         }
+    }
+
+    @Override
+    public Collection<TicketModel> getMyTickets(Long userId) {
+        return ticketRepository.findByUserId(userId);
     }
 }
