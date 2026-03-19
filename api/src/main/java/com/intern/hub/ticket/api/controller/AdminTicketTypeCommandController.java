@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.CreateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.response.TicketTypeResponse;
 import com.intern.hub.ticket.core.domain.model.ApprovalRule;
@@ -24,7 +23,7 @@ public class AdminTicketTypeCommandController {
     private final CreateTicketTypeUseCase createTicketTypeUseCase;
 
     @PostMapping
-    @Authenticated
+    // @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.CREATE)
     public ResponseApi<TicketTypeResponse> createTicketType(
             @Valid @RequestBody CreateTicketTypeRequest request) {

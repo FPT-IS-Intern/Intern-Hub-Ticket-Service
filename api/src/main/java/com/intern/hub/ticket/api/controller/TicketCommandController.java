@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
@@ -33,7 +32,7 @@ public class TicketCommandController {
     private final CreateTicketUsecase createTicketUsecase;
 
     @PostMapping
-    @Authenticated
+    // @Authenticated
     public ResponseApi<TicketResponse> createTicket(
             @Valid @RequestBody CreateTicketRequest request) {
 
@@ -47,7 +46,7 @@ public class TicketCommandController {
     }
 
     @PostMapping("/{ticketId}/approve")
-    @Authenticated
+    // @Authenticated
     // @HasPermission(action = Action.REVIEW, resource = "ticket")
     public ResponseApi<?> approveTicket(
             @PathVariable Long ticketId,
@@ -69,7 +68,7 @@ public class TicketCommandController {
     }
 
     @PostMapping("/{ticketId}/reject")
-    @Authenticated
+    // @Authenticated
     // @HasPermission(action = Action.REVIEW, resource = "ticket")
     public ResponseApi<?> rejectTicket(
             @PathVariable Long ticketId,
@@ -91,7 +90,7 @@ public class TicketCommandController {
     }
 
     @PostMapping("/bulk-approve")
-    @Authenticated
+    // @Authenticated
     // @HasPermission(action = Action.REVIEW, resource = "ticket")
     public ResponseApi<BulkApproveResponse> bulkApprove(
             @Valid @RequestBody BulkApproveTicketRequest request) {
