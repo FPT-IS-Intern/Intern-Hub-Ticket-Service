@@ -139,4 +139,4 @@ springdoc:
 
 openapi:
   server:
-    url: https://internhub-v2.bbtech.io.vn/api
+    url: https://internhub-v2.bbtech.io.vn
