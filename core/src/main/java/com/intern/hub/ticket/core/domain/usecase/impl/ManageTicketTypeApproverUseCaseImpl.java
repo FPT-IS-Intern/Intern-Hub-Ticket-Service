@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.TicketTypeApproverModel;
@@ -15,6 +17,7 @@ public class ManageTicketTypeApproverUseCaseImpl implements ManageTicketTypeAppr
     private final Snowflake snowflake;
 
     @Override
+    @Transactional
     public void assignApprover(Long ticketTypeId, Long approverId, Long adminId) {
         if (approverRepository.exists(ticketTypeId, approverId)) {
             throw new ConflictDataException("conflict.data", "Người dùng này đã có quyền duyệt loại vé này rồi!");

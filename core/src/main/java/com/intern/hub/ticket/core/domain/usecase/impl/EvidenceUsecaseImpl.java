@@ -2,6 +2,8 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
@@ -21,6 +23,7 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
     private final Snowflake snowflake;
 
     @Override
+    @Transactional
     public EvidenceModel uploadEvidence(UploadEvidenceCommand command) {
         ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));

@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
+import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
 import com.intern.hub.ticket.api.dto.response.TicketResponse;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.BulkApproveResponse;
+import com.intern.hub.ticket.core.domain.model.command.BulkApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
@@ -82,6 +85,24 @@ public class TicketCommandController {
         approveTicketUsecase.reject(command);
 
         return ResponseApi.noContent();
+    }
+
+    @PostMapping("/bulk-approve")
+    // @HasPermission(action = Action.REVIEW, resource = "ticket")
+    public ResponseApi<BulkApproveResponse> bulkApprove(
+            @Valid @RequestBody BulkApproveTicketRequest request) {
+
+        // Long approverId = UserContext.requiredUserId();
+        Long approverId = 123L;
+
+        BulkApproveTicketCommand command = new BulkApproveTicketCommand(
+                request.idempotencyKey(),
+                request.tickets(),
+                approverId,
+                request.comment());
+        BulkApproveResponse response = approveTicketUsecase.bulkApprove(command);
+
+        return ResponseApi.ok(response);
     }
 
 }

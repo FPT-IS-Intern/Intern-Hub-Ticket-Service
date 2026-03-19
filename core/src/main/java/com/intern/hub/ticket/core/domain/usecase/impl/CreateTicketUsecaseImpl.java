@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -29,6 +31,7 @@ public class CreateTicketUsecaseImpl implements CreateTicketUsecase {
     private final RuleEvaluatorPort ruleEvaluator;
 
     @Override
+    @Transactional
     public TicketModel create(CreateTicketCommand command) {
 
         TicketTypeModel ticketType = ticketTypeRepository.findById(command.ticketTypeId())

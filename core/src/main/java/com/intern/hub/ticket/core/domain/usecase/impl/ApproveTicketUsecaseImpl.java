@@ -1,5 +1,12 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.library.common.exception.ForbiddenException;
@@ -8,7 +15,10 @@ import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.BulkApproveResponse;
+import com.intern.hub.ticket.core.domain.model.command.BulkApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.TicketApproveItem;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
@@ -29,7 +39,15 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
 
+    private ApproveTicketUsecase self;
+
+    @Autowired
+    public void setSelf(@Lazy ApproveTicketUsecase self) {
+        this.self = self;
+    }
+
     @Override
+    @Transactional
     public void approve(ApproveTicketCommand command) {
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
             throw new ConflictDataException("conflict.data", "Request has already been processed");
@@ -119,5 +137,31 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         ticketRepository.save(ticket);
 
         // Cần có event reject sau này nếu có
+    }
+
+    @Override
+    public BulkApproveResponse bulkApprove(BulkApproveTicketCommand command) {
+        int successCount = 0;
+        List<BulkApproveResponse.TicketErrorDetail> failedTickets = new ArrayList<>();
+
+        for (TicketApproveItem item : command.tickets()) {
+            try {
+
+                String subIdempotencyKey = command.idempotencyKey() + ":" + item.ticketId();
+                ApproveTicketCommand singleCommand = new ApproveTicketCommand(
+                        item.ticketId(),
+                        command.approverId(),
+                        command.comment(),
+                        subIdempotencyKey,
+                        item.version());
+
+                self.approve(singleCommand);
+                successCount++;
+
+            } catch (Exception e) {
+                failedTickets.add(new BulkApproveResponse.TicketErrorDetail(item.ticketId(), e.getMessage()));
+            }
+        }
+        return new BulkApproveResponse(command.tickets().size(), successCount, failedTickets);
     }
 }

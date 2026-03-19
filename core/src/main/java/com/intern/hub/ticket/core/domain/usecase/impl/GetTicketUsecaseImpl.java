@@ -2,6 +2,8 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -17,6 +19,7 @@ public class GetTicketUsecaseImpl implements GetTicketUsecase {
     private final TicketRepository ticketRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public TicketModel getTicketDetail(Long ticketId) {
         return ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found with id: " + ticketId));
