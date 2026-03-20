@@ -1,6 +1,7 @@
 //Version 2
 package com.intern.hub.ticket.core.domain.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,4 +19,6 @@ public interface TicketRepository {
     List<TicketModel> findByStatus(TicketStatus status);
 
     PaginatedData<TicketModel> findAllPaginated(int page, int size);
+
+    Collection<TicketModel> findByUserId(Long userId);
 }

@@ -18,7 +18,7 @@ import com.intern.hub.ticket.core.domain.model.command.BulkApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
-import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
+import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class TicketCommandController {
 
     private final ApproveTicketUsecase approveTicketUsecase;
-    private final CreateTicketUsecase createTicketUsecase;
+    private final TicketUsecase ticketUsecase;
 
     @PostMapping
     // @Authenticated
@@ -40,7 +40,7 @@ public class TicketCommandController {
         Long userId = 123L;
 
         CreateTicketCommand command = new CreateTicketCommand(userId, request.ticketTypeId(), request.payload());
-        TicketModel createdTicket = createTicketUsecase.create(command);
+        TicketModel createdTicket = ticketUsecase.create(command);
 
         return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
     }

@@ -13,17 +13,15 @@ import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
-import com.intern.hub.ticket.core.domain.usecase.CreateTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
-import com.intern.hub.ticket.core.domain.usecase.GetTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.ManageTicketTypeApproverUseCase;
 import com.intern.hub.ticket.core.domain.usecase.TicketTypeUseCase;
+import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.impl.ApproveTicketUsecaseImpl;
-import com.intern.hub.ticket.core.domain.usecase.impl.CreateTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.EvidenceUsecaseImpl;
-import com.intern.hub.ticket.core.domain.usecase.impl.GetTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketTypeApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketTypeUseCaseImpl;
+import com.intern.hub.ticket.core.domain.usecase.impl.TicketUsecaseImpl;
 
 @Configuration
 public class UseCaseConfig {
@@ -49,13 +47,13 @@ public class UseCaseConfig {
     }
 
     @Bean
-    public CreateTicketUsecase createTicketUsecase(
+    public TicketUsecase ticketUsecase(
             TicketRepository ticketRepository,
             TicketTypeRepository ticketTypeRepository,
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             RuleEvaluatorPort ruleEvaluatorPort) {
-        return new CreateTicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
+        return new TicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
                 ruleEvaluatorPort);
     }
 
@@ -65,11 +63,6 @@ public class UseCaseConfig {
             TicketRepository ticketRepository,
             Snowflake snowflake) {
         return new EvidenceUsecaseImpl(evidenceRepository, ticketRepository, snowflake);
-    }
-
-    @Bean
-    public GetTicketUsecase getTicketUsecase(TicketRepository ticketRepository) {
-        return new GetTicketUsecaseImpl(ticketRepository);
     }
 
     @Bean
