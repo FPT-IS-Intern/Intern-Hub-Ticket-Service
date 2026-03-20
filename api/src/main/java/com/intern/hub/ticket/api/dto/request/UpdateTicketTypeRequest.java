@@ -8,12 +8,12 @@ import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import jakarta.validation.constraints.Size;
 
 public record UpdateTicketTypeRequest(
-                String typeName,
+        String typeName,
 
-                @Size(max = 500, message = "Description must be less than 500 characters") String description,
+        @Size(max = 500, message = "Description must be less than 500 characters") String description,
 
-                List<TicketTemplateField> template,
+        List<TicketTemplateField> formConfig,
 
-                ApprovalRuleDto approvalRule) {
+        ApprovalRuleDto approvalRule) {
 
 }

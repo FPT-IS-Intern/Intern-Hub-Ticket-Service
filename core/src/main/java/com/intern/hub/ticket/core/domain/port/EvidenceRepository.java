@@ -8,4 +8,6 @@ public interface EvidenceRepository {
     EvidenceModel save(EvidenceModel model);
 
     List<EvidenceModel> findByTicketId(Long ticketId);
+
+    void saveAll(List<EvidenceModel> evidenceEntities);
 }

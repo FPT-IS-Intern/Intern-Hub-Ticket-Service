@@ -27,4 +27,9 @@ public class EvidenceRepositoryImpl implements EvidenceRepository {
     public List<EvidenceModel> findByTicketId(Long ticketId) {
         return mapper.toModels(jpaRepository.findAllByTicketId(ticketId));
     }
+
+    @Override
+    public void saveAll(List<EvidenceModel> evidenceEntities) {
+        jpaRepository.saveAll(mapper.toEntities(evidenceEntities));
+    }
 }

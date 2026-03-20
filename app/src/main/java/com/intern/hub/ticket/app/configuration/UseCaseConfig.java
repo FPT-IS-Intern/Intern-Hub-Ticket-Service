@@ -52,9 +52,10 @@ public class UseCaseConfig {
             TicketTypeRepository ticketTypeRepository,
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
-            RuleEvaluatorPort ruleEvaluatorPort) {
+            RuleEvaluatorPort ruleEvaluatorPort,
+            EvidenceRepository evidenceRepository) {
         return new TicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
-                ruleEvaluatorPort);
+                ruleEvaluatorPort, evidenceRepository);
     }
 
     @Bean

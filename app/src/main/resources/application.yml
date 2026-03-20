@@ -140,3 +140,12 @@ springdoc:
 openapi:
   server:
     url: https://internhub-v2.bbtech.io.vn
+
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    bucket-name: intern-hub-bucket
+    credentials:
+      access-key: minioadmin
+      secret-key: minioadmin
+    region: ap-southeast-1

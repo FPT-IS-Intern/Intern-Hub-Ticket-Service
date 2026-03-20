@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.api.dto.request.CreateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.request.UpdateTicketTypeRequest;
+import com.intern.hub.ticket.api.dto.response.TicketTypeDetailDTO;
 import com.intern.hub.ticket.api.dto.response.TicketTypeResponse;
 import com.intern.hub.ticket.core.domain.model.ApprovalRule;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
@@ -50,8 +51,9 @@ public class AdminTicketTypeCommandController {
         CreateTicketTypeCommand command = new CreateTicketTypeCommand(
                 request.typeName(),
                 request.description(),
-                request.template(),
-                ruleModel);
+                request.formConfig(),
+                ruleModel,
+                request.requireEvidence());
 
         var createdType = ticketTypeUseCase.create(command);
 
@@ -78,7 +80,7 @@ public class AdminTicketTypeCommandController {
                 ticketTypeId,
                 request.typeName(),
                 request.description(),
-                request.template(),
+                request.formConfig(),
                 ruleModel);
 
         var updatedType = ticketTypeUseCase.update(command);
@@ -97,9 +99,30 @@ public class AdminTicketTypeCommandController {
     @GetMapping("/{ticketTypeId}")
     // @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
-    public ResponseApi<TicketTypeResponse> getTicketType(@PathVariable Long ticketTypeId) {
+    public ResponseApi<TicketTypeDetailDTO> getTicketType(@PathVariable Long ticketTypeId) {
         TicketTypeModel model = ticketTypeUseCase.getById(ticketTypeId);
-        return ResponseApi.ok(new TicketTypeResponse(model.getTicketTypeId(), model.getTypeName()));
+
+        TicketTypeDetailDTO.ApprovalRuleDto ruleDto = null;
+        if (model.getApprovalRule() != null) {
+            ruleDto = new TicketTypeDetailDTO.ApprovalRuleDto(
+                    model.getApprovalRule().getCondition(),
+                    model.getApprovalRule().getLevelsIfTrue(),
+                    model.getApprovalRule().getLevelsIfFalse());
+        }
+
+        List<TicketTypeDetailDTO.ApproverDto> approverDtos = model.getApprovers() == null ? List.of()
+                : model.getApprovers().stream()
+                        .map(a -> new TicketTypeDetailDTO.ApproverDto(a.getApproverId(), null))
+                        .toList();
+
+        return ResponseApi.ok(new TicketTypeDetailDTO(
+                model.getTicketTypeId(),
+                model.getTypeName(),
+                model.getDescription(),
+                model.getFormConfig(),
+                ruleDto,
+                Boolean.TRUE.equals(model.getRequireEvidence()),
+                approverDtos));
     }
 
     @GetMapping("/all")

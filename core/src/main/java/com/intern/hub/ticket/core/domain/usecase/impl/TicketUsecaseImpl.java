@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,11 +15,15 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
+import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.EvidenceCommand;
+import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -34,6 +40,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final RuleEvaluatorPort ruleEvaluator;
+    private final EvidenceRepository evidenceRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -64,15 +71,21 @@ public class TicketUsecaseImpl implements TicketUsecase {
             throw new BadRequestException("bad.request", "Ticket type is deleted");
         }
 
-        if (ticketType.getTemplate() != null && !ticketType.getTemplate().isEmpty()) {
-            validatePayloadAgainstTemplate(command.payload(), ticketType.getTemplate());
+        if (ticketType.getFormConfig() != null && !ticketType.getFormConfig().isEmpty()) {
+            validatePayloadAgainstTemplate(command.payload(), ticketType.getFormConfig());
         }
+
+        boolean requireEvidence = Boolean.TRUE.equals(ticketType.getRequireEvidence());
+        validateEvidences(command.evidences(), requireEvidence);
 
         int requiredApprovals = 1;
         if (ticketType.getApprovalRule() != null) {
             boolean isTrue = ruleEvaluator.evaluate(ticketType.getApprovalRule().getCondition(), command.payload());
-            requiredApprovals = isTrue ? ticketType.getApprovalRule().getLevelsIfTrue()
+            Integer levels = isTrue ? ticketType.getApprovalRule().getLevelsIfTrue()
                     : ticketType.getApprovalRule().getLevelsIfFalse();
+            if (levels != null && levels > 0) {
+                requiredApprovals = levels;
+            }
         }
 
         TicketModel ticket = TicketModel.builder()
@@ -88,6 +101,21 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         TicketModel savedTicket = ticketRepository.save(ticket);
 
+        if (command.evidences() != null && !command.evidences().isEmpty()) {
+            List<EvidenceModel> evidenceEntities = command.evidences().stream()
+                    .map(e -> EvidenceModel.builder()
+                            .evidenceId(snowflake.next())
+                            .ticketId(savedTicket.getTicketId())
+                            .evidenceKey(e.evidenceKey())
+                            .fileType(e.fileType())
+                            .fileSize(e.fileSize())
+                            .status(EvidenceStatus.UPLOADED)
+                            .build())
+                    .toList();
+
+            evidenceRepository.saveAll(evidenceEntities);
+        }
+
         ticketEventPublisher.publishTicketCreatedEvent(
                 snowflake.next(),
                 savedTicket.getTicketId(),
@@ -95,6 +123,31 @@ public class TicketUsecaseImpl implements TicketUsecase {
                 savedTicket.getTicketTypeId());
 
         return savedTicket;
+    }
+
+    private void validateEvidences(List<EvidenceCommand> evidences, boolean requireEvidence) {
+        if (requireEvidence && (evidences == null || evidences.isEmpty())) {
+            throw new BadRequestException("bad.request", "Evidence is required");
+        }
+
+        if (evidences == null || evidences.isEmpty()) {
+            return;
+        }
+
+        for (EvidenceCommand evidence : evidences) {
+            if (evidence == null) {
+                throw new BadRequestException("bad.request", "Evidence item must not be null");
+            }
+            if (isBlank(evidence.evidenceKey())) {
+                throw new BadRequestException("bad.request", "evidenceKey is required");
+            }
+            if (isBlank(evidence.fileType())) {
+                throw new BadRequestException("bad.request", "fileType is required");
+            }
+            if (evidence.fileSize() == null || evidence.fileSize() <= 0) {
+                throw new BadRequestException("bad.request", "fileSize must be greater than 0");
+            }
+        }
     }
 
     private void validatePayloadAgainstTemplate(Map<String, Object> payload, List<TicketTemplateField> template) {
@@ -129,6 +182,10 @@ public class TicketUsecaseImpl implements TicketUsecase {
         return value == null || (value instanceof String && ((String) value).trim().isEmpty());
     }
 
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     private void validateFieldType(TicketTemplateField field, Object value) {
         String type = field.getType();
         if (type == null) {
@@ -148,17 +205,12 @@ public class TicketUsecaseImpl implements TicketUsecase {
                 if (!(value instanceof String)) {
                     throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be a date string.");
                 }
-                // TODO: Bạn có thể thêm logic dùng LocalDate.parse() để check xem format có
-                // đúng không (VD: yyyy-MM-dd)
-                /*
-                 * Ví dụ:
-                 * try {
-                 * LocalDate.parse((String) value);
-                 * } catch (DateTimeParseException e) {
-                 * throw new BadRequestException("invalid.format", "Field " + fieldCode +
-                 * " must be in yyyy-MM-dd format.");
-                 * }
-                 */
+                try {
+                    LocalDate.parse((String) value);
+                } catch (DateTimeParseException e) {
+                    throw new BadRequestException("invalid.format",
+                            "Field " + fieldCode + " must be in yyyy-MM-dd format.");
+                }
                 break;
 
             case "DROPDOWN":
@@ -232,7 +284,6 @@ public class TicketUsecaseImpl implements TicketUsecase {
                 }
                 break;
 
-            // Thêm các case khác như NUMBER, BOOLEAN, CHECKBOX... ở đây
             default:
                 // Log cảnh báo nếu có type mới mà chưa được support
                 break;

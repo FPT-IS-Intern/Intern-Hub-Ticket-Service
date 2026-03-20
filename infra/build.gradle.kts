@@ -21,4 +21,6 @@ dependencies {
     annotationProcessor(libs.lombok)
     annotationProcessor(libs.lombok.mapstruct.binding)
     implementation("org.apache.commons:commons-pool2:2.13.1")
+
+    implementation("software.amazon.awssdk:s3:2.20.0")
 }

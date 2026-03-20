@@ -30,8 +30,9 @@ public class TicketTypeUseCaseImpl implements TicketTypeUseCase {
         TicketTypeModel newType = TicketTypeModel.builder()
                 .typeName(command.typeName())
                 .description(command.description())
-                .template(command.template())
+                .formConfig(command.formConfig())
                 .approvalRule(command.approvalRule())
+                .requireEvidence(command.requireEvidence())
                 .isDeleted(false)
                 .build();
 
@@ -47,8 +48,8 @@ public class TicketTypeUseCaseImpl implements TicketTypeUseCase {
             throw new ConflictDataException("conflict.data", "Name already exists");
         }
 
-        if (command.template() != null) {
-            existingType.setTemplate(command.template());
+        if (command.formConfig() != null) {
+            existingType.setFormConfig(command.formConfig());
         }
 
         if (command.approvalRule() != null) {
