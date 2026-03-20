@@ -27,7 +27,7 @@ public class TicketQueryController {
     private final GetTicketUsecase getTicketUsecase;
 
     @GetMapping("/all")
-    @Authenticated
+//    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
@@ -38,7 +38,7 @@ public class TicketQueryController {
     }
 
     @GetMapping("/pending")
-    @Authenticated
+//    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getPendingTickets(
             @RequestParam(defaultValue = "0") int page,
@@ -50,7 +50,7 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    @Authenticated
+//    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
         TicketModel model = getTicketUsecase.getTicketDetail(ticketId);

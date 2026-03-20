@@ -1,5 +1,6 @@
 package com.intern.hub.ticket.api.controller;
 
+import com.intern.hub.ticket.api.util.UserContext;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,20 +21,20 @@ public class AdminTicketTypeApproverController {
     private final ManageTicketTypeApproverUseCase manageUseCase;
 
     @PostMapping("/{approverId}")
-    @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<?> assignApprover(
             @PathVariable Long ticketTypeId,
             @PathVariable Long approverId) {
 
-        // Long adminId = UserContext.requiredUserId();
-        Long adminId = 0L;
+        Long adminId = 123L;
+//        Long adminId = UserContext.requiredUserId();
         manageUseCase.assignApprover(ticketTypeId, approverId, adminId);
         return ResponseApi.noContent();
     }
 
     @DeleteMapping("/{approverId}")
-    @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<?> removeApprover(
             @PathVariable Long ticketTypeId,
