@@ -1,7 +1,9 @@
 package com.intern.hub.ticket.core.domain.port;
 
+import com.intern.hub.ticket.core.domain.model.TicketModel;
+
 public interface TicketEventPublisher {
     void publishTicketApprovedEvent(Long eventId, Long ticketId, Long approverId);
 
-    void publishTicketCreatedEvent(Long eventId, Long ticketId, Long userId, Long ticketTypeId);
+    void publishTicketCreatedEvent(TicketModel ticket);
 }

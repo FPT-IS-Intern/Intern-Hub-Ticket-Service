@@ -1,17 +1,12 @@
 package com.intern.hub.ticket.infra.persistence.entity;
 
-import java.util.Map;
-
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.intern.hub.starter.security.entity.AuditEntity;
 import com.intern.hub.ticket.core.domain.model.enums.OutboxStatus;
-import com.intern.hub.ticket.infra.persistence.entity.converter.JpaConverterJson;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
@@ -39,16 +34,15 @@ public class OutboxEvent extends AuditEntity {
 
     @Id
     @Column(name = "event_id")
-    Long id;
+    Long eventId;
 
     String aggregateType;
     String aggregateId;
     String eventType;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    @Convert(converter = JpaConverterJson.class)
-    Map<String, Object> payload;
+    @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
+    @ColumnTransformer(write = "?::jsonb")
+    private String payload;
 
     @Enumerated(EnumType.STRING)
     OutboxStatus status;

@@ -95,8 +95,10 @@ security:
 
 feign:
   client:
+    dms:
+      url: ${DMS_SERVICE_URL:http://localhost:8081}
     config:
-      default:
+      dms:
         connectTimeout: 5000
         readTimeout: 5000
 

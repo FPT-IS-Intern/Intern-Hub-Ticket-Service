@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.intern.hub.library.common.exception.ConflictDataException;
@@ -35,5 +37,11 @@ public class ManageTicketTypeApproverUseCaseImpl implements ManageTicketTypeAppr
     @Override
     public void removeApprover(Long ticketTypeId, Long approverId) {
         approverRepository.delete(ticketTypeId, approverId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getApproverIds(Long ticketTypeId) {
+        return approverRepository.findApproverIdsByTicketTypeId(ticketTypeId);
     }
 }

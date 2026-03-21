@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.intern.hub.library.common.utils.Snowflake;
+import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
@@ -12,6 +13,7 @@ import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
+import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 import com.intern.hub.ticket.core.domain.usecase.ManageTicketTypeApproverUseCase;
@@ -53,17 +55,20 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             RuleEvaluatorPort ruleEvaluatorPort,
-            EvidenceRepository evidenceRepository) {
+            EvidenceRepository evidenceRepository,
+            TicketTemplateValidator ticketTemplateValidator,
+            TicketApprovalRepository ticketApprovalRepository) {
         return new TicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
-                ruleEvaluatorPort, evidenceRepository);
+                ruleEvaluatorPort, evidenceRepository, ticketTemplateValidator, ticketApprovalRepository);
     }
 
     @Bean
     public EvidenceUsecase evidenceUsecase(
             EvidenceRepository evidenceRepository,
             TicketRepository ticketRepository,
-            Snowflake snowflake) {
-        return new EvidenceUsecaseImpl(evidenceRepository, ticketRepository, snowflake);
+            Snowflake snowflake,
+            DmsPort dmsPort) {
+        return new EvidenceUsecaseImpl(evidenceRepository, ticketRepository, snowflake, dmsPort);
     }
 
     @Bean
@@ -71,5 +76,10 @@ public class UseCaseConfig {
             TicketTypeApproverRepository approverRepository,
             Snowflake snowflake) {
         return new ManageTicketTypeApproverUseCaseImpl(approverRepository, snowflake);
+    }
+
+    @Bean
+    public TicketTemplateValidator ticketTemplateValidator() {
+        return new TicketTemplateValidator();
     }
 }

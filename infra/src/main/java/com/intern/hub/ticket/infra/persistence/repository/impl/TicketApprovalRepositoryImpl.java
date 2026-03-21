@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.infra.persistence.repository.impl;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
@@ -30,5 +32,10 @@ public class TicketApprovalRepositoryImpl implements TicketApprovalRepository {
             return false;
         }
         return jpaRepository.existsByIdempotencyKey(idempotencyKey);
+    }
+
+    @Override
+    public Optional<TicketApprovalModel> findByTicketId(Long ticketId) {
+        return jpaRepository.findByTicketId(ticketId).map(mapper::toModel);
     }
 }

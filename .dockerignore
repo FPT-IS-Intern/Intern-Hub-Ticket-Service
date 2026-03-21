@@ -11,7 +11,6 @@ Dockerfile*
 .gradle
 build/
 bin/
-out/
 .history/
 
 # IDEs

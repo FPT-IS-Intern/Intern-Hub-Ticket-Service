@@ -33,4 +33,5 @@ public class TicketModel extends AuditEntity {
     Integer version;
     @Builder.Default
     Boolean isDeleted = false;
+    Long approverId;
 }

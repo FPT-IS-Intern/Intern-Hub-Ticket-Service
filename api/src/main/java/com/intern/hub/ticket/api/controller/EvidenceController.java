@@ -10,9 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.ticket.api.dto.request.PresignedUrlReq;
 import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
 import com.intern.hub.ticket.api.dto.response.EvidenceDto;
+import com.intern.hub.ticket.api.dto.response.PresignedUrlDto;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
+import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
 import com.intern.hub.ticket.core.domain.model.command.UploadEvidenceCommand;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 
@@ -20,11 +23,25 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/ticket/{ticketId}/evidences")
+@RequestMapping("/ticket/evidences")
 @RequiredArgsConstructor
 public class EvidenceController {
 
     private final EvidenceUsecase evidenceUsecase;
+
+    @PostMapping("/presigned-url")
+    // @Authenticated
+    public ResponseApi<PresignedUrlDto> generatePresignedUrl(@Valid @RequestBody PresignedUrlReq request) {
+
+        // Gọi thẳng vào core
+        PresignedUrlModel model = evidenceUsecase.getPresignedUrl(
+                request.fileName(),
+                request.contentType(),
+                request.fileSize());
+
+        // Trả kết quả về Frontend
+        return ResponseApi.ok(new PresignedUrlDto(model.uploadUrl(), model.objectKey()));
+    }
 
     @PostMapping
     // @Authenticated
