@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import com.intern.hub.library.common.dto.PaginatedData;
@@ -14,8 +15,11 @@ import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.infra.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
+import com.intern.hub.ticket.infra.persistence.entity.TicketType;
 import com.intern.hub.ticket.infra.persistence.repository.jpa.TicketJpaRepository;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -49,6 +53,38 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public PaginatedData<TicketModel> findAllPaginated(int page, int size) {
         Page<Ticket> ticketPage = jpaRepository.findAll(PageRequest.of(page, size));
+        return mapper.toPaginatedModel(ticketPage);
+    }
+
+    @Override
+    public PaginatedData<TicketModel> findAllPaginated(int page, int size, String nameOrEmail, String typeName, String status) {
+        Specification<Ticket> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new java.util.ArrayList<>();
+
+            if (status != null && !status.isBlank()) {
+                try {
+                    predicates.add(cb.equal(root.get("status"), TicketStatus.valueOf(status.toUpperCase())));
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+
+            if (typeName != null && !typeName.isBlank()) {
+                Join<Ticket, TicketType> typeJoin = root.join("ticketType");
+                predicates.add(cb.like(cb.lower(typeJoin.get("typeName")), "%" + typeName.toLowerCase() + "%"));
+            }
+
+            // nameOrEmail search
+            if (nameOrEmail != null && !nameOrEmail.isBlank()) {
+                String pattern = "%" + nameOrEmail.toLowerCase() + "%";
+                Predicate nameInPayload = cb.like(cb.lower(cb.function("jsonb_extract_path_text", String.class, root.get("payload"), cb.literal("name"))), pattern);
+                Predicate emailInPayload = cb.like(cb.lower(cb.function("jsonb_extract_path_text", String.class, root.get("payload"), cb.literal("email"))), pattern);
+                predicates.add(cb.or(nameInPayload, emailInPayload));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size));
         return mapper.toPaginatedModel(ticketPage);
     }
 

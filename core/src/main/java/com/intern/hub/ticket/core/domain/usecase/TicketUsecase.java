@@ -16,5 +16,7 @@ public interface TicketUsecase {
 
     PaginatedData<TicketModel> getAllTickets(int page, int size);
 
+    PaginatedData<TicketModel> getAllTickets(int page, int size, String nameOrEmail, String typeName, String status);
+
     Collection<TicketModel> getMyTickets(Long userId);
 }

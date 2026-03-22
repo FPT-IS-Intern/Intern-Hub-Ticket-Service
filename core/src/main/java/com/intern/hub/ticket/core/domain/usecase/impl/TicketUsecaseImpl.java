@@ -74,6 +74,12 @@ public class TicketUsecaseImpl implements TicketUsecase {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public PaginatedData<TicketModel> getAllTickets(int page, int size, String nameOrEmail, String typeName, String status) {
+        return ticketRepository.findAllPaginated(page, size, nameOrEmail, typeName, status);
+    }
+
+    @Override
     @Transactional
     public TicketModel create(CreateTicketCommand command) {
 

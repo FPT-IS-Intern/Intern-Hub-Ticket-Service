@@ -18,6 +18,8 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AccessLevel;
@@ -46,8 +48,12 @@ public class Ticket extends AuditEntity {
     @Column(nullable = false)
     Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "ticket_type_id", insertable = false, updatable = false)
     Long ticketTypeId;
+
+    @ManyToOne
+    @JoinColumn(name = "ticket_type_id", referencedColumnName = "ticket_type_id")
+    TicketType ticketType;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50)

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.ticket.api.dto.request.FilterTicketRequest;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -30,9 +31,11 @@ public class TicketQueryController {
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            FilterTicketRequest filter) {
 
-        PaginatedData<TicketModel> modelPage = ticketUsecase.getAllTickets(page, size);
+        PaginatedData<TicketModel> modelPage = ticketUsecase.getAllTickets(
+                page, size, filter.getNameOrEmail(), filter.getTypeName(), filter.getStatus());
         return ResponseApi.ok(mapToPaginatedDto(modelPage));
     }
 
