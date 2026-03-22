@@ -64,7 +64,10 @@ public class InternalTicketCommandController {
                                 model.getCreatedAt(),
                                 model.getUpdatedAt(),
                                 model.getCreatedBy(),
-                                model.getUpdatedBy());
+                                model.getUpdatedBy(),
+                                model.getRequiredApprovals(),
+                                model.getCurrentApprovalLevel(),
+                                model.getApproverId());
                 return ResponseApi.ok(detailDto);
         }
 

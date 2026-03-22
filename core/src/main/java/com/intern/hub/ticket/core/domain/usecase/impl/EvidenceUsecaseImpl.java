@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
+import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
 import com.intern.hub.ticket.core.domain.model.command.UploadEvidenceCommand;
 import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
+import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
@@ -21,6 +23,12 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
     private final EvidenceRepository evidenceRepository;
     private final TicketRepository ticketRepository;
     private final Snowflake snowflake;
+    private final DmsPort dmsPort;
+
+    public PresignedUrlModel getPresignedUrl(String fileName, String contentType, Long fileSize) {
+        // validate fileSize ở đây (VD: không quá 5MB)
+        return dmsPort.generatePresignedUrl(fileName, contentType, fileSize);
+    }
 
     @Override
     @Transactional

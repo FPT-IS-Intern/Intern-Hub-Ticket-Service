@@ -5,18 +5,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.ticket.infra.feignClient.dto.ConfirmUploadRequest;
-import com.intern.hub.ticket.infra.feignClient.dto.PresignedUrlRequest;
-import com.intern.hub.ticket.infra.feignClient.dto.PresignedUrlResponse;
+import com.intern.hub.ticket.infra.feignClient.dto.DmsConfirmRequest;
+import com.intern.hub.ticket.infra.feignClient.dto.DmsPresignedUrlRequest;
+import com.intern.hub.ticket.infra.feignClient.dto.DmsPresignedUrlResponse;
 
 @FeignClient(name = "dms-service", url = "${dms.service.url}")
-public interface DmsClient {
+public interface DmsFeignClient {
 
-    // 1. Xin URL Upload tạm thời
+    // Gọi API của DMS, kẹp thêm Secret Key
     @PostMapping(value = "/dms/internal/presigned/url", headers = "X-Internal-Secret=${security.internal-secret}")
-    ResponseApi<PresignedUrlResponse> getPresignedUrl(@RequestBody PresignedUrlRequest request);
+    ResponseApi<DmsPresignedUrlResponse> getPresignedUrl(@RequestBody DmsPresignedUrlRequest request);
 
-    // 2. Xác nhận đã upload xong
     @PostMapping(value = "/dms/internal/presigned/confirm", headers = "X-Internal-Secret=${security.internal-secret}")
-    ResponseApi<Void> confirmUpload(@RequestBody ConfirmUploadRequest request);
+    ResponseApi<Void> confirmUpload(@RequestBody DmsConfirmRequest request);
 }

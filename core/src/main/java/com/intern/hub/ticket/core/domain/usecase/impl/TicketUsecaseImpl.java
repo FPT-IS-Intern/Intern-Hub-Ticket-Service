@@ -1,8 +1,7 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
+import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
@@ -25,9 +25,11 @@ import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
+import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import lombok.RequiredArgsConstructor;
@@ -41,21 +43,32 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final Snowflake snowflake;
     private final RuleEvaluatorPort ruleEvaluator;
     private final EvidenceRepository evidenceRepository;
+    private final TicketTemplateValidator ticketTemplateValidator;
+    private final TicketApprovalRepository ticketApprovalRepository;
 
     @Override
     @Transactional(readOnly = true)
     public TicketModel getTicketDetail(Long ticketId) {
-        return ticketRepository.findById(ticketId)
+        TicketApprovalModel ticketApprovalModel = ticketApprovalRepository.findByTicketId(ticketId)
+                .orElse(null);
+
+        TicketModel ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(
                         () -> new NotFoundException("resource.not.found", "Ticket not found with id: " + ticketId));
+        if (ticketApprovalModel != null && ticketApprovalModel.getApproverId() != null) {
+            ticket.setApproverId(ticketApprovalModel.getApproverId());
+        }
+        return ticket;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TicketModel> getPendingTickets() {
         return ticketRepository.findByStatus(TicketStatus.PENDING);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaginatedData<TicketModel> getAllTickets(int page, int size) {
         return ticketRepository.findAllPaginated(page, size);
     }
@@ -64,15 +77,17 @@ public class TicketUsecaseImpl implements TicketUsecase {
     @Transactional
     public TicketModel create(CreateTicketCommand command) {
 
+        Map<String, Object> safePayload = command.payload() != null ? command.payload() : Collections.emptyMap();
+
         TicketTypeModel ticketType = ticketTypeRepository.findById(command.ticketTypeId())
                 .orElseThrow(() -> new BadRequestException("bad.request", "Ticket type not found"));
 
-        if (ticketType.getIsDeleted() == true) {
+        if (Boolean.TRUE.equals(ticketType.getIsDeleted())) {
             throw new BadRequestException("bad.request", "Ticket type is deleted");
         }
 
         if (ticketType.getFormConfig() != null && !ticketType.getFormConfig().isEmpty()) {
-            validatePayloadAgainstTemplate(command.payload(), ticketType.getFormConfig());
+            validatePayloadAgainstTemplate(safePayload, ticketType.getFormConfig());
         }
 
         boolean requireEvidence = Boolean.TRUE.equals(ticketType.getRequireEvidence());
@@ -80,7 +95,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         int requiredApprovals = 1;
         if (ticketType.getApprovalRule() != null) {
-            boolean isTrue = ruleEvaluator.evaluate(ticketType.getApprovalRule().getCondition(), command.payload());
+            boolean isTrue = ruleEvaluator.evaluate(ticketType.getApprovalRule().getCondition(), safePayload);
             Integer levels = isTrue ? ticketType.getApprovalRule().getLevelsIfTrue()
                     : ticketType.getApprovalRule().getLevelsIfFalse();
             if (levels != null && levels > 0) {
@@ -93,7 +108,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
                 .userId(command.userId())
                 .ticketTypeId(command.ticketTypeId())
                 .status(TicketStatus.PENDING)
-                .payload(command.payload() != null ? command.payload() : new HashMap<>())
+                .payload(safePayload)
                 .requiredApprovals(requiredApprovals)
                 .currentApprovalLevel(1)
                 .isDeleted(false)
@@ -116,11 +131,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
             evidenceRepository.saveAll(evidenceEntities);
         }
 
-        ticketEventPublisher.publishTicketCreatedEvent(
-                snowflake.next(),
-                savedTicket.getTicketId(),
-                savedTicket.getUserId(),
-                savedTicket.getTicketTypeId());
+        ticketEventPublisher.publishTicketCreatedEvent(savedTicket);
 
         return savedTicket;
     }
@@ -173,7 +184,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
             }
 
             if (!isNullOrEmpty(value)) {
-                validateFieldType(field, value);
+                ticketTemplateValidator.validateFieldType(field, value);
             }
         }
     }
@@ -186,111 +197,8 @@ public class TicketUsecaseImpl implements TicketUsecase {
         return value == null || value.trim().isEmpty();
     }
 
-    private void validateFieldType(TicketTemplateField field, Object value) {
-        String type = field.getType();
-        if (type == null) {
-            return;
-        }
-
-        String fieldCode = field.getFieldCode();
-
-        switch (type.toUpperCase()) {
-            case "TEXT":
-                if (!(value instanceof String)) {
-                    throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be text (String).");
-                }
-                break;
-
-            case "DATE":
-                if (!(value instanceof String)) {
-                    throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be a date string.");
-                }
-                try {
-                    LocalDate.parse((String) value);
-                } catch (DateTimeParseException e) {
-                    throw new BadRequestException("invalid.format",
-                            "Field " + fieldCode + " must be in yyyy-MM-dd format.");
-                }
-                break;
-
-            case "DROPDOWN":
-                if (!(value instanceof String)) {
-                    throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be a text value.");
-                }
-
-                String stringValue = (String) value;
-                boolean isValidOption = false;
-
-                if (field.getOptions() != null) {
-                    isValidOption = field.getOptions().stream()
-                            .anyMatch(option -> stringValue.equals(option.getValue()));
-                }
-
-                if (!isValidOption) {
-                    throw new BadRequestException("invalid.value",
-                            "Invalid option for field " + fieldCode + ". Value '" + stringValue + "' is not allowed.");
-                }
-                break;
-
-            case "NUMBER":
-                if (value instanceof Number) {
-                    break;
-                } else if (value instanceof String) {
-                    try {
-                        new java.math.BigDecimal((String) value);
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException("invalid.type",
-                                "Field " + fieldCode + " must be a valid number.");
-                    }
-                } else {
-                    throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be a number.");
-                }
-                break;
-
-            case "BOOLEAN":
-                if (value instanceof Boolean) {
-                    break;
-                } else if (value instanceof String) {
-                    String strBool = ((String) value).toLowerCase().trim();
-                    if (!strBool.equals("true") && !strBool.equals("false")) {
-                        throw new BadRequestException("invalid.type",
-                                "Field " + fieldCode + " must be boolean (true/false).");
-                    }
-                } else {
-                    throw new BadRequestException("invalid.type", "Field " + fieldCode + " must be a boolean.");
-                }
-                break;
-
-            case "CHECKBOX":
-
-                if (!(value instanceof java.util.List)) {
-                    throw new BadRequestException("invalid.type",
-                            "Field " + fieldCode + " must be a list of choices (Array).");
-                }
-
-                java.util.List<?> selectedValues = (java.util.List<?>) value;
-
-                if (field.getOptions() != null && !field.getOptions().isEmpty()) {
-                    java.util.Set<String> validOptions = field.getOptions().stream()
-                            .map(TicketTemplateField.TemplateOption::getValue)
-                            .collect(java.util.stream.Collectors.toSet());
-
-                    for (Object selected : selectedValues) {
-                        if (!(selected instanceof String) || !validOptions.contains((String) selected)) {
-                            throw new BadRequestException("invalid.value",
-                                    "Invalid option '" + selected + "' for field " + fieldCode + ".");
-                        }
-                    }
-                }
-                break;
-
-            default:
-                // Log cảnh báo nếu có type mới mà chưa được support
-                break;
-        }
-    }
-
     @Override
+    @Transactional(readOnly = true)
     public Collection<TicketModel> getMyTickets(Long userId) {
         return ticketRepository.findByUserId(userId);
     }

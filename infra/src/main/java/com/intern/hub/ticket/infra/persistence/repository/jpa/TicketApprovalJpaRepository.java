@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.infra.persistence.repository.jpa;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,4 +12,5 @@ public interface TicketApprovalJpaRepository extends JpaRepository<TicketApprova
 
     boolean existsByIdempotencyKey(String idempotencyKey);
 
+    Optional<TicketApproval> findByTicketId(Long ticketId);
 }

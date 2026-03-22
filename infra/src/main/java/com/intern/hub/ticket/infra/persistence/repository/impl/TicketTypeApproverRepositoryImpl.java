@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.infra.persistence.repository.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 import com.intern.hub.ticket.core.domain.model.TicketTypeApproverModel;
@@ -31,5 +33,10 @@ public class TicketTypeApproverRepositoryImpl implements TicketTypeApproverRepos
     @Override
     public void delete(Long ticketTypeId, Long approverId) {
         jpaRepository.deleteByTicketTypeIdAndApproverId(ticketTypeId, approverId);
+    }
+
+    @Override
+    public List<Long> findApproverIdsByTicketTypeId(Long ticketTypeId) {
+        return jpaRepository.findApproverIdsByTicketTypeId(ticketTypeId);
     }
 }
