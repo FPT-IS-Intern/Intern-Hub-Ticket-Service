@@ -32,8 +32,8 @@ public class TicketQueryController {
     private final TicketApiMapper ticketApiMapper;
 
     @GetMapping("/all")
-    @Authenticated
-    @HasPermission(action = Action.READ, resource = "ticket")
+//    @Authenticated
+//    @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -45,8 +45,8 @@ public class TicketQueryController {
     }
 
     @GetMapping("/pending")
-    @Authenticated
-    @HasPermission(action = Action.READ, resource = "ticket")
+//    @Authenticated
+//    @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getPendingTickets(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -55,15 +55,15 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    @Authenticated
-    @HasPermission(action = Action.READ, resource = "ticket")
+//    @Authenticated
+//    @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
         TicketModel model = ticketUsecase.getTicketDetail(ticketId);
         return ResponseApi.ok(ticketApiMapper.toDetailDto(model));
     }
 
     @GetMapping("/me")
-    @Authenticated
+//    @Authenticated
     public ResponseApi<List<TicketDto>> getMyTickets() {
         Long userId = UserContext.requiredUserId();
         List<TicketModel> models = (List<TicketModel>) ticketUsecase.getMyTickets(userId);
