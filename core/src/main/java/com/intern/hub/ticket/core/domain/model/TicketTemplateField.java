@@ -1,11 +1,11 @@
 package com.intern.hub.ticket.core.domain.model;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +14,7 @@ import java.util.List;
 public class TicketTemplateField {
     private String fieldCode;
     private String fieldName;
-    private String type; // TEXT, DATE, DROPDOWN...
+    private String type;
     private boolean required;
     private List<TemplateOption> options;
 

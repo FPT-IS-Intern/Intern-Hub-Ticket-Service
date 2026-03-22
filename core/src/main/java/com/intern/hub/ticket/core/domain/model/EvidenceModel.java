@@ -20,8 +20,7 @@ import lombok.experimental.FieldDefaults;
 public class EvidenceModel extends AuditModel {
     Long evidenceId;
     Long ticketId;
-    String evidenceFolder;
-    String evidenceUrl;
+    String evidenceKey;
     String fileType;
     Long fileSize;
     EvidenceStatus status;

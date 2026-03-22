@@ -1,5 +1,7 @@
 package com.intern.hub.ticket.api.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
@@ -16,6 +19,7 @@ import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.BulkApproveResponse;
 import com.intern.hub.ticket.core.domain.model.command.BulkApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.EvidenceCommand;
 import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
@@ -28,84 +32,103 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TicketCommandController {
 
-    private final ApproveTicketUsecase approveTicketUsecase;
-    private final TicketUsecase ticketUsecase;
+        private final ApproveTicketUsecase approveTicketUsecase;
+        private final TicketUsecase ticketUsecase;
 
-    @PostMapping
-    // @Authenticated
-    public ResponseApi<TicketResponse> createTicket(
-            @Valid @RequestBody CreateTicketRequest request) {
+        @PostMapping
+        // @Authenticated
+        public ResponseApi<TicketResponse> createTicket(@Valid @RequestBody CreateTicketRequest request) {
+                // 1. Lấy userId từ Context (Chốt 123L để test cũng được, nhưng mai mốt dùng
+                // Security nhé)
+                Long userId = 123L;
 
-        // Long userId = UserContext.requiredUserId();
-        Long userId = 123L;
+                // 2. Map từ Request sang Command (Dùng Stream để map mảng evidences)
+                List<EvidenceCommand> evidenceCommands = request.evidences() == null ? List.of()
+                                : request.evidences().stream()
+                                                .map(e -> {
+                                                        if (e == null) {
+                                                                throw new BadRequestException("bad.request",
+                                                                                "Evidence item must not be null");
+                                                        }
+                                                        return new EvidenceCommand(e.evidenceKey(), e.fileType(),
+                                                                        e.fileSize());
+                                                })
+                                                .toList();
 
-        CreateTicketCommand command = new CreateTicketCommand(userId, request.ticketTypeId(), request.payload());
-        TicketModel createdTicket = ticketUsecase.create(command);
+                CreateTicketCommand command = new CreateTicketCommand(
+                                userId,
+                                request.ticketTypeId(),
+                                request.payload(),
+                                evidenceCommands);
 
-        return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
-    }
+                // 3. Thực thi nghiệp vụ
+                TicketModel createdTicket = ticketUsecase.create(command);
 
-    @PostMapping("/{ticketId}/approve")
-    // @Authenticated
-    // @HasPermission(action = Action.REVIEW, resource = "ticket")
-    public ResponseApi<?> approveTicket(
-            @PathVariable Long ticketId,
-            @Valid @RequestBody ApproveTicketRequest request) {
+                // 4. Trả về kết quả
+                return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
+        }
 
-        // Long approverId = UserContext.requiredUserId();
-        Long approverId = 123L;
+        @PostMapping("/{ticketId}/approve")
+        // @Authenticated
+        // @HasPermission(action = Action.REVIEW, resource = "ticket")
+        public ResponseApi<?> approveTicket(
+                        @PathVariable Long ticketId,
+                        @Valid @RequestBody ApproveTicketRequest request) {
 
-        ApproveTicketCommand command = new ApproveTicketCommand(
-                ticketId,
-                approverId,
-                request.comment(),
-                request.idempotencyKey(),
-                request.version());
+                // Long approverId = UserContext.requiredUserId();
+                Long approverId = 123L;
 
-        approveTicketUsecase.approve(command);
+                ApproveTicketCommand command = new ApproveTicketCommand(
+                                ticketId,
+                                approverId,
+                                request.comment(),
+                                request.idempotencyKey(),
+                                request.version());
 
-        return ResponseApi.noContent();
-    }
+                approveTicketUsecase.approve(command);
 
-    @PostMapping("/{ticketId}/reject")
-    // @Authenticated
-    // @HasPermission(action = Action.REVIEW, resource = "ticket")
-    public ResponseApi<?> rejectTicket(
-            @PathVariable Long ticketId,
-            @Valid @RequestBody ApproveTicketRequest request) {
+                return ResponseApi.noContent();
+        }
 
-        // Long approverId = UserContext.requiredUserId();
-        Long approverId = 123L;
+        @PostMapping("/{ticketId}/reject")
+        // @Authenticated
+        // @HasPermission(action = Action.REVIEW, resource = "ticket")
+        public ResponseApi<?> rejectTicket(
+                        @PathVariable Long ticketId,
+                        @Valid @RequestBody ApproveTicketRequest request) {
 
-        RejectTicketCommand command = new RejectTicketCommand(
-                ticketId,
-                approverId,
-                request.comment(),
-                request.idempotencyKey(),
-                request.version());
+                // Long approverId = UserContext.requiredUserId();
+                Long approverId = 123L;
 
-        approveTicketUsecase.reject(command);
+                RejectTicketCommand command = new RejectTicketCommand(
+                                ticketId,
+                                approverId,
+                                request.comment(),
+                                request.idempotencyKey(),
+                                request.version());
 
-        return ResponseApi.noContent();
-    }
+                approveTicketUsecase.reject(command);
 
-    @PostMapping("/bulk-approve")
-    // @Authenticated
-    // @HasPermission(action = Action.REVIEW, resource = "ticket")
-    public ResponseApi<BulkApproveResponse> bulkApprove(
-            @Valid @RequestBody BulkApproveTicketRequest request) {
+                return ResponseApi.noContent();
+        }
 
-        // Long approverId = UserContext.requiredUserId();
-        Long approverId = 123L;
+        @PostMapping("/bulk-approve")
+        // @Authenticated
+        // @HasPermission(action = Action.REVIEW, resource = "ticket")
+        public ResponseApi<BulkApproveResponse> bulkApprove(
+                        @Valid @RequestBody BulkApproveTicketRequest request) {
 
-        BulkApproveTicketCommand command = new BulkApproveTicketCommand(
-                request.idempotencyKey(),
-                request.tickets(),
-                approverId,
-                request.comment());
-        BulkApproveResponse response = approveTicketUsecase.bulkApprove(command);
+                // Long approverId = UserContext.requiredUserId();
+                Long approverId = 123L;
 
-        return ResponseApi.ok(response);
-    }
+                BulkApproveTicketCommand command = new BulkApproveTicketCommand(
+                                request.idempotencyKey(),
+                                request.tickets(),
+                                approverId,
+                                request.comment());
+                BulkApproveResponse response = approveTicketUsecase.bulkApprove(command);
+
+                return ResponseApi.ok(response);
+        }
 
 }

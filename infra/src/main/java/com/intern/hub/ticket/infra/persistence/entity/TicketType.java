@@ -7,6 +7,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.intern.hub.starter.security.entity.AuditEntity;
+import com.intern.hub.ticket.core.domain.model.ApprovalRule;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.infra.persistence.entity.converter.JpaConverterListTicketTemplateField;
 
@@ -26,8 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-
-import com.intern.hub.ticket.core.domain.model.ApprovalRule;
 
 @Getter
 @Setter
@@ -49,10 +48,12 @@ public class TicketType extends AuditEntity {
 
     String description;
 
+    Boolean requireEvidence;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     @Convert(converter = JpaConverterListTicketTemplateField.class)
-    List<TicketTemplateField> template;
+    List<TicketTemplateField> formConfig;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

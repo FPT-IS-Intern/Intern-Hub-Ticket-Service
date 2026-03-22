@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -34,16 +36,16 @@ public class Evidence extends AuditEntity {
     Long id;
 
     Long ticketId;
-    String evidenceFolder;
 
     @Column(columnDefinition = "text")
-    String evidenceUrl;
+    String evidenceKey;
 
     @Column(length = 100)
     String fileType;
 
     Long fileSize;
 
+    @Enumerated(EnumType.STRING)
     EvidenceStatus status;
 
 }

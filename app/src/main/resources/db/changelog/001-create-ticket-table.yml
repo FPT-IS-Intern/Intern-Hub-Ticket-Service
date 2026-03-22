@@ -249,3 +249,14 @@ databaseChangeLog:
                   type: boolean
                   defaultValueBoolean: false
 
+  - changeSet:
+      id: 014-rename-template-to-form-config
+      author: linh.le
+      comment: Đổi tên cột template thành form_config
+      changes:
+        - renameColumn:
+            tableName: ticket_types
+            oldColumnName: template
+            newColumnName: form_config
+            columnDataType: jsonb
+

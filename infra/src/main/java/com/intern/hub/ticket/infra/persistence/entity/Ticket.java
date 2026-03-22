@@ -8,12 +8,15 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.intern.hub.starter.security.entity.AuditEntity;
+import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.infra.persistence.entity.converter.JpaConverterJson;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -46,8 +49,9 @@ public class Ticket extends AuditEntity {
     @Column(nullable = false)
     Long ticketTypeId;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    String status;
+    TicketStatus status;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")

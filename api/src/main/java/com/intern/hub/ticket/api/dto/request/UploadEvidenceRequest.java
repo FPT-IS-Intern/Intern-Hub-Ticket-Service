@@ -4,11 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record UploadEvidenceRequest(
-        @NotBlank(message = "Evidence folder is required") String evidenceFolder,
 
-        @NotBlank(message = "Evidence URL is required") String evidenceUrl,
+                @NotBlank(message = "Evidence key is required") String evidenceKey,
 
-        @NotBlank(message = "File type is required") String fileType,
+                @NotBlank(message = "File type is required") String fileType,
 
-        @NotNull(message = "File size is required") Long fileSize) {
+                @NotNull(message = "File size is required") Long fileSize) {
 }

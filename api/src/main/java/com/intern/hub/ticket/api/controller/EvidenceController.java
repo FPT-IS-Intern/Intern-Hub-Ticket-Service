@@ -1,7 +1,6 @@
 package com.intern.hub.ticket.api.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
 import com.intern.hub.ticket.api.dto.response.EvidenceDto;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
@@ -29,16 +27,14 @@ public class EvidenceController {
     private final EvidenceUsecase evidenceUsecase;
 
     @PostMapping
-//    @Authenticated
-    // @HasPermission(action = Action.UPDATE, resource = "ticket")
-    public ResponseApi<EvidenceDto> uploadEvidence(
+    // @Authenticated
+    public ResponseApi<EvidenceDto> attachEvidence(
             @PathVariable Long ticketId,
             @Valid @RequestBody UploadEvidenceRequest request) {
 
         UploadEvidenceCommand command = new UploadEvidenceCommand(
                 ticketId,
-                request.evidenceFolder(),
-                request.evidenceUrl(),
+                request.evidenceKey(),
                 request.fileType(),
                 request.fileSize());
 
@@ -46,20 +42,25 @@ public class EvidenceController {
         return ResponseApi.ok(mapToDto(savedModel));
     }
 
+    /**
+     * Lấy danh sách minh chứng của một Ticket
+     */
     @GetMapping
-//    @Authenticated
-    // @HasPermission(action = Action.READ, resource = "ticket")
+    // @Authenticated
     public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
         List<EvidenceDto> dtos = evidenceUsecase.getEvidences(ticketId).stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseApi.ok(dtos);
     }
 
     private EvidenceDto mapToDto(EvidenceModel model) {
         return new EvidenceDto(
-                model.getEvidenceId(), model.getTicketId(), model.getEvidenceFolder(),
-                model.getEvidenceUrl(), model.getFileType(), model.getFileSize(),
+                model.getEvidenceId(),
+                model.getTicketId(),
+                model.getEvidenceKey(),
+                model.getFileType(),
+                model.getFileSize(),
                 model.getStatus(),
                 model.getCreatedAt(),
                 model.getUpdatedAt(),

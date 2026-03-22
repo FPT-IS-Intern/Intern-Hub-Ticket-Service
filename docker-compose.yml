@@ -1,18 +1,18 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16
-    container_name: postgres-local
-    restart: always
-    environment:
-      POSTGRES_DB: testdb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
+  minio:
+    image: minio/minio:latest
+    container_name: intern-hub-minio
     ports:
-      - "5432:5432"
+      - "9000:9000" # Cổng API (Spring Boot của bro sẽ gọi vào cổng này)
+      - "9001:9001" # Cổng Giao diện Web (Bro dùng trình duyệt vào cổng này)
+    environment:
+      MINIO_ROOT_USER: minioadmin # Đóng vai trò là AWS Access Key
+      MINIO_ROOT_PASSWORD: minioadmin # Đóng vai trò là AWS Secret Key
+    command: server /data --console-address ":9001"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - minio_local_data:/data # Mount volume để tắt Docker đi ảnh không bị mất
 
 volumes:
-  postgres_data:
+  minio_local_data:
