@@ -14,6 +14,7 @@ import com.intern.hub.starter.security.annotation.Internal;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketResponse;
+import com.intern.hub.ticket.api.mapper.TicketApiMapper;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.EvidenceCommand;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class InternalTicketCommandController {
 
         private final TicketUsecase ticketUsecase;
+        private final TicketApiMapper ticketApiMapper;
 
         @PostMapping
         @Internal
@@ -54,21 +56,7 @@ public class InternalTicketCommandController {
         @Internal
         public ResponseApi<TicketDetailDto> getTicketDetailInternal(@PathVariable Long ticketId) {
                 TicketModel model = ticketUsecase.getTicketDetail(ticketId);
-
-                TicketDetailDto detailDto = new TicketDetailDto(
-                                model.getTicketId(),
-                                model.getUserId(),
-                                model.getTicketTypeId(),
-                                model.getStatus(),
-                                model.getPayload(),
-                                model.getCreatedAt(),
-                                model.getUpdatedAt(),
-                                model.getCreatedBy(),
-                                model.getUpdatedBy(),
-                                model.getRequiredApprovals(),
-                                model.getCurrentApprovalLevel(),
-                                model.getApproverId());
-                return ResponseApi.ok(detailDto);
+                return ResponseApi.ok(ticketApiMapper.toDetailDto(model));
         }
 
 }

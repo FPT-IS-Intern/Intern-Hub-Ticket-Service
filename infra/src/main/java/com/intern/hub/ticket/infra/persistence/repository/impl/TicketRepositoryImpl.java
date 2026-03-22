@@ -57,7 +57,7 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
-    public PaginatedData<TicketModel> findAllPaginated(int page, int size, String nameOrEmail, String typeName, String status) {
+    public PaginatedData<TicketModel> findAllPaginated(int page, int size, List<Long> userIds, String typeName, String status) {
         Specification<Ticket> spec = (root, query, cb) -> {
             List<Predicate> predicates = new java.util.ArrayList<>();
 
@@ -73,12 +73,9 @@ public class TicketRepositoryImpl implements TicketRepository {
                 predicates.add(cb.like(cb.lower(typeJoin.get("typeName")), "%" + typeName.toLowerCase() + "%"));
             }
 
-            // nameOrEmail search
-            if (nameOrEmail != null && !nameOrEmail.isBlank()) {
-                String pattern = "%" + nameOrEmail.toLowerCase() + "%";
-                Predicate nameInPayload = cb.like(cb.lower(cb.function("jsonb_extract_path_text", String.class, root.get("payload"), cb.literal("name"))), pattern);
-                Predicate emailInPayload = cb.like(cb.lower(cb.function("jsonb_extract_path_text", String.class, root.get("payload"), cb.literal("email"))), pattern);
-                predicates.add(cb.or(nameInPayload, emailInPayload));
+            // userId filter
+            if (userIds != null && !userIds.isEmpty()) {
+                predicates.add(root.get("userId").in(userIds));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

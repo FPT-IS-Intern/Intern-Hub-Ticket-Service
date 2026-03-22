@@ -20,7 +20,7 @@ public interface TicketRepository {
 
     PaginatedData<TicketModel> findAllPaginated(int page, int size);
 
-    PaginatedData<TicketModel> findAllPaginated(int page, int size, String nameOrEmail, String typeName, String status);
+    PaginatedData<TicketModel> findAllPaginated(int page, int size, List<Long> userIds, String typeName, String status);
 
     Collection<TicketModel> findByUserId(Long userId);
 }

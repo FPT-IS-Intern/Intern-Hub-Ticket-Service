@@ -25,6 +25,7 @@ import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -45,6 +46,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final EvidenceRepository evidenceRepository;
     private final TicketTemplateValidator ticketTemplateValidator;
     private final TicketApprovalRepository ticketApprovalRepository;
+    private final HrmServicePort hrmServicePort;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,7 +78,14 @@ public class TicketUsecaseImpl implements TicketUsecase {
     @Override
     @Transactional(readOnly = true)
     public PaginatedData<TicketModel> getAllTickets(int page, int size, String nameOrEmail, String typeName, String status) {
-        return ticketRepository.findAllPaginated(page, size, nameOrEmail, typeName, status);
+        List<Long> userIds = null;
+        if (nameOrEmail != null && !nameOrEmail.isBlank()) {
+            userIds = hrmServicePort.searchUsers(nameOrEmail);
+            if (userIds.isEmpty()) {
+                return PaginatedData.empty();
+            }
+        }
+        return ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
     }
 
     @Override

@@ -97,10 +97,37 @@ feign:
   client:
     dms:
       url: ${DMS_SERVICE_URL:http://localhost:8081}
+    hrm:
+      url: ${HRM_SERVICE_URL:http://localhost:8082}
     config:
-      dms:
+      default:
         connectTimeout: 5000
         readTimeout: 5000
+
+hrm:
+  service:
+    url: ${HRM_SERVICE_URL:http://localhost:8082}
+
+dms:
+  service:
+    url: ${DMS_SERVICE_URL:http://localhost:8081}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      hrm-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 5000
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  retry:
+    instances:
+      hrm-service:
+        maxAttempts: 3
+        waitDuration: 1000
 
 services:
   gateway:
