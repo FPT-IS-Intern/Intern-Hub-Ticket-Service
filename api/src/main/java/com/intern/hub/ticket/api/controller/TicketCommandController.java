@@ -15,6 +15,7 @@ import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
 import com.intern.hub.ticket.api.dto.response.TicketResponse;
+import com.intern.hub.ticket.api.util.UserContext;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.BulkApproveResponse;
@@ -39,9 +40,9 @@ public class TicketCommandController {
         @PostMapping
         @Authenticated
         public ResponseApi<TicketResponse> createTicket(@Valid @RequestBody CreateTicketRequest request) {
-                // 1. Lấy userId từ Context (Chốt 123L để test cũng được, nhưng mai mốt dùng
-                // Security nhé)
-                Long userId = 123L;
+                
+                //Long userId = 123L;
+                Long userId = UserContext.requiredUserId(); 
 
                 // 2. Map từ Request sang Command (Dùng Stream để map mảng evidences)
                 List<EvidenceCommand> evidenceCommands = request.evidences() == null ? List.of()
@@ -76,8 +77,8 @@ public class TicketCommandController {
                         @PathVariable Long ticketId,
                         @Valid @RequestBody ApproveTicketRequest request) {
 
-                // Long approverId = UserContext.requiredUserId();
-                Long approverId = 123L;
+                Long approverId = UserContext.requiredUserId();
+                //Long approverId = 123L;
 
                 ApproveTicketCommand command = new ApproveTicketCommand(
                                 ticketId,
@@ -98,8 +99,8 @@ public class TicketCommandController {
                         @PathVariable Long ticketId,
                         @Valid @RequestBody ApproveTicketRequest request) {
 
-                // Long approverId = UserContext.requiredUserId();
-                Long approverId = 123L;
+                Long approverId = UserContext.requiredUserId();
+                //Long approverId = 123L;
 
                 RejectTicketCommand command = new RejectTicketCommand(
                                 ticketId,
@@ -119,8 +120,8 @@ public class TicketCommandController {
         public ResponseApi<BulkApproveResponse> bulkApprove(
                         @Valid @RequestBody BulkApproveTicketRequest request) {
 
-                // Long approverId = UserContext.requiredUserId();
-                Long approverId = 123L;
+                Long approverId = UserContext.requiredUserId();
+                //Long approverId = 123L;
 
                 BulkApproveTicketCommand command = new BulkApproveTicketCommand(
                                 request.idempotencyKey(),
