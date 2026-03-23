@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.PresignedUrlReq;
-import com.intern.hub.ticket.api.dto.request.UploadEvidenceRequest;
 import com.intern.hub.ticket.api.dto.response.EvidenceDto;
 import com.intern.hub.ticket.api.dto.response.PresignedUrlDto;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
-import com.intern.hub.ticket.core.domain.model.command.UploadEvidenceCommand;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 
 import jakarta.validation.Valid;
@@ -30,7 +29,7 @@ public class EvidenceController {
     private final EvidenceUsecase evidenceUsecase;
 
     @PostMapping("/presigned-url")
-    // @Authenticated
+    @Authenticated
     public ResponseApi<PresignedUrlDto> generatePresignedUrl(@Valid @RequestBody PresignedUrlReq request) {
 
         // Gọi thẳng vào core
@@ -40,30 +39,14 @@ public class EvidenceController {
                 request.fileSize());
 
         // Trả kết quả về Frontend
-        return ResponseApi.ok(new PresignedUrlDto(model.uploadUrl(), model.objectKey()));
-    }
-
-    @PostMapping
-    // @Authenticated
-    public ResponseApi<EvidenceDto> attachEvidence(
-            @PathVariable Long ticketId,
-            @Valid @RequestBody UploadEvidenceRequest request) {
-
-        UploadEvidenceCommand command = new UploadEvidenceCommand(
-                ticketId,
-                request.evidenceKey(),
-                request.fileType(),
-                request.fileSize());
-
-        EvidenceModel savedModel = evidenceUsecase.uploadEvidence(command);
-        return ResponseApi.ok(mapToDto(savedModel));
+        return ResponseApi.ok(new PresignedUrlDto(model.uploadUrl(), model.tempKey()));
     }
 
     /**
      * Lấy danh sách minh chứng của một Ticket
      */
     @GetMapping
-    // @Authenticated
+    @Authenticated
     public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
         List<EvidenceDto> dtos = evidenceUsecase.getEvidences(ticketId).stream()
                 .map(this::mapToDto)

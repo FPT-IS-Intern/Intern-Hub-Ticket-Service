@@ -7,5 +7,5 @@ public interface DmsPort {
     PresignedUrlModel generatePresignedUrl(String fileName, String contentType, Long fileSize);
 
     // Xác nhận đã upload thành công
-    void confirmUpload(String objectKey);
+    void confirmUpload(String tempKey, String destinationPath);
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -26,7 +27,7 @@ public class TicketQueryController {
     private final TicketUsecase ticketUsecase;
 
     @GetMapping("/all")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<PaginatedData<TicketDto>> getAllTickets(
             @RequestParam(defaultValue = "0") int page,
@@ -37,7 +38,7 @@ public class TicketQueryController {
     }
 
     @GetMapping("/pending")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getPendingTickets(
             @RequestParam(defaultValue = "0") int page,
@@ -49,7 +50,7 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
         TicketModel model = ticketUsecase.getTicketDetail(ticketId);
@@ -72,7 +73,7 @@ public class TicketQueryController {
     }
 
     @GetMapping("/me")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getMyTickets() {
         Long userId = 123L;

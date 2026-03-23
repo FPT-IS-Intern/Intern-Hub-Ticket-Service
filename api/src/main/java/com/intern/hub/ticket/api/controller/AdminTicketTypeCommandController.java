@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.CreateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.request.UpdateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.response.TicketTypeDetailDTO;
@@ -34,7 +35,7 @@ public class AdminTicketTypeCommandController {
     private final TicketTypeUseCase ticketTypeUseCase;
 
     @PostMapping
-    // @Authenticated
+    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.CREATE)
     public ResponseApi<TicketTypeResponse> createTicketType(
             @Valid @RequestBody CreateTicketTypeRequest request) {
@@ -61,7 +62,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @PatchMapping("/{ticketTypeId}")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<TicketTypeResponse> updateTicketType(
             @PathVariable Long ticketTypeId,
@@ -89,7 +90,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @DeleteMapping("/{ticketTypeId}")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.DELETE)
     public ResponseApi<Void> deleteTicketType(@PathVariable Long ticketTypeId) {
         ticketTypeUseCase.delete(ticketTypeId);
@@ -97,7 +98,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @GetMapping("/{ticketTypeId}")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
     public ResponseApi<TicketTypeDetailDTO> getTicketType(@PathVariable Long ticketTypeId) {
         TicketTypeModel model = ticketTypeUseCase.getById(ticketTypeId);
@@ -126,7 +127,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @GetMapping("/all")
-    // @Authenticated
+    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
     public ResponseApi<List<TicketTypeResponse>> getAllTicketTypes() {
         List<TicketTypeResponse> response = ticketTypeUseCase.getAll().stream()
