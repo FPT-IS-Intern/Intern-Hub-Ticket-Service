@@ -10,6 +10,7 @@ import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
+import com.intern.hub.ticket.api.util.UserContext;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
@@ -73,7 +74,8 @@ public class TicketQueryController {
 //    @Authenticated
     // @HasPermission(action = Action.READ, resource = "ticket")
     public ResponseApi<List<TicketDto>> getMyTickets() {
-        Long userId = 123L;
+        //Long userId = 123L;
+        Long userId = UserContext.requiredUserId();
         List<TicketDto> response = ticketUsecase.getMyTickets(userId).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
