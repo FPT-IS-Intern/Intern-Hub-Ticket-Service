@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/ticket")
-//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class TicketQueryController {
 

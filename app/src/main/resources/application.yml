@@ -112,23 +112,6 @@ dms:
   service:
     url: ${DMS_SERVICE_URL:http://localhost:8081}
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      hrm-service:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        waitDurationInOpenState: 5000
-        failureRateThreshold: 50
-        eventConsumerBufferSize: 10
-  retry:
-    instances:
-      hrm-service:
-        maxAttempts: 3
-        waitDuration: 1000
-
 services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}

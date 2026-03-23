@@ -9,6 +9,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
+import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
+import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
+import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
+import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.intern.hub.library.common.dto.PaginatedData;
@@ -21,16 +28,9 @@ import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
-import com.intern.hub.ticket.core.domain.model.command.EvidenceCommand;
+import com.intern.hub.ticket.core.domain.model.command.FileCommand;
 import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
-import com.intern.hub.ticket.core.domain.port.DmsPort;
-import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
-import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
-import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
-import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
-import com.intern.hub.ticket.core.domain.port.TicketRepository;
-import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
@@ -47,7 +47,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final EvidenceRepository evidenceRepository;
     private final TicketTemplateValidator ticketTemplateValidator;
     private final TicketApprovalRepository ticketApprovalRepository;
-    private final DmsPort dmsPort;
+    private final InternalUploadDirectPort internalUploadDirectPort;
 
     @Override
     @Transactional(readOnly = true)
@@ -124,32 +124,29 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         TicketModel savedTicket = ticketRepository.save(ticket);
 
-        if (command.evidences() != null && !command.evidences().isEmpty()) {
+        if (command.evidences() != null && command.evidences().length > 0) {
             List<EvidenceModel> evidenceEntities = new ArrayList<>();
+            String baseDestinationPath = "tickets/" + savedTicket.getTicketId() + "/evidences";
 
-            for (var e : command.evidences()) {
-                if (e.tempKey() == null || e.tempKey().isBlank()) {
-                    throw new BadRequestException("bad.request", "Evidence key is empty");
-                }
+            for (int i = 0; i < command.evidences().length; i++) {
+                FileCommand fileCommand = command.evidences()[i];
+                String destinationPath = baseDestinationPath + "/" + snowflake.next();
 
-                String tempKey = e.tempKey();
-                String destinationPath = tempKey.replace("tmp/", "tickets/evidences/");
-
+                String objectKey;
                 try {
-                    dmsPort.confirmUpload(tempKey, destinationPath);
+                    objectKey = internalUploadDirectPort.upload(fileCommand, destinationPath, command.userId());
                 } catch (Exception ex) {
                     throw new BadRequestException(
-                        "bad.request",
-                        "Minh chứng không hợp lệ hoặc chưa được upload: " + e.tempKey()
-                    );
+                            "bad.request",
+                            "Không thể upload minh chứng: " + fileCommand.originalFilename());
                 }
 
                 evidenceEntities.add(EvidenceModel.builder()
                         .evidenceId(snowflake.next())
                         .ticketId(savedTicket.getTicketId())
-                        .evidenceKey(destinationPath)
-                        .fileType(e.fileType())
-                        .fileSize(e.fileSize())
+                        .evidenceKey(objectKey)
+                        .fileType(fileCommand.contentType())
+                        .fileSize(fileCommand.size())
                         .status(EvidenceStatus.UPLOADED)
                         .build());
             }
@@ -162,27 +159,19 @@ public class TicketUsecaseImpl implements TicketUsecase {
         return savedTicket;
     }
 
-    private void validateEvidences(List<EvidenceCommand> evidences, boolean requireEvidence) {
-        if (requireEvidence && (evidences == null || evidences.isEmpty())) {
+    private void validateEvidences(FileCommand[] evidences, boolean requireEvidence) {
+        if (requireEvidence && (evidences == null || evidences.length == 0)) {
             throw new BadRequestException("bad.request", "Evidence is required");
         }
-
-        if (evidences == null || evidences.isEmpty()) {
+        if (evidences == null || evidences.length == 0) {
             return;
         }
-
-        for (EvidenceCommand evidence : evidences) {
+        for (FileCommand evidence : evidences) {
             if (evidence == null) {
                 throw new BadRequestException("bad.request", "Evidence item must not be null");
             }
-            if (isBlank(evidence.tempKey())) {
-                throw new BadRequestException("bad.request", "tempKey is required");
-            }
-            if (isBlank(evidence.fileType())) {
-                throw new BadRequestException("bad.request", "fileType is required");
-            }
-            if (evidence.fileSize() == null || evidence.fileSize() <= 0) {
-                throw new BadRequestException("bad.request", "fileSize must be greater than 0");
+            if (evidence.content() == null || evidence.content().length == 0) {
+                throw new BadRequestException("bad.request", "Evidence file content is empty");
             }
         }
     }
@@ -217,10 +206,6 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
     private boolean isNullOrEmpty(Object value) {
         return value == null || (value instanceof String && ((String) value).trim().isEmpty());
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
     }
 
     @Override
