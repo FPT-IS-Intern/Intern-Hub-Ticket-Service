@@ -29,8 +29,8 @@ public class DmsAdapter implements DmsPort {
     }
 
     @Override
-    public void confirmUpload(String objectKey) {
-        dmsFeignClient.confirmUpload(new DmsConfirmRequest(objectKey));
+    public void confirmUpload(String tempKey, String destinationPath) {
+        dmsFeignClient.confirmUpload(new DmsConfirmRequest(tempKey, destinationPath));
     }
 
 }

@@ -1,8 +1,8 @@
-package com.intern.hub.ticket.core.domain.model.command;
+/* package com.intern.hub.ticket.core.domain.model.command;
 
 public record UploadEvidenceCommand(
                 Long ticketId,
-                String evidenceKey,
+                String tempKey,
                 String fileType,
                 Long fileSize) {
-}
+} */

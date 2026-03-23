@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
-import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
@@ -59,18 +58,16 @@ public class UseCaseConfig {
             EvidenceRepository evidenceRepository,
             TicketTemplateValidator ticketTemplateValidator,
             TicketApprovalRepository ticketApprovalRepository,
-            HrmServicePort hrmServicePort) {
+            DmsPort dmsPort) {
         return new TicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
-                ruleEvaluatorPort, evidenceRepository, ticketTemplateValidator, ticketApprovalRepository, hrmServicePort);
+                ruleEvaluatorPort, evidenceRepository, ticketTemplateValidator, ticketApprovalRepository, dmsPort);
     }
 
     @Bean
     public EvidenceUsecase evidenceUsecase(
             EvidenceRepository evidenceRepository,
-            TicketRepository ticketRepository,
-            Snowflake snowflake,
             DmsPort dmsPort) {
-        return new EvidenceUsecaseImpl(evidenceRepository, ticketRepository, snowflake, dmsPort);
+        return new EvidenceUsecaseImpl(evidenceRepository, dmsPort);
     }
 
     @Bean

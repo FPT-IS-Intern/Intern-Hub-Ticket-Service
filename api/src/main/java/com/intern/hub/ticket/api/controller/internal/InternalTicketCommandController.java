@@ -40,7 +40,7 @@ public class InternalTicketCommandController {
 
                 List<EvidenceCommand> evidenceCommands = request.evidences() == null ? List.of()
                                 : request.evidences().stream()
-                                                .map(e -> new EvidenceCommand(e.evidenceKey(), e.fileType(),
+                                                .map(e -> new EvidenceCommand(e.tempKey(),e.destinationPath(), e.fileType(),
                                                                 e.fileSize()))
                                                 .toList();
 

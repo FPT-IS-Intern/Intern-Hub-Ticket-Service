@@ -3,16 +3,10 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.CreateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.request.UpdateTicketTypeRequest;
 import com.intern.hub.ticket.api.dto.response.TicketTypeDetailDTO;
@@ -29,12 +23,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket/ticket-types")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class AdminTicketTypeCommandController {
 
     private final TicketTypeUseCase ticketTypeUseCase;
 
     @PostMapping
-    // @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.CREATE)
     public ResponseApi<TicketTypeResponse> createTicketType(
             @Valid @RequestBody CreateTicketTypeRequest request) {
@@ -61,7 +56,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @PatchMapping("/{ticketTypeId}")
-    // @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<TicketTypeResponse> updateTicketType(
             @PathVariable Long ticketTypeId,
@@ -89,7 +84,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @DeleteMapping("/{ticketTypeId}")
-    // @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.DELETE)
     public ResponseApi<Void> deleteTicketType(@PathVariable Long ticketTypeId) {
         ticketTypeUseCase.delete(ticketTypeId);
@@ -97,7 +92,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @GetMapping("/{ticketTypeId}")
-    // @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
     public ResponseApi<TicketTypeDetailDTO> getTicketType(@PathVariable Long ticketTypeId) {
         TicketTypeModel model = ticketTypeUseCase.getById(ticketTypeId);
@@ -126,7 +121,7 @@ public class AdminTicketTypeCommandController {
     }
 
     @GetMapping("/all")
-    // @Authenticated
+//    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
     public ResponseApi<List<TicketTypeResponse>> getAllTicketTypes() {
         List<TicketTypeResponse> response = ticketTypeUseCase.getAll().stream()

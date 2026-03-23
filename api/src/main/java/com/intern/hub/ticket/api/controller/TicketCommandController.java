@@ -2,14 +2,11 @@ package com.intern.hub.ticket.api.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.library.common.exception.BadRequestException;
+import com.intern.hub.starter.security.annotation.Authenticated;
 import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
@@ -30,13 +27,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TicketCommandController {
 
         private final ApproveTicketUsecase approveTicketUsecase;
         private final TicketUsecase ticketUsecase;
 
         @PostMapping
-        // @Authenticated
+//        @Authenticated
         public ResponseApi<TicketResponse> createTicket(@Valid @RequestBody CreateTicketRequest request) {
                 // 1. Lấy userId từ Context (Chốt 123L để test cũng được, nhưng mai mốt dùng
                 // Security nhé)
@@ -50,7 +48,7 @@ public class TicketCommandController {
                                                                 throw new BadRequestException("bad.request",
                                                                                 "Evidence item must not be null");
                                                         }
-                                                        return new EvidenceCommand(e.evidenceKey(), e.fileType(),
+                                                        return new EvidenceCommand(e.tempKey(), e.destinationPath(), e.fileType(),
                                                                         e.fileSize());
                                                 })
                                                 .toList();
@@ -69,7 +67,7 @@ public class TicketCommandController {
         }
 
         @PostMapping("/{ticketId}/approve")
-        // @Authenticated
+//        @Authenticated
         // @HasPermission(action = Action.REVIEW, resource = "ticket")
         public ResponseApi<?> approveTicket(
                         @PathVariable Long ticketId,
@@ -91,7 +89,7 @@ public class TicketCommandController {
         }
 
         @PostMapping("/{ticketId}/reject")
-        // @Authenticated
+//        @Authenticated
         // @HasPermission(action = Action.REVIEW, resource = "ticket")
         public ResponseApi<?> rejectTicket(
                         @PathVariable Long ticketId,
@@ -113,7 +111,7 @@ public class TicketCommandController {
         }
 
         @PostMapping("/bulk-approve")
-        // @Authenticated
+//        @Authenticated
         // @HasPermission(action = Action.REVIEW, resource = "ticket")
         public ResponseApi<BulkApproveResponse> bulkApprove(
                         @Valid @RequestBody BulkApproveTicketRequest request) {

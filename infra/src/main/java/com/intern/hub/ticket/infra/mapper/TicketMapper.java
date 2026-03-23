@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
+import com.intern.hub.ticket.infra.persistence.entity.TicketType;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TicketMapper {
@@ -29,6 +30,14 @@ public interface TicketMapper {
         entity.setUpdatedAt(model.getUpdatedAt());
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
+
+        // Map ticketTypeId to a TicketType entity reference for the @ManyToOne relationship
+        // This is required because the ticketTypeId column is insertable=false on the entity
+        if (model.getTicketTypeId() != null) {
+            TicketType ticketType = new TicketType();
+            ticketType.setTicketTypeId(model.getTicketTypeId());
+            entity.setTicketType(ticketType);
+        }
     }
 
     @AfterMapping
