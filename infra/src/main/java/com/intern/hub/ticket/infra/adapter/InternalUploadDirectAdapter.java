@@ -1,15 +1,15 @@
 package com.intern.hub.ticket.infra.adapter;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.intern.hub.library.common.exception.BadRequestException;
+import com.intern.hub.library.common.exception.InternalErrorException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.library.common.exception.InternalErrorException;
-import com.intern.hub.ticket.core.domain.model.command.FileCommand;
+import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
 import com.intern.hub.ticket.infra.feignClient.InternalUploadDirectClient;
 import com.intern.hub.ticket.infra.feignClient.dto.DmsDocumentClientModel;
@@ -23,34 +23,31 @@ import lombok.extern.slf4j.Slf4j;
 public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
 
     private final InternalUploadDirectClient dmsInternalFeignClient;
+    private final Snowflake snowflake;
 
+    /**
+     * Upload a single file to DMS. Mirrors HRM's FileStorageAdapter.uploadFile pattern.
+     */
+    @Override
     public String uploadFile(
-            FileCommand fileCommand, String keyPrefix, Long actorId,
-            Long maxSizeBytes, String contentTypeRegex
-    ) {
-        if (fileCommand.size() > maxSizeBytes) {
+            MultipartFile file, String destinationPath, Long actorId,
+            Long maxSizeBytes, String contentTypeRegex) {
+
+        if (file.getSize() > maxSizeBytes) {
             throw new BadRequestException(
                     "file.size.exceeded",
-                    "Dung lượng file vượt quá giới hạn " + (maxSizeBytes / 1024 / 1024) + "MBs");
+                    "Dung lượng file vượt quá giới hạn " + (maxSizeBytes / 1024 / 1024) + "MB");
         }
 
-
-        String contentType = fileCommand.contentType();
+        String contentType = file.getContentType();
         if (contentType == null || !contentType.matches(contentTypeRegex)) {
             throw new BadRequestException(
                     "file.type.invalid", "Định dạng file không hợp lệ. Yêu cầu: " + contentTypeRegex);
         }
 
-        MultipartFile multipartFile = new MockMultipartFile(
-                fileCommand.originalFilename(),
-                fileCommand.originalFilename(),
-                contentType,
-                fileCommand.content()
-        );
-
         try {
             ResponseApi<DmsDocumentClientModel> response =
-                    dmsInternalFeignClient.uploadFile(multipartFile, keyPrefix, actorId, false);
+                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId, false);
 
             if (response == null || response.data() == null || !hasText(response.data().objectKey())) {
                 throw new InternalErrorException(
@@ -58,49 +55,35 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
             }
 
             return response.data().objectKey();
+        } catch (BadRequestException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("DMS upload failed for destination path {}", keyPrefix, e);
+            log.error("DMS upload failed for destination path {}", destinationPath, e);
             throw new InternalErrorException(
                     "storage.upload.error", "Không thể upload file lên hệ thống lưu trữ");
         }
     }
 
-    private static class MockMultipartFile implements MultipartFile {
-        private final String name;
-        private final String originalFilename;
-        private final String contentType;
-        private final byte[] bytes;
+    /**
+     * Upload multiple files to DMS. Each file is uploaded individually.
+     * Adapted from HRM single-file pattern for ticket's multi-file requirement.
+     */
+    @Override
+    public List<String> uploadFiles(
+            MultipartFile[] files, String baseDestinationPath, Long actorId,
+            Long maxSizeBytes, String contentTypeRegex) {
 
-        public MockMultipartFile(String name, String originalFilename, String contentType, byte[] bytes) {
-            this.name = name;
-            this.originalFilename = originalFilename;
-            this.contentType = contentType;
-            this.bytes = bytes;
+        if (files == null || files.length == 0) {
+            return List.of();
         }
 
-        @Override
-        public String getName() { return name; }
-
-        @Override
-        public String getOriginalFilename() { return originalFilename; }
-
-        @Override
-        public String getContentType() { return contentType; }
-
-        @Override
-        public boolean isEmpty() { return bytes == null || bytes.length == 0; }
-
-        @Override
-        public long getSize() { return bytes != null ? bytes.length : 0; }
-
-        @Override
-        public byte[] getBytes() { return bytes; }
-
-        @Override
-        public InputStream getInputStream() { return new ByteArrayInputStream(bytes); }
-
-        @Override
-        public void transferTo(java.io.File dest) { throw new UnsupportedOperationException(); }
+        List<String> objectKeys = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String destinationPath = baseDestinationPath + "/" + snowflake.next();
+            String objectKey = uploadFile(file, destinationPath, actorId, maxSizeBytes, contentTypeRegex);
+            objectKeys.add(objectKey);
+        }
+        return objectKeys;
     }
 
     private static boolean hasText(String value) {

@@ -9,14 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
-import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
-import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
-import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
-import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
-import com.intern.hub.ticket.core.domain.port.TicketRepository;
-import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
@@ -28,15 +22,23 @@ import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
-import com.intern.hub.ticket.core.domain.model.command.FileCommand;
 import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
+import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
+import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
+import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
+import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class TicketUsecaseImpl implements TicketUsecase {
 
     private final TicketRepository ticketRepository;
@@ -128,33 +130,27 @@ public class TicketUsecaseImpl implements TicketUsecase {
         TicketModel savedTicket = ticketRepository.save(ticket);
 
         if (command.evidences() != null && command.evidences().length > 0) {
-            List<EvidenceModel> evidenceEntities = new ArrayList<>();
             String baseDestinationPath = "tickets/" + savedTicket.getTicketId() + "/evidences";
 
-            for (int i = 0; i < command.evidences().length; i++) {
-                FileCommand fileCommand = command.evidences()[i];
-                String destinationPath = baseDestinationPath + "/" + snowflake.next();
+            // Upload all files via adapter (mirrors HRM pattern, passes MultipartFile directly)
+            List<String> objectKeys = internalUploadDirectPort.uploadFiles(
+                    command.evidences(),
+                    baseDestinationPath,
+                    command.userId(),
+                    MAX_EVIDENCE_SIZE_BYTES,
+                    EVIDENCE_CONTENT_TYPE_REGEX);
 
-                String objectKey;
-                try {
-                    objectKey = internalUploadDirectPort.uploadFile(
-                            fileCommand,
-                            destinationPath,
-                            command.userId(),
-                            MAX_EVIDENCE_SIZE_BYTES,
-                            EVIDENCE_CONTENT_TYPE_REGEX);
-                } catch (Exception ex) {
-                    throw new BadRequestException(
-                            "bad.request",
-                            "Không thể upload minh chứng: " + fileCommand.originalFilename());
-                }
-
+            // Build evidence entities from upload results
+            List<EvidenceModel> evidenceEntities = new ArrayList<>();
+            MultipartFile[] files = command.evidences();
+            log.info("objectKeys: {}", objectKeys);
+            for (int i = 0; i < objectKeys.size(); i++) {
                 evidenceEntities.add(EvidenceModel.builder()
                         .evidenceId(snowflake.next())
                         .ticketId(savedTicket.getTicketId())
-                        .evidenceKey(objectKey)
-                        .fileType(fileCommand.contentType())
-                        .fileSize(fileCommand.size())
+                        .evidenceKey(objectKeys.get(i))
+                        .fileType(files[i].getContentType())
+                        .fileSize(files[i].getSize())
                         .status(EvidenceStatus.UPLOADED)
                         .build());
             }
@@ -167,19 +163,16 @@ public class TicketUsecaseImpl implements TicketUsecase {
         return savedTicket;
     }
 
-    private void validateEvidences(FileCommand[] evidences, boolean requireEvidence) {
+    private void validateEvidences(MultipartFile[] evidences, boolean requireEvidence) {
         if (requireEvidence && (evidences == null || evidences.length == 0)) {
             throw new BadRequestException("bad.request", "Evidence is required");
         }
         if (evidences == null || evidences.length == 0) {
             return;
         }
-        for (FileCommand evidence : evidences) {
-            if (evidence == null) {
-                throw new BadRequestException("bad.request", "Evidence item must not be null");
-            }
-            if (evidence.content() == null || evidence.content().length == 0) {
-                throw new BadRequestException("bad.request", "Evidence file content is empty");
+        for (MultipartFile evidence : evidences) {
+            if (evidence == null || evidence.isEmpty()) {
+                throw new BadRequestException("bad.request", "Evidence file must not be empty");
             }
         }
     }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
-import com.intern.hub.ticket.core.domain.model.command.FileCommand;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface EvidenceUsecase {
 
@@ -12,5 +12,5 @@ public interface EvidenceUsecase {
 
     PresignedUrlModel getPresignedUrl(String fileName, String contentType, Long fileSize);
 
-    String uploadFile(FileCommand file, String destinationPath, Long actorId);
+    String uploadFile(MultipartFile file, String destinationPath, Long actorId);
 }

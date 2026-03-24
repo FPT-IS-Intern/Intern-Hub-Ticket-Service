@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
-import com.intern.hub.ticket.core.domain.model.command.FileCommand;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
@@ -12,6 +11,7 @@ import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +30,7 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
     }
 
     @Override
-    public String uploadFile(FileCommand file, String destinationPath, Long actorId) {
+    public String uploadFile(MultipartFile file, String destinationPath, Long actorId) {
         return internalUploadDirectPort.uploadFile(
                 file,
                 destinationPath,
