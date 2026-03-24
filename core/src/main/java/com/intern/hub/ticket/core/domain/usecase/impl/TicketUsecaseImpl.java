@@ -81,6 +81,9 @@ public class TicketUsecaseImpl implements TicketUsecase {
         return null;
     }
 
+    private static final long MAX_EVIDENCE_SIZE_BYTES = 20 * 1024 * 1024L; // 20MB
+    private static final String EVIDENCE_CONTENT_TYPE_REGEX = "image/(png|jpeg|jpg)|application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
     @Override
     @Transactional
     public TicketModel create(CreateTicketCommand command) {
@@ -134,7 +137,12 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
                 String objectKey;
                 try {
-                    objectKey = internalUploadDirectPort.upload(fileCommand, destinationPath, command.userId());
+                    objectKey = internalUploadDirectPort.uploadFile(
+                            fileCommand,
+                            destinationPath,
+                            command.userId(),
+                            MAX_EVIDENCE_SIZE_BYTES,
+                            EVIDENCE_CONTENT_TYPE_REGEX);
                 } catch (Exception ex) {
                     throw new BadRequestException(
                             "bad.request",

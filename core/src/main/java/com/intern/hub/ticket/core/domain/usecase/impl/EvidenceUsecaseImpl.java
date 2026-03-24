@@ -17,6 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EvidenceUsecaseImpl implements EvidenceUsecase {
 
+    private static final long MAX_EVIDENCE_SIZE_BYTES = 20 * 1024 * 1024L; // 20MB
+    private static final String EVIDENCE_CONTENT_TYPE_REGEX =
+            "image/(png|jpeg|jpg)|application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
     private final EvidenceRepository evidenceRepository;
     private final DmsPort dmsPort;
     private final InternalUploadDirectPort internalUploadDirectPort;
@@ -27,7 +31,12 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
 
     @Override
     public String uploadFile(FileCommand file, String destinationPath, Long actorId) {
-        return internalUploadDirectPort.upload(file, destinationPath, actorId);
+        return internalUploadDirectPort.uploadFile(
+                file,
+                destinationPath,
+                actorId,
+                MAX_EVIDENCE_SIZE_BYTES,
+                EVIDENCE_CONTENT_TYPE_REGEX);
     }
 
     @Override
