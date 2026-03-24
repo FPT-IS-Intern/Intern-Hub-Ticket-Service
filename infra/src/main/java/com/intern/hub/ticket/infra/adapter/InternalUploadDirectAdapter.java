@@ -31,8 +31,9 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
         if (fileCommand.size() > maxSizeBytes) {
             throw new BadRequestException(
                     "file.size.exceeded",
-                    "Dung lượng file vượt quá giới hạn " + (maxSizeBytes / 1024 / 1024) + "MB");
+                    "Dung lượng file vượt quá giới hạn " + (maxSizeBytes / 1024 / 1024) + "MBs");
         }
+
 
         String contentType = fileCommand.contentType();
         if (contentType == null || !contentType.matches(contentTypeRegex)) {
