@@ -3,6 +3,7 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket")
 @RequiredArgsConstructor
+@Slf4j
 // @CrossOrigin(origins = "*")
 public class TicketCommandController {
 
@@ -43,6 +45,8 @@ public class TicketCommandController {
                         @RequestPart("request") @Valid CreateTicketRequest request,
                         @RequestPart(value = "evidences", required = false) MultipartFile[] evidences) {
 
+                log.info("request: {}", request);
+                log.info("files: {}", evidences);
                 Long userId = UserContext.requiredUserId();
 
                 CreateTicketCommand command = new CreateTicketCommand(

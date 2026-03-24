@@ -59,8 +59,15 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
             throw e;
         } catch (Exception e) {
             log.error("DMS upload failed for destination path {}", destinationPath, e);
+
+            if (e.getCause() != null) {
+                log.error("CAUSE: ", e.getCause());
+            }
+
             throw new InternalErrorException(
-                    "storage.upload.error", "Không thể upload file lên hệ thống lưu trữ");
+                    "storage.upload.error",
+                    e.getMessage()
+            );
         }
     }
 

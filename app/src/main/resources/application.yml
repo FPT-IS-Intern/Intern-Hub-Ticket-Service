@@ -120,9 +120,7 @@ services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
   dms:
-    url: ${DMS_SERVICE_URL:http://localhost:8081}
-    service:
-      url: ${DMS_SERVICE_URL:http://localhost:8081}
+    url: ${DMS_SERVICE_URL:http://localhost:8084}
 
 common:
   context:

@@ -87,7 +87,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private static final String EVIDENCE_CONTENT_TYPE_REGEX = "image/(png|jpeg|jpg)|application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public TicketModel create(CreateTicketCommand command) {
 
         Map<String, Object> safePayload = command.payload() != null ? command.payload() : Collections.emptyMap();
