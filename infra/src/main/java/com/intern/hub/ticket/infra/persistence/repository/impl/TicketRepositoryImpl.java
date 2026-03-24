@@ -17,6 +17,7 @@ import com.intern.hub.ticket.infra.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 import com.intern.hub.ticket.infra.persistence.entity.TicketType;
 import com.intern.hub.ticket.infra.persistence.repository.jpa.TicketJpaRepository;
+import com.intern.hub.ticket.infra.persistence.repository.jpa.TicketTypeJpaRepository;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
@@ -27,11 +28,19 @@ import lombok.RequiredArgsConstructor;
 public class TicketRepositoryImpl implements TicketRepository {
 
     private final TicketJpaRepository jpaRepository;
+    private final TicketTypeJpaRepository ticketTypeJpaRepository;
     private final TicketMapper mapper;
 
     @Override
     public TicketModel save(TicketModel model) {
-        Ticket savedEntity = jpaRepository.save(mapper.toEntity(model));
+        Ticket entity = mapper.toEntity(model);
+        Ticket savedEntity = jpaRepository.save(entity);
+
+        if (savedEntity.getTicketTypeId() != null) {
+            ticketTypeJpaRepository.findById(savedEntity.getTicketTypeId())
+                    .ifPresent(savedEntity::setTicketType);
+        }
+
         return mapper.toModel(savedEntity);
     }
 

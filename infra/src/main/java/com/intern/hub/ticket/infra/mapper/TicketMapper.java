@@ -10,7 +10,6 @@ import org.mapstruct.ReportingPolicy;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
-import com.intern.hub.ticket.infra.persistence.entity.TicketType;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TicketMapper {
@@ -31,13 +30,11 @@ public interface TicketMapper {
         entity.setCreatedBy(model.getCreatedBy());
         entity.setUpdatedBy(model.getUpdatedBy());
 
-        // Map ticketTypeId to a TicketType entity reference for the @ManyToOne relationship
-        // This is required because the ticketTypeId column is insertable=false on the entity
-        if (model.getTicketTypeId() != null) {
-            TicketType ticketType = new TicketType();
-            ticketType.setTicketTypeId(model.getTicketTypeId());
-            entity.setTicketType(ticketType);
-        }
+        // The ticketType relationship must be populated in TicketRepositoryImpl.save()
+        // after the entity is saved, using the actual managed TicketType entity from the database.
+        // Setting a detached TicketType with only the ID here causes JPA to throw
+        // "Detached entity with generated id has uninitialized version value" because
+        // the @Version field (nullable=false) is null on the unmanaged instance.
     }
 
     @AfterMapping
