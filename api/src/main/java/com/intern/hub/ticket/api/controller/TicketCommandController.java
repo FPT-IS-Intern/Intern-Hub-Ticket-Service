@@ -19,6 +19,7 @@ import com.intern.hub.ticket.core.domain.model.command.ApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.BulkApproveResponse;
 import com.intern.hub.ticket.core.domain.model.command.BulkApproveTicketCommand;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
+import com.intern.hub.ticket.core.domain.model.command.RejectTicketCommand;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
