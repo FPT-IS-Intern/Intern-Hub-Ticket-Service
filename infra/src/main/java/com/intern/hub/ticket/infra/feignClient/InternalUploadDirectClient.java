@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name = "dms-upload", url = "${services.dms.service.url}")
+@FeignClient(name = "dms", url = "${services.dms.url}")
 public interface InternalUploadDirectClient {
 
   @PostMapping(value = "/dms/internal/direct/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

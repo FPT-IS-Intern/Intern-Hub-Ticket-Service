@@ -26,6 +26,10 @@ spring:
       leak-detection-threshold: 20000
   jpa:
     open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
     show-sql: false
     hibernate:
       ddl-auto: none
@@ -116,6 +120,7 @@ services:
   gateway:
     url: ${GATEWAY_URL:http://localhost:8765}
   dms:
+    url: ${DMS_SERVICE_URL:http://localhost:8081}
     service:
       url: ${DMS_SERVICE_URL:http://localhost:8081}
 
