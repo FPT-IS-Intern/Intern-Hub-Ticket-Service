@@ -60,7 +60,9 @@ public class UseCaseConfig {
             TicketTemplateValidator ticketTemplateValidator,
             TicketApprovalRepository ticketApprovalRepository,
             EvidenceUsecase evidenceUsecase,
-            HrmServicePort hrmServicePort) {
+            HrmServicePort hrmServicePort,
+            InternalUploadDirectPort internalUploadDirectPort,
+            EvidenceRepository evidenceRepository) {
         return new TicketUsecaseImpl(
                 ticketRepository,
                 ticketTypeRepository,
@@ -70,7 +72,9 @@ public class UseCaseConfig {
                 ticketTemplateValidator,
                 ticketApprovalRepository,
                 evidenceUsecase,
-                hrmServicePort);
+                hrmServicePort,
+                internalUploadDirectPort,
+                evidenceRepository);
     }
 
     @Bean

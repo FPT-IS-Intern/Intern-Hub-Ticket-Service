@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket/ticket-types")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:4221")
 public class AdminTicketTypeCommandController {
 
     private final TicketTypeUseCase ticketTypeUseCase;

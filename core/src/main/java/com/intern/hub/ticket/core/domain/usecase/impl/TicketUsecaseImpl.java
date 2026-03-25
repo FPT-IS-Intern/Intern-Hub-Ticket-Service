@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.intern.hub.ticket.core.domain.model.*;
+import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
+import com.intern.hub.ticket.core.domain.port.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,19 +18,8 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
-import com.intern.hub.ticket.core.domain.model.HrmUserSearchResponse;
-import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
-import com.intern.hub.ticket.core.domain.model.TicketModel;
-import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
-import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
-import com.intern.hub.ticket.core.domain.port.HrmServicePort;
-import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
-import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
-import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
-import com.intern.hub.ticket.core.domain.port.TicketRepository;
-import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
@@ -48,6 +40,9 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final TicketApprovalRepository ticketApprovalRepository;
     private final EvidenceUsecase evidenceUsecase;
     private final HrmServicePort hrmServicePort;
+    private final InternalUploadDirectPort internalUploadDirectPort;
+    private final EvidenceRepository evidenceRepository;
+    private static final String CONTENT_TYPE_REGEX = "(image/.*|application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|text/plain)";
 
     @Override
     @Transactional(readOnly = true)
@@ -156,15 +151,27 @@ public class TicketUsecaseImpl implements TicketUsecase {
         TicketModel savedTicket = ticketRepository.save(ticket);
 
         if (command.evidences() != null && command.evidences().length > 0) {
-            String baseDestinationPath = "tickets/" + savedTicket.getTicketId() + "/evidences";
+            List<String> urlList = internalUploadDirectPort.uploadFiles(
+                    command.evidences(),
+                    "tickets/evidences/" + savedTicket.getTicketId(),
+                    2L * 1024 * 1024,
+                    CONTENT_TYPE_REGEX);
 
-            for (MultipartFile file : command.evidences()) {
-                if (file == null || file.isEmpty()) {
-                    throw new BadRequestException("File is empty or invalid");
+            if (!urlList.isEmpty()) {
+
+                for (String url : urlList) {
+                    EvidenceModel model = EvidenceModel.builder()
+                            .evidenceId(snowflake.next())
+                            .ticketId(savedTicket.getTicketId())
+                            .evidenceKey(url)
+                            .fileType(null)
+                            .fileSize(null)
+                            .status(EvidenceStatus.UPLOADED)
+                            .version(0)
+                            .build();
+
+                    evidenceRepository.save(model);
                 }
-
-                Long actorId = snowflake.next();
-                evidenceUsecase.uploadFile(file, baseDestinationPath, savedTicket.getTicketId(), actorId);
             }
         }
 

@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/ticket")
 @RequiredArgsConstructor
 @Slf4j
-// @CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:4221")
 public class TicketCommandController {
 
         private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "pdf", "docx");

@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket")
 @RequiredArgsConstructor
+//@CrossOrigin(origins = "http://localhost:4221")
 public class TicketQueryController {
 
     private final TicketUsecase ticketUsecase;

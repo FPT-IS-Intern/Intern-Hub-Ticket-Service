@@ -26,11 +26,10 @@ public interface InternalUploadDirectPort {
      *
      * @param files           the list of multipart files to upload
      * @param baseDestinationPath base storage destination path
-     * @param actorId         the user ID performing the upload
      * @param maxSizeBytes    maximum allowed file size in bytes per file
      * @param contentTypeRegex regex to validate file content type
      * @return list of objectKeys returned by DMS for each uploaded file
      */
-    List<String> uploadFiles(MultipartFile[] files, String baseDestinationPath, Long actorId,
+    List<String> uploadFiles(MultipartFile[] files, String baseDestinationPath,
                              Long maxSizeBytes, String contentTypeRegex);
 }

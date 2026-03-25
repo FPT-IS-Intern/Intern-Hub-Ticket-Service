@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket/evidences")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "http://localhost:4221")
 public class EvidenceController {
 
         private final EvidenceUsecase evidenceUsecase;

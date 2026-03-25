@@ -21,7 +21,6 @@ public interface InternalUploadDirectClient {
   ResponseApi<DmsDocumentClientModel> uploadFile(
           @RequestPart("file") MultipartFile file,
           @RequestParam("destinationPath") String destinationPath,
-          @RequestParam("actorId") Long actorId,
-          @RequestParam("isAdmin") boolean isAdmin
+          @RequestParam("actorId") Long actorId
   );
 }

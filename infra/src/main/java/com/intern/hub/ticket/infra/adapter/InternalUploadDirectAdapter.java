@@ -47,7 +47,7 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
 
         try {
             ResponseApi<DmsDocumentClientModel> response =
-                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId, true);
+                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId);
 
             if (response == null || response.data() == null || !hasText(response.data().objectKey())) {
                 throw new InternalErrorException(
@@ -77,7 +77,7 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
      */
     @Override
     public List<String> uploadFiles(
-            MultipartFile[] files, String baseDestinationPath, Long actorId,
+            MultipartFile[] files, String baseDestinationPath,
             Long maxSizeBytes, String contentTypeRegex) {
 
         if (files == null || files.length == 0) {
@@ -85,8 +85,10 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
         }
 
         List<String> objectKeys = new ArrayList<>();
+        Long actorId;
         for (MultipartFile file : files) {
             String destinationPath = baseDestinationPath + "/" + snowflake.next();
+            actorId = snowflake.next();
             String objectKey = uploadFile(file, destinationPath, actorId, maxSizeBytes, contentTypeRegex);
             objectKeys.add(objectKey);
         }
