@@ -58,8 +58,7 @@ public class UseCaseConfig {
             RuleEvaluatorPort ruleEvaluatorPort,
             TicketTemplateValidator ticketTemplateValidator,
             TicketApprovalRepository ticketApprovalRepository,
-            EvidenceUsecase evidenceUsecase, 
-            TicketUsecaseImpl ticketUsecaseImpl) {
+            EvidenceUsecase evidenceUsecase) {
         return new TicketUsecaseImpl(
                 ticketRepository,
                 ticketTypeRepository,
