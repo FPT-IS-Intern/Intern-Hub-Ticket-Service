@@ -232,10 +232,14 @@ public class TicketUsecaseImpl implements TicketUsecase {
             int size,
             String nameOrEmail,
             String typeName,
-            String status) {
+            String status,
+            Long startDate,
+            Long endDate,
+            String sortBy,
+            String sortDirection) {
 
-        log.debug("[TicketUsecase] getAllTicketsForManagement page={}, size={}, nameOrEmail={}, typeName={}, status={}",
-                page, size, nameOrEmail, typeName, status);
+        log.debug("[TicketUsecase] getAllTicketsForManagement page={}, size={}, nameOrEmail={}, typeName={}, status={}, startDate={}, endDate={}, sortBy={}, sortDirection={}",
+                page, size, nameOrEmail, typeName, status, startDate, endDate, sortBy, sortDirection);
 
         List<Long> userIds = Collections.emptyList();
 
@@ -252,7 +256,8 @@ public class TicketUsecaseImpl implements TicketUsecase {
             }
         }
 
-        PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
+        PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(
+                page, size, userIds, typeName, status, startDate, endDate, sortBy, sortDirection);
         List<TicketModel> tickets = new java.util.ArrayList<>(result.getItems());
 
         if (!tickets.isEmpty()) {

@@ -24,5 +24,7 @@ public interface TicketUsecase {
      * Lấy tickets cho trang quản lý phiếu — đã enrich với fullName, email (từ HRM)
      * và typeName (từ TicketType). Dùng chung filter params với getAllTickets.
      */
-    PaginatedData<TicketModel> getAllTicketsForManagement(int page, int size, String nameOrEmail, String typeName, String status);
+    PaginatedData<TicketModel> getAllTicketsForManagement(
+            int page, int size, String nameOrEmail, String typeName, String status,
+            Long startDate, Long endDate, String sortBy, String sortDirection);
 }

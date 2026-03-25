@@ -70,10 +70,14 @@ public class TicketQueryController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String nameOrEmail,
             @RequestParam(required = false) String typeName,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long startDate,
+            @RequestParam(required = false) Long endDate,
+            @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortDirection) {
 
         PaginatedData<TicketModel> modelPage = ticketUsecase.getAllTicketsForManagement(
-                page, size, nameOrEmail, typeName, status);
+                page, size, nameOrEmail, typeName, status, startDate, endDate, sortBy, sortDirection);
 
         return ResponseApi.ok(mapper.toPaginatedManagementDto(modelPage));
     }

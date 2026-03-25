@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +68,28 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public PaginatedData<TicketModel> findAllPaginated(int page, int size, List<Long> userIds, String typeName, String status) {
-        Specification<Ticket> spec = (root, query, cb) -> {
+        Specification<Ticket> spec = buildFilterSpecification(userIds, typeName, status, null, null);
+
+        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size));
+        return mapper.toPaginatedModel(ticketPage);
+    }
+
+    @Override
+    public PaginatedData<TicketModel> findAllPaginated(
+            int page, int size, List<Long> userIds, String typeName, String status,
+            Long startDate, Long endDate, String sortBy, String sortDirection) {
+        Specification<Ticket> spec = buildFilterSpecification(userIds, typeName, status, startDate, endDate);
+
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String sortField = resolveSortField(sortBy);
+        Sort sort = Sort.by(direction, sortField);
+
+        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size, sort));
+        return mapper.toPaginatedModel(ticketPage);
+    }
+
+    private Specification<Ticket> buildFilterSpecification(List<Long> userIds, String typeName, String status, Long startDate, Long endDate) {
+        return (root, query, cb) -> {
             List<Predicate> predicates = new java.util.ArrayList<>();
 
             if (status != null && !status.isBlank()) {
@@ -82,16 +104,33 @@ public class TicketRepositoryImpl implements TicketRepository {
                 predicates.add(cb.like(cb.lower(typeJoin.get("typeName")), "%" + typeName.toLowerCase() + "%"));
             }
 
-            // userId filter
             if (userIds != null && !userIds.isEmpty()) {
                 predicates.add(root.get("userId").in(userIds));
             }
 
+            if (startDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+
+            if (endDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), endDate));
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
 
-        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size));
-        return mapper.toPaginatedModel(ticketPage);
+    private String resolveSortField(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return "createdAt";
+        }
+        return switch (sortBy.toLowerCase()) {
+            case "updatedat" -> "updatedAt";
+            case "status" -> "status";
+            case "createdat" -> "createdAt";
+            case "typename" -> "ticketType.typeName";
+            default -> "createdAt";
+        };
     }
 
     @Override
