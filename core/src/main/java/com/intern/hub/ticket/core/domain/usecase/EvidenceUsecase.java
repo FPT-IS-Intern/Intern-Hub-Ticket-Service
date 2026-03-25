@@ -12,5 +12,14 @@ public interface EvidenceUsecase {
 
     PresignedUrlModel getPresignedUrl(String fileName, String contentType, Long fileSize);
 
-    String uploadFile(MultipartFile file, String destinationPath, Long actorId);
+    /**
+     * Upload a file to DMS storage and save the evidence record to DB.
+     *
+     * @param file            the multipart file to upload
+     * @param destinationPath the storage destination path
+     * @param ticketId        the ticket ID to associate the evidence with
+     * @param actorId         the user ID performing the upload
+     * @return the saved EvidenceModel with evidenceId and all metadata
+     */
+    EvidenceModel uploadFile(MultipartFile file, String destinationPath, Long ticketId, Long actorId);
 }

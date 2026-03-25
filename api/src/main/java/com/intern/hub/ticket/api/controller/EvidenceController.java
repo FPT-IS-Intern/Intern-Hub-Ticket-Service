@@ -1,7 +1,6 @@
 package com.intern.hub.ticket.api.controller;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +34,7 @@ public class EvidenceController {
                 return ResponseApi.ok(new PresignedUrlDto(model.uploadUrl(), model.tempKey()));
         }
 
-        @GetMapping
+        @GetMapping("/{ticketId}")
         public ResponseApi<List<EvidenceDto>> getEvidences(@PathVariable Long ticketId) {
                 List<EvidenceDto> dtos = evidenceUsecase.getEvidences(ticketId).stream()
                                 .map(this::mapToDto)
@@ -44,16 +43,20 @@ public class EvidenceController {
         }
 
         /**
-         * Upload a single file via multipart. Mirrors HRM pattern — passes MultipartFile
-         * directly to the usecase without intermediate byte[] conversion.
+         * Upload a single evidence file via multipart. Uploads to DMS storage and saves the evidence record to DB.
+         *
+         * @param file            the multipart file to upload
+         * @param ticketId        the ticket ID to associate the evidence with
+         * @param destinationPath the storage destination path within DMS
          */
         @PostMapping("/upload")
-        public ResponseApi<String> uploadMultipartFile(
+        public ResponseApi<EvidenceDto> uploadMultipartFile(
                         @RequestParam("file") MultipartFile file,
+                        @RequestParam("ticketId") Long ticketId,
                         @RequestParam("destinationPath") String destinationPath) {
                 Long actorId = UserContext.requiredUserId();
-                String objectKey = evidenceUsecase.uploadFile(file, destinationPath, actorId);
-                return ResponseApi.ok(objectKey);
+                EvidenceModel savedEvidence = evidenceUsecase.uploadFile(file, destinationPath, ticketId, actorId);
+                return ResponseApi.ok(mapToDto(savedEvidence));
         }
 
         private EvidenceDto mapToDto(EvidenceModel model) {

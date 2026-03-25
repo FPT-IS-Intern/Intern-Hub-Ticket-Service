@@ -1,6 +1,5 @@
 package com.intern.hub.ticket.core.domain.usecase.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,22 +15,19 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
-import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
-import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
-import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
-import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
+import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 
 import lombok.RequiredArgsConstructor;
@@ -46,10 +42,9 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final RuleEvaluatorPort ruleEvaluator;
-    private final EvidenceRepository evidenceRepository;
     private final TicketTemplateValidator ticketTemplateValidator;
     private final TicketApprovalRepository ticketApprovalRepository;
-    private final InternalUploadDirectPort internalUploadDirectPort;
+    private final EvidenceUsecase evidenceUsecase;
 
     @Override
     @Transactional(readOnly = true)
@@ -82,9 +77,6 @@ public class TicketUsecaseImpl implements TicketUsecase {
     public PaginatedData<TicketModel> getAllTickets(int page, int size, String nameOrEmail, String typeName, String status) {
         return null;
     }
-
-    private static final long MAX_EVIDENCE_SIZE_BYTES = 20 * 1024 * 1024L; // 20MB
-    private static final String EVIDENCE_CONTENT_TYPE_REGEX = "image/(png|jpeg|jpg)|application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -131,31 +123,15 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         if (command.evidences() != null && command.evidences().length > 0) {
             String baseDestinationPath = "tickets/" + savedTicket.getTicketId() + "/evidences";
-
-            // Upload all files via adapter (mirrors HRM pattern, passes MultipartFile directly)
-            List<String> objectKeys = internalUploadDirectPort.uploadFiles(
-                    command.evidences(),
-                    baseDestinationPath,
-                    command.userId(),
-                    MAX_EVIDENCE_SIZE_BYTES,
-                    EVIDENCE_CONTENT_TYPE_REGEX);
-
-            // Build evidence entities from upload results
-            List<EvidenceModel> evidenceEntities = new ArrayList<>();
-            MultipartFile[] files = command.evidences();
-            log.info("objectKeys: {}", objectKeys);
-            for (int i = 0; i < objectKeys.size(); i++) {
-                evidenceEntities.add(EvidenceModel.builder()
-                        .evidenceId(snowflake.next())
-                        .ticketId(savedTicket.getTicketId())
-                        .evidenceKey(objectKeys.get(i))
-                        .fileType(files[i].getContentType())
-                        .fileSize(files[i].getSize())
-                        .status(EvidenceStatus.UPLOADED)
-                        .build());
+        
+            for (MultipartFile file : command.evidences()) {
+                if (file == null || file.isEmpty()) {
+                    throw new BadRequestException("File is empty or invalid");
+                }
+        
+                Long actorId = snowflake.next();
+                evidenceUsecase.uploadFile(file, baseDestinationPath, savedTicket.getTicketId(), actorId);
             }
-
-            evidenceRepository.saveAll(evidenceEntities);
         }
 
         ticketEventPublisher.publishTicketCreatedEvent(savedTicket);

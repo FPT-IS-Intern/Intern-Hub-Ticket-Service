@@ -56,20 +56,28 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             RuleEvaluatorPort ruleEvaluatorPort,
-            EvidenceRepository evidenceRepository,
             TicketTemplateValidator ticketTemplateValidator,
             TicketApprovalRepository ticketApprovalRepository,
-            InternalUploadDirectPort internalUploadDirectPort) {
-        return new TicketUsecaseImpl(ticketRepository, ticketTypeRepository, ticketEventPublisher, snowflake,
-                ruleEvaluatorPort, evidenceRepository, ticketTemplateValidator, ticketApprovalRepository, internalUploadDirectPort);
+            EvidenceUsecase evidenceUsecase, 
+            TicketUsecaseImpl ticketUsecaseImpl) {
+        return new TicketUsecaseImpl(
+                ticketRepository,
+                ticketTypeRepository,
+                ticketEventPublisher,
+                snowflake,
+                ruleEvaluatorPort,
+                ticketTemplateValidator,
+                ticketApprovalRepository,
+                evidenceUsecase);
     }
 
     @Bean
     public EvidenceUsecase evidenceUsecase(
             EvidenceRepository evidenceRepository,
             DmsPort dmsPort,
-            InternalUploadDirectPort internalUploadDirectPort) {
-        return new EvidenceUsecaseImpl(evidenceRepository, dmsPort, internalUploadDirectPort);
+            InternalUploadDirectPort internalUploadDirectPort,
+            Snowflake snowflake) {
+        return new EvidenceUsecaseImpl(evidenceRepository, dmsPort, internalUploadDirectPort, snowflake);
     }
 
     @Bean
