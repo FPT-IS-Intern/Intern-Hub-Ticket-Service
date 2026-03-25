@@ -21,5 +21,6 @@ public record TicketDetailDto(
                 Long updatedBy,
                 Integer requiredApprovals,
                 Integer currentApprovalLevel,
-                Long approverId) {
+                Long approverId,
+                Integer version) {
 }

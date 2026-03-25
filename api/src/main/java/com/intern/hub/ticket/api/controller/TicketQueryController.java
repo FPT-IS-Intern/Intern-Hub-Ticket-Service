@@ -109,7 +109,8 @@ public class TicketQueryController {
                 model.getUpdatedBy(),
                 model.getRequiredApprovals(),
                 model.getCurrentApprovalLevel(),
-                model.getApproverId());
+                model.getApproverId(),
+                model.getVersion());
 
         return ResponseApi.ok(detailDto);
     }
