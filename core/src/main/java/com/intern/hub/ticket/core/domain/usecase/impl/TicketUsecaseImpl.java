@@ -15,12 +15,14 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.NotFoundException;
 import com.intern.hub.library.common.utils.Snowflake;
+import com.intern.hub.ticket.core.domain.model.HrmUserSearchResponse;
 import com.intern.hub.ticket.core.domain.model.TicketApprovalModel;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.TicketTemplateField;
 import com.intern.hub.ticket.core.domain.model.TicketTypeModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
@@ -45,6 +47,7 @@ public class TicketUsecaseImpl implements TicketUsecase {
     private final TicketTemplateValidator ticketTemplateValidator;
     private final TicketApprovalRepository ticketApprovalRepository;
     private final EvidenceUsecase evidenceUsecase;
+    private final HrmServicePort hrmServicePort;
 
     @Override
     @Transactional(readOnly = true)
@@ -74,8 +77,39 @@ public class TicketUsecaseImpl implements TicketUsecase {
     }
 
     @Override
-    public PaginatedData<TicketModel> getAllTickets(int page, int size, String nameOrEmail, String typeName, String status) {
-        return null;
+    @Transactional(readOnly = true)
+    public PaginatedData<TicketModel> getAllTickets(
+            int page,
+            int size,
+            String nameOrEmail,
+            String typeName,
+            String status) {
+
+        log.debug("[TicketUsecase] getAllTickets page={}, size={}, nameOrEmail={}, typeName={}, status={}",
+                page, size, nameOrEmail, typeName, status);
+
+        List<Long> userIds = Collections.emptyList();
+
+        // Bước 1: Nếu có keyword nameOrEmail → gọi HRM để lấy userIds
+        if (nameOrEmail != null && !nameOrEmail.isBlank()) {
+            userIds = hrmServicePort.searchUsers(nameOrEmail.trim());
+            log.debug("[TicketUsecase] HRM returned {} userIds for keyword='{}'",
+                    userIds.size(), nameOrEmail.trim());
+
+            // Edge case: HRM không tìm thấy user nào → tickets = rỗng, không cần query DB
+            if (userIds.isEmpty()) {
+                log.info("[TicketUsecase] No users found for keyword='{}' → returning empty ticket list",
+                        nameOrEmail.trim());
+                return PaginatedData.<TicketModel>builder()
+                        .items(Collections.emptyList())
+                        .totalItems(0L)
+                        .totalPages(0)
+                        .build();
+            }
+        }
+
+        // Bước 2: Gọi repository để filter tickets theo userIds (nếu có) + các filter khác
+        return ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
     }
 
     @Override
@@ -123,12 +157,12 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         if (command.evidences() != null && command.evidences().length > 0) {
             String baseDestinationPath = "tickets/" + savedTicket.getTicketId() + "/evidences";
-        
+
             for (MultipartFile file : command.evidences()) {
                 if (file == null || file.isEmpty()) {
                     throw new BadRequestException("File is empty or invalid");
                 }
-        
+
                 Long actorId = snowflake.next();
                 evidenceUsecase.uploadFile(file, baseDestinationPath, savedTicket.getTicketId(), actorId);
             }
@@ -189,5 +223,90 @@ public class TicketUsecaseImpl implements TicketUsecase {
     @Transactional(readOnly = true)
     public Collection<TicketModel> getMyTickets(Long userId) {
         return ticketRepository.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedData<TicketModel> getAllTicketsForManagement(
+            int page,
+            int size,
+            String nameOrEmail,
+            String typeName,
+            String status) {
+
+        log.debug("[TicketUsecase] getAllTicketsForManagement page={}, size={}, nameOrEmail={}, typeName={}, status={}",
+                page, size, nameOrEmail, typeName, status);
+
+        List<Long> userIds = Collections.emptyList();
+
+        if (nameOrEmail != null && !nameOrEmail.isBlank()) {
+            userIds = hrmServicePort.searchUsers(nameOrEmail.trim());
+            if (userIds.isEmpty()) {
+                log.info("[TicketUsecase] No users found for keyword='{}' → returning empty ticket list",
+                        nameOrEmail.trim());
+                return PaginatedData.<TicketModel>builder()
+                        .items(Collections.emptyList())
+                        .totalItems(0L)
+                        .totalPages(0)
+                        .build();
+            }
+        }
+
+        PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
+        List<TicketModel> tickets = new java.util.ArrayList<>(result.getItems());
+
+        if (!tickets.isEmpty()) {
+            enrichWithUserInfo(tickets);
+            enrichWithTypeName(tickets);
+        }
+
+        return result;
+    }
+
+    private void enrichWithUserInfo(List<TicketModel> tickets) {
+        List<Long> userIds = tickets.stream()
+                .map(TicketModel::getUserId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        if (userIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, HrmUserSearchResponse> userMap = hrmServicePort.getUsersByIds(userIds);
+
+        tickets.forEach(ticket -> {
+            HrmUserSearchResponse user = userMap.get(ticket.getUserId());
+            if (user != null) {
+                ticket.setFullName(user.getFullName());
+                ticket.setEmail(user.getEmail());
+            }
+        });
+    }
+
+    private void enrichWithTypeName(List<TicketModel> tickets) {
+        List<Long> typeIds = tickets.stream()
+                .map(TicketModel::getTicketTypeId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        if (typeIds.isEmpty()) {
+            return;
+        }
+
+        List<com.intern.hub.ticket.core.domain.model.TicketTypeModel> types =
+                ticketTypeRepository.findAllByIds(typeIds);
+
+        Map<Long, com.intern.hub.ticket.core.domain.model.TicketTypeModel> typeMap = types.stream()
+                .collect(Collectors.toMap(com.intern.hub.ticket.core.domain.model.TicketTypeModel::getTicketTypeId, t -> t, (a, b) -> a));
+
+        tickets.forEach(ticket -> {
+            com.intern.hub.ticket.core.domain.model.TicketTypeModel type = typeMap.get(ticket.getTicketTypeId());
+            if (type != null) {
+                ticket.setTypeName(type.getTypeName());
+            }
+        });
     }
 }

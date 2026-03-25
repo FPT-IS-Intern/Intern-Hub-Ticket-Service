@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
+import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 
 @Mapper(
@@ -26,4 +27,16 @@ public interface TicketApiMapper {
 
     @Mapping(target = "items", source = "items")
     PaginatedData<TicketDto> toPaginatedDto(PaginatedData<TicketModel> modelPage);
+
+    /**
+     * Map TicketModel (có fullName, email từ HRM và typeName từ TicketType)
+     * sang DTO dành cho trang Quản lý phiếu.
+     * Transient fields: fullName, email, typeName — KHÔNG map vào Ticket entity.
+     */
+    TicketManagementDto toManagementDto(TicketModel model);
+
+    List<TicketManagementDto> toManagementDtoList(List<TicketModel> models);
+
+    @Mapping(target = "items", source = "items")
+    PaginatedData<TicketManagementDto> toPaginatedManagementDto(PaginatedData<TicketModel> modelPage);
 }
