@@ -55,18 +55,31 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
             }
 
             return response.data().objectKey();
-        } catch (BadRequestException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("DMS upload failed for destination path {}", destinationPath, e);
 
+        } catch (BadRequestException e) {
+            // Rethrow lỗi BadRequest từ validation
+            throw e;
+
+        } catch (feign.FeignException e) {
+            // Catch chi tiết Feign client exception
+            log.error("DMS upload failed. status={}, body={}, destinationPath={}",
+                    e.status(), e.contentUTF8(), destinationPath, e);
+
+            throw new InternalErrorException(
+                    "storage.upload.error",
+                    "Không thể upload file lên hệ thống lưu trữ: " + e.getMessage()
+            );
+
+        } catch (Exception e) {
+            // Catch tất cả các exception khác
+            log.error("Unexpected error during DMS upload for destinationPath={}", destinationPath, e);
             if (e.getCause() != null) {
-                log.error("CAUSE: ", e.getCause());
+                log.error("Cause: ", e.getCause());
             }
 
             throw new InternalErrorException(
                     "storage.upload.error",
-                    e.getMessage()
+                    "Không thể upload file lên hệ thống lưu trữ: " + e.getMessage()
             );
         }
     }
