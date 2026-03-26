@@ -37,8 +37,8 @@ public class TicketRepositoryImpl implements TicketRepository {
         Ticket entity = mapper.toEntity(model);
         Ticket savedEntity = jpaRepository.save(entity);
 
-        if (savedEntity.getTicketTypeId() != null) {
-            ticketTypeJpaRepository.findById(savedEntity.getTicketTypeId())
+        if (savedEntity.getTicketType().getTicketTypeId() != null) {
+            ticketTypeJpaRepository.findById(savedEntity.getTicketType().getTicketTypeId())
                     .ifPresent(savedEntity::setTicketType);
         }
 
@@ -136,6 +136,11 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public Collection<TicketModel> findByUserId(Long userId) {
         return jpaRepository.findByUserId(userId).stream().map(mapper::toModel).toList();
+    }
+
+    @Override
+    public int rejectTicket(Long ticketId, TicketStatus status, Long updatedBy, Long updatedAt, Integer version) {
+        return jpaRepository.rejectTicket(ticketId, status, updatedBy, updatedAt, version);
     }
 
 }

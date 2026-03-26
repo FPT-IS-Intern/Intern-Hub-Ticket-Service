@@ -13,10 +13,7 @@ import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 
-@Mapper(
-    componentModel = "spring",
-    unmappedTargetPolicy = ReportingPolicy.IGNORE,
-    nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface TicketApiMapper {
 
     TicketDto toDto(TicketModel model);

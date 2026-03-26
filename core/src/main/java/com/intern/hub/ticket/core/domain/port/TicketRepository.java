@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import org.springframework.data.repository.query.Param;
 
 public interface TicketRepository {
     TicketModel save(TicketModel model);
@@ -27,4 +28,6 @@ public interface TicketRepository {
             Long startDate, Long endDate, String sortBy, String sortDirection);
 
     Collection<TicketModel> findByUserId(Long userId);
+
+    int rejectTicket(Long ticketId, TicketStatus status, Long updatedBy, Long updatedAt, Integer version);
 }

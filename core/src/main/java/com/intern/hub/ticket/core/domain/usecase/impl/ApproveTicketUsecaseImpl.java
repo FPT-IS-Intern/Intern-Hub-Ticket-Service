@@ -97,7 +97,10 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     }
 
     @Override
+    @Transactional
     public void reject(RejectTicketCommand command) {
+
+        // 1. Idempotency
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
             throw new ConflictDataException("conflict.data", "Request has already been processed");
         }
@@ -105,38 +108,46 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         TicketModel ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
-        if (TicketStatus.APPROVED.equals(ticket.getStatus()) || TicketStatus.REJECTED.equals(ticket.getStatus())) {
-            throw new BadRequestException("bad.request", "Ticket has been approved or rejected");
-        }
+        // 2. Validate quyền
+        boolean isAuthorized = permissionPort.hasPermission(
+                command.ticketId(),
+                command.approverId(),
+                ticket.getCurrentApprovalLevel()
+        );
 
-        if (!ticket.getVersion().equals(command.version())) {
-            throw new ConflictDataException("conflict.data", "The request form has been changed");
-        }
-
-        boolean isAuthorized = permissionPort.hasPermission(ticket.getTicketId(), command.approverId(),
-                ticket.getCurrentApprovalLevel());
         if (!isAuthorized) {
-            throw new ForbiddenException("forbidden", "You do not have the authority at this level");
+            throw new ForbiddenException("forbidden", "No permission");
         }
 
+        // 3. Update ticket (NO LOAD ENTITY)
+        int updated = ticketRepository.rejectTicket(
+                command.ticketId(),
+                TicketStatus.REJECTED,
+                command.approverId(),
+                System.currentTimeMillis(),
+                command.version()
+        );
+
+        if (updated == 0) {
+            throw new ConflictDataException("conflict.data", "Ticket changed or already processed");
+        }
+
+        // 4. Insert approval log
         TicketApprovalModel approval = TicketApprovalModel.builder()
                 .approvalId(snowflake.next())
-                .ticketId(ticket.getTicketId())
+                .ticketId(command.ticketId())
                 .approverId(command.approverId())
                 .action(TicketApprovalAction.REJECT)
                 .comment(command.comment())
                 .idempotencyKey(command.idempotencyKey())
                 .actionAt(System.currentTimeMillis())
                 .status(TicketApprovalStatus.SUCCESS)
-                .approvalLevel(ticket.getCurrentApprovalLevel())
                 .build();
+
         ticketApprovalRepository.save(approval);
 
-        ticket.setStatus(TicketStatus.REJECTED);
-        ticket.setUpdatedBy(command.approverId());
-        ticketRepository.save(ticket);
-
-        // Cần có event reject sau này nếu có
+        // 5. publish event
+        ticketEventPublisher.publishTicketApprovedEvent(snowflake.next(), ticket.getTicketId(), command.approverId());
     }
 
     @Override

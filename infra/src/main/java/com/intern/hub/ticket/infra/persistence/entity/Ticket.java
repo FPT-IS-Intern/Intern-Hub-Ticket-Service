@@ -48,9 +48,6 @@ public class Ticket extends AuditEntity {
     @Column(nullable = false)
     Long userId;
 
-    @Column(name = "ticket_type_id", insertable = false, updatable = false)
-    Long ticketTypeId;
-
     @ManyToOne
     @JoinColumn(name = "ticket_type_id", referencedColumnName = "ticket_type_id")
     TicketType ticketType;

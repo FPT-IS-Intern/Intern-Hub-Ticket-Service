@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.ticket.api.dto.request.ApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.BulkApproveTicketRequest;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
