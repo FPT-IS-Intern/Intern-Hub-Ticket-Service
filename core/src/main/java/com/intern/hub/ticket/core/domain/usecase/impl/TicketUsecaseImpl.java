@@ -123,9 +123,9 @@ public class TicketUsecaseImpl implements TicketUsecase {
         if (ticketType.getFormConfig() != null && !ticketType.getFormConfig().isEmpty()) {
             validatePayloadAgainstTemplate(safePayload, ticketType.getFormConfig());
         }
-
-        boolean requireEvidence = Boolean.TRUE.equals(ticketType.getRequireEvidence());
-        validateEvidences(command.evidences(), requireEvidence);
+//
+//        boolean requireEvidence = Boolean.TRUE.equals(ticketType.getRequireEvidence());
+//        validateEvidences(command.evidences(), requireEvidence);
 
         int requiredApprovals = 1;
         if (ticketType.getApprovalRule() != null) {
@@ -150,30 +150,30 @@ public class TicketUsecaseImpl implements TicketUsecase {
 
         TicketModel savedTicket = ticketRepository.save(ticket);
 
-        if (command.evidences() != null && command.evidences().length > 0) {
-            List<String> urlList = internalUploadDirectPort.uploadFiles(
-                    command.evidences(),
-                    "tickets/evidences/" + savedTicket.getTicketId(),
-                    2L * 1024 * 1024,
-                    CONTENT_TYPE_REGEX);
-
-            if (!urlList.isEmpty()) {
-
-                for (String url : urlList) {
-                    EvidenceModel model = EvidenceModel.builder()
-                            .evidenceId(snowflake.next())
-                            .ticketId(savedTicket.getTicketId())
-                            .evidenceKey(url)
-                            .fileType(null)
-                            .fileSize(null)
-                            .status(EvidenceStatus.UPLOADED)
-                            .version(0)
-                            .build();
-
-                    evidenceRepository.save(model);
-                }
-            }
-        }
+//        if (command.evidences() != null && command.evidences().length > 0) {
+//            List<String> urlList = internalUploadDirectPort.uploadFiles(
+//                    command.evidences(),
+//                    "tickets/evidences/" + savedTicket.getTicketId(),
+//                    2L * 1024 * 1024,
+//                    CONTENT_TYPE_REGEX);
+//
+//            if (!urlList.isEmpty()) {
+//
+//                for (String url : urlList) {
+//                    EvidenceModel model = EvidenceModel.builder()
+//                            .evidenceId(snowflake.next())
+//                            .ticketId(savedTicket.getTicketId())
+//                            .evidenceKey(url)
+//                            .fileType(null)
+//                            .fileSize(null)
+//                            .status(EvidenceStatus.UPLOADED)
+//                            .version(0)
+//                            .build();
+//
+//                    evidenceRepository.save(model);
+//                }
+//            }
+//        }
 
         ticketEventPublisher.publishTicketCreatedEvent(savedTicket);
 

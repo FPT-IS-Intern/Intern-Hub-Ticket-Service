@@ -9,7 +9,7 @@ import com.intern.hub.ticket.infra.feignClient.dto.request.DmsConfirmRequest;
 import com.intern.hub.ticket.infra.feignClient.dto.request.DmsPresignedUrlRequest;
 import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsPresignedUrlResponse;
 
-@FeignClient(name = "dms-service", url = "${dms.service.url}")
+@FeignClient(name = "dms-service", url = "${service.dms.url}")
 public interface DmsFeignClient {
 
     // Gọi API của DMS, kẹp thêm Secret Key

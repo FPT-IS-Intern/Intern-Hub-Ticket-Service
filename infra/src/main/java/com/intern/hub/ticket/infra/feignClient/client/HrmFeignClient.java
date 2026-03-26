@@ -13,7 +13,7 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.infra.feignClient.dto.request.HrmUserSearchResponseInfra;
 
-@FeignClient(name = "hrm-service", url = "${hrm.service.url:http://localhost:8082}")
+@FeignClient(name = "hrm-service", url = "${service.hrm.url:http://localhost:8082}")
 public interface HrmFeignClient {
 
     @GetMapping(value = "/hrm/internal/users/search")

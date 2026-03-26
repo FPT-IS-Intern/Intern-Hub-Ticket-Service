@@ -108,13 +108,13 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
 
-hrm:
-  service:
+service:
+  hrm:
     url: ${HRM_SERVICE_URL:http://localhost:8082}
-
-dms:
-  service:
+  dms:
     url: ${DMS_SERVICE_URL:http://localhost:8084}
+  auth:
+    url: ${AUTH_SERVICE_URL:http://localhost:8888}
 
 services:
   gateway:
