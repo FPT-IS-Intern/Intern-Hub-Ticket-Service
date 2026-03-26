@@ -1,7 +1,5 @@
 package com.intern.hub.ticket.infra.feignClient.client;
 
-import com.intern.hub.ticket.infra.feignClient.config.FeignConfiguration;
-import com.intern.hub.ticket.infra.feignClient.config.FeignMultipartConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,8 +13,7 @@ import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsDocumentClientMode
 
 @FeignClient(
   name = "dms",
-  url = "${services.dms.url}",
-  configuration = { FeignConfiguration.class, FeignMultipartConfig.class }
+  url = "${services.dms.url}"
 )
 public interface InternalUploadDirectClient {
 
