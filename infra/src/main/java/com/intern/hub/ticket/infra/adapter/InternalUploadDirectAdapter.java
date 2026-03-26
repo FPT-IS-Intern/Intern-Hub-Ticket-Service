@@ -11,8 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.library.common.utils.Snowflake;
 import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
-import com.intern.hub.ticket.infra.feignClient.InternalUploadDirectClient;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsDocumentClientModel;
+import com.intern.hub.ticket.infra.feignClient.client.InternalUploadDirectClient;
+import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsDocumentClientModel;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

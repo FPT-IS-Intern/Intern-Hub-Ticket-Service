@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient.dto;
+package com.intern.hub.ticket.infra.feignClient.dto.reponse;
 
 public record DmsDocumentClientModel(
         Long id,

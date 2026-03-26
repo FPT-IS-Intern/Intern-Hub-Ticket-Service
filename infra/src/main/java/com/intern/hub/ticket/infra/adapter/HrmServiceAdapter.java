@@ -3,7 +3,6 @@ package com.intern.hub.ticket.infra.adapter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -11,8 +10,8 @@ import org.springframework.stereotype.Component;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.core.domain.model.HrmUserSearchResponse;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
-import com.intern.hub.ticket.infra.feignClient.HrmFeignClient;
-import com.intern.hub.ticket.infra.feignClient.dto.HrmUserSearchResponseInfra;
+import com.intern.hub.ticket.infra.feignClient.client.HrmFeignClient;
+import com.intern.hub.ticket.infra.feignClient.dto.request.HrmUserSearchResponseInfra;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

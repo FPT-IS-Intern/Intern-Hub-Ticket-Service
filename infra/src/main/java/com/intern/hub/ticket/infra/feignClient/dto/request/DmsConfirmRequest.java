@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient.dto;
+package com.intern.hub.ticket.infra.feignClient.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

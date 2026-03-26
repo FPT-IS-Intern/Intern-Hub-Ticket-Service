@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/ticket/ticket-types/{ticketTypeId}/approvers")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4221")
+//@CrossOrigin(origins = "http://localhost:4221")
 public class AdminTicketTypeApproverController {
 
     private final ManageTicketTypeApproverUseCase manageUseCase;

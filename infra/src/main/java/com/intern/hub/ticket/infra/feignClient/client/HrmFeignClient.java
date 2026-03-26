@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient;
+package com.intern.hub.ticket.infra.feignClient.client;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.ticket.infra.feignClient.dto.HrmUserSearchResponseInfra;
+import com.intern.hub.ticket.infra.feignClient.dto.request.HrmUserSearchResponseInfra;
 
 @FeignClient(name = "hrm-service", url = "${hrm.service.url:http://localhost:8082}")
 public interface HrmFeignClient {

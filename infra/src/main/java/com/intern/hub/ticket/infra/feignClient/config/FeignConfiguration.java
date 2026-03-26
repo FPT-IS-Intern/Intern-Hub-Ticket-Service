@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient;
+package com.intern.hub.ticket.infra.feignClient.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

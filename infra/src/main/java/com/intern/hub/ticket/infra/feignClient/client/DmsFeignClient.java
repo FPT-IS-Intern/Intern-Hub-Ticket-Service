@@ -1,13 +1,13 @@
-package com.intern.hub.ticket.infra.feignClient;
+package com.intern.hub.ticket.infra.feignClient.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsConfirmRequest;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsPresignedUrlRequest;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsPresignedUrlResponse;
+import com.intern.hub.ticket.infra.feignClient.dto.request.DmsConfirmRequest;
+import com.intern.hub.ticket.infra.feignClient.dto.request.DmsPresignedUrlRequest;
+import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsPresignedUrlResponse;
 
 @FeignClient(name = "dms-service", url = "${dms.service.url}")
 public interface DmsFeignClient {

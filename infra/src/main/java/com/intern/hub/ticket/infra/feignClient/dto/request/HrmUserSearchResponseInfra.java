@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient.dto;
+package com.intern.hub.ticket.infra.feignClient.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class HrmUserResponse {
+public class HrmUserSearchResponseInfra {
     Long id;
     String fullName;
     String email;

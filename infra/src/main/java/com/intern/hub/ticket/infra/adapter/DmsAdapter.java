@@ -2,12 +2,11 @@ package com.intern.hub.ticket.infra.adapter;
 
 import org.springframework.stereotype.Component;
 
-import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
-import com.intern.hub.ticket.infra.feignClient.DmsFeignClient;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsConfirmRequest;
-import com.intern.hub.ticket.infra.feignClient.dto.DmsPresignedUrlRequest;
+import com.intern.hub.ticket.infra.feignClient.client.DmsFeignClient;
+import com.intern.hub.ticket.infra.feignClient.dto.request.DmsConfirmRequest;
+import com.intern.hub.ticket.infra.feignClient.dto.request.DmsPresignedUrlRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

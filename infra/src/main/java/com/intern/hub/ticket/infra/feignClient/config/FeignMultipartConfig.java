@@ -1,4 +1,4 @@
-package com.intern.hub.ticket.infra.feignClient;
+package com.intern.hub.ticket.infra.feignClient.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
