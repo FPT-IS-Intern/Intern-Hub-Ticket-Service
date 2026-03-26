@@ -47,7 +47,7 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
 
         try {
             ResponseApi<DmsDocumentClientModel> response =
-                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId);
+                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId, false);
 
             if (response == null || response.data() == null || !hasText(response.data().objectKey())) {
                 throw new InternalErrorException(

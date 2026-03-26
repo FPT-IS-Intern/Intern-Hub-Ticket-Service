@@ -11,17 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsDocumentClientModel;
 
-@FeignClient(
-  name = "dms",
-  url = "${services.dms.url}"
-)
+@FeignClient(name = "dms", url = "${services.dms.url:${DMS_SERVICE_URL:http://localhost:8084}}")
 public interface InternalUploadDirectClient {
 
   @PostMapping(value = "/dms/internal/direct/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   ResponseApi<DmsDocumentClientModel> uploadFile(
           @RequestPart("file") MultipartFile file,
           @RequestParam("destinationPath") String destinationPath,
-          @RequestParam("actorId") Long actorId
+          @RequestParam("actorId") Long actorId,
+          @RequestParam("isAdmin") boolean isAdmin
   );
 
   @DeleteMapping("/dms/internal/presigned/document")

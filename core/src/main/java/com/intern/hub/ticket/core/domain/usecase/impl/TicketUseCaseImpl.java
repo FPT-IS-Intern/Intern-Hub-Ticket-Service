@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.intern.hub.ticket.core.domain.model.*;
+import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import com.intern.hub.ticket.core.domain.port.*;
 import lombok.AccessLevel;
@@ -159,7 +160,19 @@ public class TicketUseCaseImpl implements TicketUsecase {
                 if (evidence == null || evidence.isEmpty()) {
                     continue;
                 }
-                evidenceUsecase.uploadFile(evidence, destinationPath, savedTicket.getTicketId(), command.userId());
+                String objectKey = internalUploadDirectPort.uploadFile(evidence, destinationPath, command.userId(), 10L * 1024 * 1024, CONTENT_TYPE_REGEX);
+
+                evidenceRepository.save(
+                        new EvidenceModel(
+                                snowflake.next(),
+                                savedTicket.getTicketId(),
+                                objectKey,
+                                evidence.getContentType(),
+                                evidence.getSize(),
+                                EvidenceStatus.UPLOADED,
+                                0
+                        )
+                );
             }
         }
 
