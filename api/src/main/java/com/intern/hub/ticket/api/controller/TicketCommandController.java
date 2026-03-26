@@ -46,7 +46,7 @@ public class TicketCommandController {
                         @RequestPart(value = "evidences", required = false) MultipartFile[] evidences) {
 
                 log.info("request: {}", request);
-                log.info("files: {}", evidences);
+                log.info("files: {}", (Object) evidences);
                 Long userId = UserContext.requiredUserId();
 
                 CreateTicketCommand command = new CreateTicketCommand(

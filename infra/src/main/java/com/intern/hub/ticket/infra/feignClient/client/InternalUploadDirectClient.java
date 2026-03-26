@@ -4,6 +4,7 @@ import com.intern.hub.ticket.infra.feignClient.config.FeignConfiguration;
 import com.intern.hub.ticket.infra.feignClient.config.FeignMultipartConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,6 +24,12 @@ public interface InternalUploadDirectClient {
   ResponseApi<DmsDocumentClientModel> uploadFile(
           @RequestPart("file") MultipartFile file,
           @RequestParam("destinationPath") String destinationPath,
+          @RequestParam("actorId") Long actorId
+  );
+
+  @DeleteMapping("/dms/internal/presigned/document")
+  ResponseApi<Void> deleteFile(
+          @RequestParam("key") String key,
           @RequestParam("actorId") Long actorId
   );
 }

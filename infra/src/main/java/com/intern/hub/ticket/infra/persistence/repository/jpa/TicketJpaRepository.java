@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 
 @Repository
@@ -48,4 +49,47 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
 
     @Query("select count(t) from Ticket t where t.status = 'REJECTED'")
     int totalRejectedTicket();
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM unnest(:userIds) AS u(user_id)
+    WHERE u.user_id NOT IN (
+        SELECT t.user_id
+        FROM tickets t
+        JOIN ticket_types tt ON t.ticket_type_id = tt.ticket_type_id
+        WHERE t.created_at >= (EXTRACT(EPOCH FROM CURRENT_DATE) * 1000)
+          AND t.created_at < (EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day') * 1000)
+          AND tt.type_name IN ('Phiếu nghỉ phép', 'Phiếu Remote - WFH')
+    )
+""", nativeQuery = true)
+    int countEmployeesWorkingToday(@Param("userIds") List<Long> userIds);
+
+
+    @Query(value = """
+                SELECT COUNT(DISTINCT t.user_id)
+                FROM tickets t
+                JOIN ticket_types tt ON t.ticket_type_id = tt.ticket_type_id
+                WHERE t.created_at >= (EXTRACT(EPOCH FROM CURRENT_DATE) * 1000)
+                  AND t.created_at < (EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day') * 1000)
+                  AND tt.type_name = 'Phiếu Remote - WFH'
+            """, nativeQuery = true)
+    int totalPeopleWorkInHome();
+
+    @Query(
+            """
+                        SELECT new com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo(
+                        t.ticketId,
+                        t.userId,
+                        t.createdAt,
+                        (select ta.approvalId from TicketApproval ta where ta.ticketId = t.ticketId order by ta.createdAt asc limit 1),
+                        t.createdAt,
+                        t.updatedAt,
+                        t.createdBy,
+                        t.updatedBy
+                        )
+                        FROM Ticket t join TicketApproval ta on t.ticketId = ta.ticketId
+                        WHERE t.ticketId = :ticketId
+                    """
+    )
+    ApprovalDetailTicketInfo getApprovalDetailTicketInfo(@Param("ticketId") Long ticketId);
 }

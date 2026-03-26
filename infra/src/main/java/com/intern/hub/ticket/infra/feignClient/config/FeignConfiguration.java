@@ -10,10 +10,19 @@ import feign.RequestInterceptor;
 public class FeignConfiguration {
 
     @Value("${security.internal-secret}")
-    private String secretKey;
+    private String internalSecret;
 
     @Bean
-    public RequestInterceptor requestInterceptor() {
-        return requestTemplate -> requestTemplate.header("X-Internal-Secret", secretKey);
+    public RequestInterceptor internalSecretHeaderInterceptor() {
+        return requestTemplate -> {
+            if (internalSecret == null) {
+                return;
+            }
+
+            String normalizedSecret = internalSecret.trim();
+            if (!normalizedSecret.isEmpty()) {
+                requestTemplate.header("X-Internal-Secret", normalizedSecret);
+            }
+        };
     }
 }

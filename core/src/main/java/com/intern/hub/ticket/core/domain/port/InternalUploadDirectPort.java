@@ -32,4 +32,12 @@ public interface InternalUploadDirectPort {
      */
     List<String> uploadFiles(MultipartFile[] files, String baseDestinationPath,
                              Long maxSizeBytes, String contentTypeRegex);
+
+    /**
+     * Delete a file from DMS storage.
+     *
+     * @param key     the object key of the file to delete
+     * @param actorId the user ID performing the deletion
+     */
+    void deleteFile(String key, Long actorId);
 }

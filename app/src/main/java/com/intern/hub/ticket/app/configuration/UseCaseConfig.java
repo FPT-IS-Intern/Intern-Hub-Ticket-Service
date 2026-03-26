@@ -9,12 +9,14 @@ import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
 import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
+import com.intern.hub.ticket.core.domain.port.StorageLifecyclePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
+import com.intern.hub.ticket.core.domain.service.DocumentService;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
@@ -26,6 +28,8 @@ import com.intern.hub.ticket.core.domain.usecase.impl.EvidenceUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketTypeApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketTypeUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketUseCaseImpl;
+import com.intern.hub.ticket.infra.service.DocumentServiceImpl;
+import com.intern.hub.ticket.infra.service.StorageObjectLifecycleManager;
 
 @Configuration
 public class UseCaseConfig {
@@ -82,8 +86,19 @@ public class UseCaseConfig {
             EvidenceRepository evidenceRepository,
             DmsPort dmsPort,
             InternalUploadDirectPort internalUploadDirectPort,
+            Snowflake snowflake,
+            StorageLifecyclePort storageLifecyclePort) {
+        return new EvidenceUsecaseImpl(
+                evidenceRepository, dmsPort, internalUploadDirectPort, snowflake, storageLifecyclePort);
+    }
+
+    @Bean
+    public DocumentService documentService(
+            EvidenceRepository evidenceRepository,
+            InternalUploadDirectPort internalUploadDirectPort,
+            StorageLifecyclePort storageLifecyclePort,
             Snowflake snowflake) {
-        return new EvidenceUsecaseImpl(evidenceRepository, dmsPort, internalUploadDirectPort, snowflake);
+        return new DocumentServiceImpl(evidenceRepository, internalUploadDirectPort, storageLifecyclePort, snowflake);
     }
 
     @Bean

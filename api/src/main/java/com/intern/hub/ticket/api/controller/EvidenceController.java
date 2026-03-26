@@ -2,6 +2,7 @@ package com.intern.hub.ticket.api.controller;
 
 import java.util.List;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +13,7 @@ import com.intern.hub.ticket.api.dto.response.PresignedUrlDto;
 import com.intern.hub.ticket.api.util.UserContext;
 import com.intern.hub.ticket.core.domain.model.EvidenceModel;
 import com.intern.hub.ticket.core.domain.model.PresignedUrlModel;
+import com.intern.hub.ticket.core.domain.service.DocumentService;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class EvidenceController {
 
         private final EvidenceUsecase evidenceUsecase;
+        private final DocumentService documentService;
 
         @PostMapping("/presigned-url")
         public ResponseApi<PresignedUrlDto> generatePresignedUrl(@Valid @RequestBody PresignedUrlReq request) {
@@ -57,6 +60,24 @@ public class EvidenceController {
                 Long actorId = UserContext.requiredUserId();
                 EvidenceModel savedEvidence = evidenceUsecase.uploadFile(file, destinationPath, ticketId, actorId);
                 return ResponseApi.ok(mapToDto(savedEvidence));
+        }
+
+        /**
+         * Replace all evidence files for a ticket. Deletes existing files from DMS and DB, then uploads new ones.
+         *
+         * @param ticketId        the ticket ID
+         * @param files           the new files to upload
+         * @param destinationPath the storage destination path within DMS
+         */
+        @PutMapping(value = "/{ticketId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseApi<?> replaceEvidences(
+                        @PathVariable Long ticketId,
+                        @RequestParam(value = "files", required = false) MultipartFile[] files,
+                        @RequestParam("destinationPath") String destinationPath) {
+                Long actorId = UserContext.requiredUserId();
+                List<MultipartFile> fileList = (files != null) ? List.of(files) : List.of();
+                documentService.replaceDocuments(ticketId, actorId, destinationPath, fileList);
+                return ResponseApi.noContent();
         }
 
         private EvidenceDto mapToDto(EvidenceModel model) {

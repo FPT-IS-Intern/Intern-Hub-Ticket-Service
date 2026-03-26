@@ -98,4 +98,13 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
     private static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
+
+    @Override
+    public void deleteFile(String key, Long actorId) {
+        try {
+            dmsInternalFeignClient.deleteFile(key, actorId);
+        } catch (Exception e) {
+            log.warn("DMS delete failed for key {}: {}", key, e.getMessage());
+        }
+    }
 }

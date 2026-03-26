@@ -10,4 +10,6 @@ import com.intern.hub.ticket.infra.persistence.entity.Evidence;
 @Repository
 public interface EvidenceJpaRepository extends JpaRepository<Evidence, Long> {
     List<Evidence> findAllByTicketId(Long ticketId);
+
+    void deleteAllByTicketId(Long ticketId);
 }

@@ -32,4 +32,14 @@ public class EvidenceRepositoryImpl implements EvidenceRepository {
     public void saveAll(List<EvidenceModel> evidenceEntities) {
         jpaRepository.saveAll(mapper.toEntities(evidenceEntities));
     }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllByTicketId(Long ticketId) {
+        jpaRepository.deleteAllByTicketId(ticketId);
+    }
 }

@@ -10,4 +10,8 @@ public interface EvidenceRepository {
     List<EvidenceModel> findByTicketId(Long ticketId);
 
     void saveAll(List<EvidenceModel> evidenceEntities);
+
+    void deleteById(Long id);
+
+    void deleteAllByTicketId(Long ticketId);
 }

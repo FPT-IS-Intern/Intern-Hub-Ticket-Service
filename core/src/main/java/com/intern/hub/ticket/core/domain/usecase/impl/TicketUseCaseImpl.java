@@ -153,30 +153,15 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
         TicketModel savedTicket = ticketRepository.save(ticket);
 
-//        if (command.evidences() != null && command.evidences().length > 0) {
-//            List<String> urlList = internalUploadDirectPort.uploadFiles(
-//                    command.evidences(),
-//                    "tickets/evidences/" + savedTicket.getTicketId(),
-//                    2L * 1024 * 1024,
-//                    CONTENT_TYPE_REGEX);
-//
-//            if (!urlList.isEmpty()) {
-//
-//                for (String url : urlList) {
-//                    EvidenceModel model = EvidenceModel.builder()
-//                            .evidenceId(snowflake.next())
-//                            .ticketId(savedTicket.getTicketId())
-//                            .evidenceKey(url)
-//                            .fileType(null)
-//                            .fileSize(null)
-//                            .status(EvidenceStatus.UPLOADED)
-//                            .version(0)
-//                            .build();
-//
-//                    evidenceRepository.save(model);
-//                }
-//            }
-//        }
+        if (command.evidences() != null && command.evidences().length > 0) {
+            String destinationPath = "tickets/evidences/" + savedTicket.getTicketId();
+            for (MultipartFile evidence : command.evidences()) {
+                if (evidence == null || evidence.isEmpty()) {
+                    continue;
+                }
+                evidenceUsecase.uploadFile(evidence, destinationPath, savedTicket.getTicketId(), command.userId());
+            }
+        }
 
         ticketEventPublisher.publishTicketCreatedEvent(savedTicket);
 

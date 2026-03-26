@@ -9,6 +9,7 @@ import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
+import com.intern.hub.ticket.core.domain.port.StorageLifecyclePort;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
     private final DmsPort dmsPort;
     private final InternalUploadDirectPort internalUploadDirectPort;
     private final Snowflake snowflake;
+    private final StorageLifecyclePort storageLifecyclePort;
 
     @Override
     public PresignedUrlModel getPresignedUrl(String fileName, String contentType, Long fileSize) {
@@ -53,7 +55,11 @@ public class EvidenceUsecaseImpl implements EvidenceUsecase {
                 .status(EvidenceStatus.UPLOADED)
                 .build();
 
-        return evidenceRepository.save(evidenceModel);
+        EvidenceModel savedEvidence = evidenceRepository.save(evidenceModel);
+
+        storageLifecyclePort.cleanupOnRollback(objectKey, actorId);
+
+        return savedEvidence;
     }
 
     @Override
