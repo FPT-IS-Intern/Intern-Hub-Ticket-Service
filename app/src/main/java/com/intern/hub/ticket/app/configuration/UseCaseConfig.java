@@ -25,7 +25,7 @@ import com.intern.hub.ticket.core.domain.usecase.impl.ApproveTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.EvidenceUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketTypeApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketTypeUseCaseImpl;
-import com.intern.hub.ticket.core.domain.usecase.impl.TicketUsecaseImpl;
+import com.intern.hub.ticket.core.domain.usecase.impl.TicketUseCaseImpl;
 
 @Configuration
 public class UseCaseConfig {
@@ -63,7 +63,7 @@ public class UseCaseConfig {
             HrmServicePort hrmServicePort,
             InternalUploadDirectPort internalUploadDirectPort,
             EvidenceRepository evidenceRepository) {
-        return new TicketUsecaseImpl(
+        return new TicketUseCaseImpl(
                 ticketRepository,
                 ticketTypeRepository,
                 ticketEventPublisher,

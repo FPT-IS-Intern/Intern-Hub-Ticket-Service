@@ -9,8 +9,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.intern.hub.ticket.core.domain.model.*;
-import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
+import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import com.intern.hub.ticket.core.domain.port.*;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,20 +31,21 @@ import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Slf4j
-public class TicketUsecaseImpl implements TicketUsecase {
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class TicketUseCaseImpl implements TicketUsecase {
 
-    private final TicketRepository ticketRepository;
-    private final TicketTypeRepository ticketTypeRepository;
-    private final TicketEventPublisher ticketEventPublisher;
-    private final Snowflake snowflake;
-    private final RuleEvaluatorPort ruleEvaluator;
-    private final TicketTemplateValidator ticketTemplateValidator;
-    private final TicketApprovalRepository ticketApprovalRepository;
-    private final EvidenceUsecase evidenceUsecase;
-    private final HrmServicePort hrmServicePort;
-    private final InternalUploadDirectPort internalUploadDirectPort;
-    private final EvidenceRepository evidenceRepository;
-    private static final String CONTENT_TYPE_REGEX = "(image/.*|application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|text/plain)";
+    TicketRepository ticketRepository;
+    TicketTypeRepository ticketTypeRepository;
+    TicketEventPublisher ticketEventPublisher;
+    Snowflake snowflake;
+    RuleEvaluatorPort ruleEvaluator;
+    TicketTemplateValidator ticketTemplateValidator;
+    TicketApprovalRepository ticketApprovalRepository;
+    EvidenceUsecase evidenceUsecase;
+    HrmServicePort hrmServicePort;
+    InternalUploadDirectPort internalUploadDirectPort;
+    EvidenceRepository evidenceRepository;
+    static String CONTENT_TYPE_REGEX = "(image/.*|application/pdf|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|text/plain)";
 
     @Override
     @Transactional(readOnly = true)
@@ -320,5 +323,10 @@ public class TicketUsecaseImpl implements TicketUsecase {
                 ticket.setTypeName(type.getTypeName());
             }
         });
+    }
+
+    @Override
+    public StatCardCoreResponse getStatCardData() {
+        return ticketRepository.getStatCardData();
     }
 }

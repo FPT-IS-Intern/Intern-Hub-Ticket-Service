@@ -2,6 +2,8 @@ package com.intern.hub.ticket.api.mapper;
 
 import java.util.List;
 
+import com.intern.hub.ticket.api.dto.response.StatCardApiResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
@@ -36,4 +38,6 @@ public interface TicketApiMapper {
 
     @Mapping(target = "items", source = "items")
     PaginatedData<TicketManagementDto> toPaginatedManagementDto(PaginatedData<TicketModel> modelPage);
+
+    StatCardApiResponse toStatCardApiResponse(StatCardCoreResponse coreResponse);
 }

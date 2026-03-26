@@ -3,6 +3,9 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.Set;
 
+import com.intern.hub.ticket.api.dto.response.StatCardApiResponse;
+import com.intern.hub.ticket.api.mapper.TicketApiMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +36,9 @@ import lombok.RequiredArgsConstructor;
 //@CrossOrigin(origins = "http://localhost:4221")
 public class TicketCommandController {
 
-        private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "pdf", "docx");
-        private static final long MAX_FILE_SIZE = 2 * 1024 * 1024L; // 2MB
-
         private final ApproveTicketUsecase approveTicketUsecase;
         private final TicketUsecase ticketUsecase;
+        private final TicketApiMapper ticketApiMapper;
 
         @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseApi<TicketResponse> createTicket(
@@ -99,5 +100,10 @@ public class TicketCommandController {
                                 request.comment());
                 BulkApproveResponse response = approveTicketUsecase.bulkApprove(command);
                 return ResponseApi.ok(response);
+        }
+
+        @GetMapping("/stat-card-data")
+        public ResponseApi<StatCardApiResponse> getStatCardDate() {
+                return ResponseApi.ok(ticketApiMapper.toStatCardApiResponse(ticketUsecase.getStatCardData()));
         }
 }

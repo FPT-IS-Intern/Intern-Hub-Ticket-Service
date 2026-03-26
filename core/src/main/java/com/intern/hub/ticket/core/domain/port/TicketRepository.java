@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import org.springframework.data.repository.query.Param;
 
 public interface TicketRepository {
@@ -29,5 +30,12 @@ public interface TicketRepository {
 
     Collection<TicketModel> findByUserId(Long userId);
 
-    int rejectTicket(Long ticketId, TicketStatus status, Long updatedBy, Long updatedAt, Integer version);
+    int rejectTicket(
+            Long ticketId,
+            TicketStatus status,
+            Long updatedBy,
+            Long updatedAt,
+            Integer version);
+
+    StatCardCoreResponse getStatCardData();
 }

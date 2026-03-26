@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -141,6 +142,17 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public int rejectTicket(Long ticketId, TicketStatus status, Long updatedBy, Long updatedAt, Integer version) {
         return jpaRepository.rejectTicket(ticketId, status, updatedBy, updatedAt, version);
+    }
+
+    @Override
+    public StatCardCoreResponse getStatCardData() {
+
+        return StatCardCoreResponse.builder()
+                .totalTicket(jpaRepository.totalTicket())
+                .totalTicketPending(jpaRepository.totalPendingTicket())
+                .totalTicketApprove(jpaRepository.totalApprovedTicket())
+                .totalTicketReject(jpaRepository.totalRejectedTicket())
+                .build();
     }
 
 }

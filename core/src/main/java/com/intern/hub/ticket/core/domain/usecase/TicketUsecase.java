@@ -6,6 +6,7 @@ import java.util.List;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
+import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 
 public interface TicketUsecase {
     TicketModel create(CreateTicketCommand command);
@@ -27,4 +28,6 @@ public interface TicketUsecase {
     PaginatedData<TicketModel> getAllTicketsForManagement(
             int page, int size, String nameOrEmail, String typeName, String status,
             Long startDate, Long endDate, String sortBy, String sortDirection);
+
+    StatCardCoreResponse getStatCardData();
 }

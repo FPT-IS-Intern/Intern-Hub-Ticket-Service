@@ -36,4 +36,16 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
             @Param("updatedAt") Long updatedAt,
             @Param("version") Integer version
     );
+
+    @Query("select count(t) from Ticket t")
+    int totalTicket();
+
+    @Query("select count(t) from Ticket t where t.status = 'PENDING'")
+    int totalPendingTicket();
+
+    @Query("select count(t) from Ticket t where t.status = 'APPROVED'")
+    int totalApprovedTicket();
+
+    @Query("select count(t) from Ticket t where t.status = 'REJECTED'")
+    int totalRejectedTicket();
 }
