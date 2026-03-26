@@ -4,16 +4,20 @@ import java.util.List;
 
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
+import com.intern.hub.ticket.infra.persistence.entity.TicketType;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface TicketMapper {
 
+    @Mapping(target = "ticketTypeId", source = "ticketType", qualifiedByName = "ticketTypeToId")
     TicketModel toModel(Ticket entity);
 
     Ticket toEntity(TicketModel model);
@@ -45,6 +49,11 @@ public interface TicketMapper {
         model.setUpdatedAt(entity.getUpdatedAt());
         model.setCreatedBy(entity.getCreatedBy());
         model.setUpdatedBy(entity.getUpdatedBy());
+    }
+
+    @Named("ticketTypeToId")
+    default Long ticketTypeToId(TicketType ticketType) {
+        return ticketType != null ? ticketType.getTicketTypeId() : null;
     }
 
     default PaginatedData<TicketModel> toPaginatedModel(org.springframework.data.domain.Page<Ticket> page) {
