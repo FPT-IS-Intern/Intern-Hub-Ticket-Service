@@ -35,13 +35,13 @@ public class TicketRepositoryImpl implements TicketRepository {
     @Override
     public TicketModel save(TicketModel model) {
         Ticket entity = mapper.toEntity(model);
-        Ticket savedEntity = jpaRepository.save(entity);
 
-        if (savedEntity.getTicketType() != null) {
-            ticketTypeJpaRepository.findById(savedEntity.getTicketType().getTicketTypeId())
-                    .ifPresent(savedEntity::setTicketType);
+        if (model.getTicketTypeId() != null) {
+            ticketTypeJpaRepository.findById(model.getTicketTypeId())
+                    .ifPresent(entity::setTicketType);
         }
 
+        Ticket savedEntity = jpaRepository.save(entity);
         return mapper.toModel(savedEntity);
     }
 
