@@ -156,11 +156,18 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
         if (command.evidences() != null && command.evidences().length > 0) {
             String destinationPath = "tickets/evidences/" + savedTicket.getTicketId();
+            long actorId;
             for (MultipartFile evidence : command.evidences()) {
                 if (evidence == null || evidence.isEmpty()) {
                     continue;
                 }
-                String objectKey = internalUploadDirectPort.uploadFile(evidence, destinationPath, command.userId(), 10L * 1024 * 1024, CONTENT_TYPE_REGEX);
+                actorId = snowflake.next();
+                String objectKey = internalUploadDirectPort.uploadFile(
+                        evidence,
+                        destinationPath + evidence.getOriginalFilename(),
+                        actorId,
+                        20971520L,
+                        CONTENT_TYPE_REGEX);
 
                 evidenceRepository.save(
                         new EvidenceModel(

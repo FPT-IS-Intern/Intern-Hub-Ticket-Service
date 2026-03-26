@@ -30,8 +30,9 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
      */
     @Override
     public String uploadFile(
-            MultipartFile file, String destinationPath, Long actorId,
-            Long maxSizeBytes, String contentTypeRegex) {
+            MultipartFile file, String keyPrefix, Long actorId,
+            Long maxSizeBytes, String contentTypeRegex
+    ) {
 
         if (file.getSize() > maxSizeBytes) {
             throw new BadRequestException(
@@ -47,7 +48,7 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
 
         try {
             ResponseApi<DmsDocumentClientModel> response =
-                    dmsInternalFeignClient.uploadFile(file, destinationPath, actorId, false);
+                    dmsInternalFeignClient.uploadFile(file, keyPrefix, actorId, false);
 
             if (response == null || response.data() == null || !hasText(response.data().objectKey())) {
                 throw new InternalErrorException(
@@ -55,32 +56,10 @@ public class InternalUploadDirectAdapter implements InternalUploadDirectPort {
             }
 
             return response.data().objectKey();
-
-        } catch (BadRequestException e) {
-            // Rethrow lỗi BadRequest từ validation
-            throw e;
-
-        } catch (feign.FeignException e) {
-            // Catch chi tiết Feign client exception
-            log.error("DMS upload failed. status={}, body={}, destinationPath={}",
-                    e.status(), e.contentUTF8(), destinationPath, e);
-
-            throw new InternalErrorException(
-                    "storage.upload.error",
-                    "Không thể upload file lên hệ thống lưu trữ: " + e.getMessage()
-            );
-
         } catch (Exception e) {
-            // Catch tất cả các exception khác
-            log.error("Unexpected error during DMS upload for destinationPath={}", destinationPath, e);
-            if (e.getCause() != null) {
-                log.error("Cause: ", e.getCause());
-            }
-
+            log.error("DMS upload failed for destination path {}", keyPrefix, e);
             throw new InternalErrorException(
-                    "storage.upload.error",
-                    "Không thể upload file lên hệ thống lưu trữ: " + e.getMessage()
-            );
+                    "storage.upload.error", "Không thể upload file lên hệ thống lưu trữ");
         }
     }
 

@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.infra.feignClient.dto.reponse.DmsDocumentClientModel;
 
-@FeignClient(name = "dms", url = "${services.dms.url:${DMS_SERVICE_URL:http://localhost:8084}}")
+@FeignClient(name = "dms", url = "${services.dms.url}")
 public interface InternalUploadDirectClient {
 
   @PostMapping(value = "/dms/internal/direct/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
