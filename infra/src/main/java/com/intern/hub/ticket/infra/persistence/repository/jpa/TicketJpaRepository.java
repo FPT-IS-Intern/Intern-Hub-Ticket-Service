@@ -75,21 +75,21 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
             """, nativeQuery = true)
     int totalPeopleWorkInHome();
 
-    @Query(
-            """
-                        SELECT new com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo(
-                        t.ticketId,
-                        t.userId,
-                        t.createdAt,
-                        (select ta.approvalId from TicketApproval ta where ta.ticketId = t.ticketId order by ta.createdAt asc limit 1),
-                        t.createdAt,
-                        t.updatedAt,
-                        t.createdBy,
-                        t.updatedBy
-                        )
-                        FROM Ticket t join TicketApproval ta on t.ticketId = ta.ticketId
-                        WHERE t.ticketId = :ticketId
-                    """
-    )
-    ApprovalDetailTicketInfo getApprovalDetailTicketInfo(@Param("ticketId") Long ticketId);
+//    @Query(
+//            """
+//                        SELECT new com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo(
+//                        t.ticketId,
+//                        t.userId,
+//                        t.createdAt,
+//                        (select ta.approvalId from TicketApproval ta where ta.ticketId = t.ticketId order by ta.createdAt asc limit 1),
+//                        t.createdAt,
+//                        t.updatedAt,
+//                        t.createdBy,
+//                        t.updatedBy
+//                        )
+//                        FROM Ticket t join TicketApproval ta on t.ticketId = ta.ticketId
+//                        WHERE t.ticketId = :ticketId
+//                    """
+//    )
+//    ApprovalDetailTicketInfo getApprovalDetailTicketInfo(@Param("ticketId") Long ticketId);
 }
