@@ -37,7 +37,7 @@ public class TicketRepositoryImpl implements TicketRepository {
         Ticket entity = mapper.toEntity(model);
         Ticket savedEntity = jpaRepository.save(entity);
 
-        if (savedEntity.getTicketType().getTicketTypeId() != null) {
+        if (savedEntity.getTicketType() != null) {
             ticketTypeJpaRepository.findById(savedEntity.getTicketType().getTicketTypeId())
                     .ifPresent(savedEntity::setTicketType);
         }
