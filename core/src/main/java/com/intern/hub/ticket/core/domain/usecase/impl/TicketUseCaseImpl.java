@@ -81,7 +81,10 @@ public class TicketUseCaseImpl implements TicketUsecase {
     public PaginatedData<TicketModel> getAllTickets(int page, int size) {
         PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size);
         if (result.getItems() != null && !result.getItems().isEmpty()) {
-            enrichWithApproverId(new java.util.ArrayList<>(result.getItems()));
+            List<TicketModel> tickets = new java.util.ArrayList<>(result.getItems());
+            enrichWithUserInfo(tickets);
+            enrichWithApproverId(tickets);
+            enrichWithApproverFullName(tickets);
         }
         return result;
     }
@@ -121,7 +124,10 @@ public class TicketUseCaseImpl implements TicketUsecase {
         // Bước 2: Gọi repository để filter tickets theo userIds (nếu có) + các filter khác
         PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
         if (result.getItems() != null && !result.getItems().isEmpty()) {
-            enrichWithApproverId(new java.util.ArrayList<>(result.getItems()));
+            List<TicketModel> tickets = new java.util.ArrayList<>(result.getItems());
+            enrichWithUserInfo(tickets);
+            enrichWithApproverId(tickets);
+            enrichWithApproverFullName(tickets);
         }
         return result;
     }
@@ -294,6 +300,7 @@ public class TicketUseCaseImpl implements TicketUsecase {
             enrichWithUserInfo(tickets);
             enrichWithTypeName(tickets);
             enrichWithApproverId(tickets);
+            enrichWithApproverFullName(tickets);
         }
 
         return result;
@@ -370,6 +377,33 @@ public class TicketUseCaseImpl implements TicketUsecase {
             Long approverId = approverMap.get(ticket.getTicketId());
             if (approverId != null) {
                 ticket.setApproverId(approverId);
+            }
+        });
+    }
+
+    /**
+     * Enrich tickets với approverFullName bằng cách batch-fetch thông tin approver từ HRM.
+     * Chỉ gọi nếu ticket đã có approverId (sau khi enrichWithApproverId chạy).
+     */
+    private void enrichWithApproverFullName(List<TicketModel> tickets) {
+        List<Long> approverIds = tickets.stream()
+                .map(TicketModel::getApproverId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        if (approverIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, HrmUserSearchResponse> approverMap = hrmServicePort.getUsersByIds(approverIds);
+
+        tickets.forEach(ticket -> {
+            if (ticket.getApproverId() != null) {
+                HrmUserSearchResponse approver = approverMap.get(ticket.getApproverId());
+                if (approver != null) {
+                    ticket.setApproverFullName(approver.getFullName());
+                }
             }
         });
     }

@@ -114,14 +114,15 @@ public class TicketQueryController {
     private TicketDto mapToDto(TicketModel model) {
         return new TicketDto(
                 model.getTicketId(),
-                model.getUserId(),
+                model.getFullName(),
+                model.getEmail(),
                 model.getTicketTypeId(),
                 model.getStatus(),
                 model.getCreatedAt(),
                 model.getUpdatedAt(),
                 model.getCreatedBy(),
                 model.getUpdatedBy(),
-                model.getApproverId());
+                model.getApproverFullName());
     }
 
     private PaginatedData<TicketDto> mapToPaginatedDto(PaginatedData<TicketModel> modelPage) {

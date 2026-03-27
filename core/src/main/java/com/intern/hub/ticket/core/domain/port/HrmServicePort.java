@@ -24,4 +24,13 @@ public interface HrmServicePort {
      * @return Map&lt;userId, HrmUserSearchResponse&gt;, entries có thể rỗng nếu userId không tồn tại
      */
     Map<Long, HrmUserSearchResponse> getUsersByIds(List<Long> userIds);
+
+    /**
+     * Lấy thông tin user (fullName, email) theo userId.
+     * Gọi HRM internal API: GET /hrm/internal/users/{userId}
+     *
+     * @param userId ID của user cần lấy thông tin
+     * @return HrmUserSearchResponse chứa id, fullName, email; hoặc null nếu không tìm thấy
+     */
+    HrmUserSearchResponse getUserById(Long userId);
 }

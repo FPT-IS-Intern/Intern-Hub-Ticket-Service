@@ -7,7 +7,8 @@ import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 public record TicketDto(
         @JsonSerialize(using = ToStringSerializer.class) Long ticketId,
 
-        @JsonSerialize(using = ToStringSerializer.class) Long userId,
+        String fullName,
+        String email,
 
         @JsonSerialize(using = ToStringSerializer.class) Long ticketTypeId,
 
@@ -16,6 +17,7 @@ public record TicketDto(
         Long updatedAt,
         Long createdBy,
         Long updatedBy,
-        @JsonSerialize(using = ToStringSerializer.class) Long approverId
+        String approverFullName
         ) {
 }
+

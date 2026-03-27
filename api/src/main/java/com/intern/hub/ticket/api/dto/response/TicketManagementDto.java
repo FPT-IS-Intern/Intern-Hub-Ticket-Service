@@ -42,4 +42,6 @@ public class TicketManagementDto {
 
     @JsonSerialize(using = ToStringSerializer.class)
     private Long approverId;
+
+    private String approverFullName; // từ HRM
 }

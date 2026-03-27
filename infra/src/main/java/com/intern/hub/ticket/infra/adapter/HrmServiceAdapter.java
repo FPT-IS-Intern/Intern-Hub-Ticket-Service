@@ -11,6 +11,7 @@ import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.core.domain.model.HrmUserSearchResponse;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.infra.feignClient.client.HrmFeignClient;
+import com.intern.hub.ticket.infra.feignClient.dto.reponse.HrmUserByIdResponse;
 import com.intern.hub.ticket.infra.feignClient.dto.request.HrmUserSearchResponseInfra;
 
 import lombok.RequiredArgsConstructor;
@@ -88,6 +89,31 @@ public class HrmServiceAdapter implements HrmServicePort {
         }
     }
 
+    @Override
+    public HrmUserSearchResponse getUserById(Long userId) {
+        if (userId == null) {
+            log.debug("[HrmServiceAdapter] userId is null — returning null");
+            return null;
+        }
+
+        try {
+            ResponseApi<HrmUserByIdResponse> response = hrmFeignClient.getUserByIdInternal(userId);
+            if (response == null || response.data() == null) {
+                log.warn("[HrmServiceAdapter] getUserById returned null for userId={}", userId);
+                return null;
+            }
+            HrmUserByIdResponse data = response.data();
+            return HrmUserSearchResponse.builder()
+                    .id(data.getUserId())
+                    .fullName(data.getFullName())
+                    .email(data.getEmail())
+                    .build();
+        } catch (Exception ex) {
+            log.warn("[HrmServiceAdapter] getUserById failed for userId={}: {}", userId, ex.getMessage());
+            return null;
+        }
+    }
+
     private HrmUserSearchResponse toCoreDto(HrmUserSearchResponseInfra infra) {
         return HrmUserSearchResponse.builder()
                 .id(infra.getId())
@@ -96,3 +122,4 @@ public class HrmServiceAdapter implements HrmServicePort {
                 .build();
     }
 }
+
