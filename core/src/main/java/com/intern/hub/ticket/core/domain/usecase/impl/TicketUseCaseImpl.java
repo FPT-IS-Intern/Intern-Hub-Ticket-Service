@@ -154,34 +154,34 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
         TicketModel savedTicket = ticketRepository.save(ticket);
 
-        if (command.evidences() != null && command.evidences().length > 0) {
-            String destinationPath = "tickets/evidences/" + savedTicket.getTicketId();
-            long actorId;
-            for (MultipartFile evidence : command.evidences()) {
-                if (evidence == null || evidence.isEmpty()) {
-                    continue;
-                }
-                actorId = snowflake.next();
-                String objectKey = internalUploadDirectPort.uploadFile(
-                        evidence,
-                        destinationPath + evidence.getOriginalFilename(),
-                        actorId,
-                        20971520L,
-                        CONTENT_TYPE_REGEX);
-
-                evidenceRepository.save(
-                        new EvidenceModel(
-                                snowflake.next(),
-                                savedTicket.getTicketId(),
-                                objectKey,
-                                evidence.getContentType(),
-                                evidence.getSize(),
-                                EvidenceStatus.UPLOADED,
-                                0
-                        )
-                );
-            }
-        }
+//        if (command.evidences() != null && command.evidences().length > 0) {
+//            String destinationPath = "tickets/evidences/" + savedTicket.getTicketId();
+//            long actorId;
+//            for (MultipartFile evidence : command.evidences()) {
+//                if (evidence == null || evidence.isEmpty()) {
+//                    continue;
+//                }
+//                actorId = snowflake.next();
+//                String objectKey = internalUploadDirectPort.uploadFile(
+//                        evidence,
+//                        destinationPath + evidence.getOriginalFilename(),
+//                        actorId,
+//                        20971520L,
+//                        CONTENT_TYPE_REGEX);
+//
+//                evidenceRepository.save(
+//                        new EvidenceModel(
+//                                snowflake.next(),
+//                                savedTicket.getTicketId(),
+//                                objectKey,
+//                                evidence.getContentType(),
+//                                evidence.getSize(),
+//                                EvidenceStatus.UPLOADED,
+//                                0
+//                        )
+//                );
+//            }
+//        }
 
         ticketEventPublisher.publishTicketCreatedEvent(savedTicket);
 
