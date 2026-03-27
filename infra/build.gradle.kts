@@ -15,6 +15,7 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
 
     implementation(libs.mapstruct)
+    implementation(libs.common.library)
     annotationProcessor(libs.mapstruct.processor)
 
     compileOnly(libs.lombok)

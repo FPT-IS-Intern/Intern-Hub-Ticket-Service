@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.intern.hub.library.common.exception.ConflictDataException;
+import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.infra.model.ressponse.ApprovalDetailInfoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -153,6 +156,33 @@ public class TicketRepositoryImpl implements TicketRepository {
                 .totalTicketApprove(jpaRepository.totalApprovedTicket())
                 .totalTicketReject(jpaRepository.totalRejectedTicket())
                 .build();
+    }
+
+    @Override
+    public ApprovalInfoCoreResponse getApprovalInfo(Long ticketId) {
+
+        ApprovalDetailInfoProjection p = jpaRepository.getApprovalDetailInfo(ticketId);
+
+        if (p == null) {
+            throw new ConflictDataException("Ticket not found");
+        }
+
+        return ApprovalInfoCoreResponse.builder()
+                .ticketId(p.getTicketId())
+                .userId(p.getUserId())
+                .createdAt(p.getCreatedAt())
+                .approverIdLevel1(p.getApproverIdLevel1())
+                .approvedAt(p.getApprovedAt())
+                .statusLevel1(p.getStatusLevel1())
+                .approverIdLevel2(p.getApproverIdLevel2())
+                .approvedAtLevel2(p.getApprovedAtLevel2())
+                .statusLevel2(p.getStatusLevel2())
+                .build();
+    }
+
+    @Override
+    public TicketModel getTicketDetail(Long ticketId) {
+        return jpaRepository.findById(ticketId).map(mapper::toModel).orElseThrow(null);
     }
 
 }

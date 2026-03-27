@@ -2,6 +2,7 @@ package com.intern.hub.ticket.infra.persistence.repository.jpa;
 
 import java.util.List;
 
+import com.intern.hub.ticket.infra.model.ressponse.ApprovalDetailInfoProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,7 +11,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
-import com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 
 @Repository
@@ -75,21 +75,37 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
             """, nativeQuery = true)
     int totalPeopleWorkInHome();
 
-//    @Query(
-//            """
-//                        SELECT new com.intern.hub.ticket.infra.feignClient.dto.reponse.ApprovalDetailTicketInfo(
-//                        t.ticketId,
-//                        t.userId,
-//                        t.createdAt,
-//                        (select ta.approvalId from TicketApproval ta where ta.ticketId = t.ticketId order by ta.createdAt asc limit 1),
-//                        t.createdAt,
-//                        t.updatedAt,
-//                        t.createdBy,
-//                        t.updatedBy
-//                        )
-//                        FROM Ticket t join TicketApproval ta on t.ticketId = ta.ticketId
-//                        WHERE t.ticketId = :ticketId
-//                    """
-//    )
-//    ApprovalDetailTicketInfo getApprovalDetailTicketInfo(@Param("ticketId") Long ticketId);
+    @Query(value = """
+            SELECT 
+                t.ticket_id AS ticketId,
+                t.user_id AS userId,
+                t.created_at AS createdAt,
+            
+                ta_first.approver_id AS approverIdLevel1,
+                ta_first.created_at AS approvedAt,
+                ta_first.status AS statusLevel1,
+            
+                ta_last.approver_id AS approverIdLevel2,
+                ta_last.created_at AS approvedAtLevel2,
+                ta_last.status AS statusLevel2
+            
+            FROM tickets t
+            
+            LEFT JOIN LATERAL (
+                SELECT * FROM ticket_approvals 
+                WHERE ticket_id = t.ticket_id 
+                ORDER BY created_at ASC 
+                LIMIT 1
+            ) ta_first ON true
+            
+            LEFT JOIN LATERAL (
+                SELECT * FROM ticket_approvals 
+                WHERE ticket_id = t.ticket_id 
+                ORDER BY created_at DESC 
+                LIMIT 1
+            ) ta_last ON true
+            
+            WHERE t.ticket_id = :ticketId
+            """, nativeQuery = true)
+    ApprovalDetailInfoProjection getApprovalDetailInfo(@Param("ticketId") Long ticketId);
 }

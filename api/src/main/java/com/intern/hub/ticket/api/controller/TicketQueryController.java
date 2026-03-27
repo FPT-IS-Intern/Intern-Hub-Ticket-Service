@@ -3,6 +3,7 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.PaginatedData;
@@ -94,25 +95,11 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    public ResponseApi<TicketDetailDto> getTicketDetail(@PathVariable Long ticketId) {
-        TicketModel model = ticketUsecase.getTicketDetail(ticketId);
+    public ResponseApi<TicketDetailResponse> getTicketDetail(@PathVariable Long ticketId) {
 
-        TicketDetailDto detailDto = new TicketDetailDto(
-                model.getTicketId(),
-                model.getUserId(),
-                model.getTicketTypeId(),
-                model.getStatus(),
-                model.getPayload(),
-                model.getCreatedAt(),
-                model.getUpdatedAt(),
-                model.getCreatedBy(),
-                model.getUpdatedBy(),
-                model.getRequiredApprovals(),
-                model.getCurrentApprovalLevel(),
-                model.getApproverId(),
-                model.getVersion());
+        TicketDetailResponse response = ticketUsecase.getTicketDetail(ticketId);
 
-        return ResponseApi.ok(detailDto);
+        return ResponseApi.ok(response);
     }
 
     @GetMapping("/me")

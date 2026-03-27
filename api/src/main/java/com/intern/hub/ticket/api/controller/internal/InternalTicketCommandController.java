@@ -2,6 +2,7 @@ package com.intern.hub.ticket.api.controller.internal;
 
 import java.util.Set;
 
+import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +53,10 @@ public class InternalTicketCommandController {
 
         @GetMapping("/{ticketId}")
         @Internal
-        public ResponseApi<TicketDetailDto> getTicketDetailInternal(@PathVariable Long ticketId) {
-                TicketModel model = ticketUsecase.getTicketDetail(ticketId);
-                return ResponseApi.ok(ticketApiMapper.toDetailDto(model));
+        public ResponseApi<TicketDetailResponse> getTicketDetail(@PathVariable Long ticketId) {
+
+                TicketDetailResponse response = ticketUsecase.getTicketDetail(ticketId);
+
+                return ResponseApi.ok(response);
         }
 }

@@ -8,9 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.ticket.core.domain.model.*;
 import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
+import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import com.intern.hub.ticket.core.domain.port.*;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -50,17 +53,21 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
     @Override
     @Transactional(readOnly = true)
-    public TicketModel getTicketDetail(Long ticketId) {
-        TicketApprovalModel ticketApprovalModel = ticketApprovalRepository.findByTicketId(ticketId)
-                .orElse(null);
+    public TicketDetailResponse getTicketDetail(Long ticketId) {
+        ApprovalInfoCoreResponse ticketApprovalModel = ticketRepository.getApprovalInfo(ticketId);
 
-        TicketModel ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(
-                        () -> new NotFoundException("resource.not.found", "Ticket not found with id: " + ticketId));
-        if (ticketApprovalModel != null && ticketApprovalModel.getApproverId() != null) {
-            ticket.setApproverId(ticketApprovalModel.getApproverId());
+        if (ticketApprovalModel == null) {
+            throw new NotFoundException("not.found", "Ticket approval info not found");
         }
-        return ticket;
+
+        TicketModel ticket = ticketRepository.getTicketDetail(ticketId);
+        if (ticket == null) {
+            throw new ConflictDataException("not.found", "Ticket not found");
+        }
+        return TicketDetailResponse.builder()
+                .ticketDetail(ticket)
+                .ticketApprovalInfo(ticketApprovalModel)
+                .build();
     }
 
     @Override

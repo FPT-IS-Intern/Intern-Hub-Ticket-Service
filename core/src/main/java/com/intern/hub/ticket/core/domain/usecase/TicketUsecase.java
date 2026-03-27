@@ -7,11 +7,12 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 
 public interface TicketUsecase {
     TicketModel create(CreateTicketCommand command);
 
-    TicketModel getTicketDetail(Long ticketId);
+    TicketDetailResponse getTicketDetail(Long ticketId);
 
     List<TicketModel> getPendingTickets();
 

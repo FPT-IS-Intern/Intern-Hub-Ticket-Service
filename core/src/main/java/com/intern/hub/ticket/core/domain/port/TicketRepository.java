@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
 import org.springframework.data.repository.query.Param;
 
@@ -38,4 +39,8 @@ public interface TicketRepository {
             Integer version);
 
     StatCardCoreResponse getStatCardData();
+
+    ApprovalInfoCoreResponse getApprovalInfo(Long ticketId);
+
+    TicketModel getTicketDetail(Long ticketId);
 }
