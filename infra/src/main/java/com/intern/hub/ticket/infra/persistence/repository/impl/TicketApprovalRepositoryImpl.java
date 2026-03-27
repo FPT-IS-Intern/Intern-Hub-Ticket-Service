@@ -1,5 +1,6 @@
 package com.intern.hub.ticket.infra.persistence.repository.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -37,5 +38,10 @@ public class TicketApprovalRepositoryImpl implements TicketApprovalRepository {
     @Override
     public Optional<TicketApprovalModel> findByTicketId(Long ticketId) {
         return jpaRepository.findByTicketId(ticketId).map(mapper::toModel);
+    }
+
+    @Override
+    public List<Object[]> findLatestApproverIdsByTicketIds(List<Long> ticketIds) {
+        return jpaRepository.findLatestApproverIdsByTicketIds(ticketIds);
     }
 }

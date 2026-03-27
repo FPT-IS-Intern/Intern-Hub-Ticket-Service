@@ -120,7 +120,8 @@ public class TicketQueryController {
                 model.getCreatedAt(),
                 model.getUpdatedAt(),
                 model.getCreatedBy(),
-                model.getUpdatedBy());
+                model.getUpdatedBy(),
+                model.getApproverId());
     }
 
     private PaginatedData<TicketDto> mapToPaginatedDto(PaginatedData<TicketModel> modelPage) {

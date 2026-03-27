@@ -39,4 +39,7 @@ public class TicketManagementDto {
     private Long updatedAt;
     private Long createdBy;
     private Long updatedBy;
+
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long approverId;
 }

@@ -79,7 +79,11 @@ public class TicketUseCaseImpl implements TicketUsecase {
     @Override
     @Transactional(readOnly = true)
     public PaginatedData<TicketModel> getAllTickets(int page, int size) {
-        return ticketRepository.findAllPaginated(page, size);
+        PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size);
+        if (result.getItems() != null && !result.getItems().isEmpty()) {
+            enrichWithApproverId(new java.util.ArrayList<>(result.getItems()));
+        }
+        return result;
     }
 
     @Override
@@ -115,7 +119,11 @@ public class TicketUseCaseImpl implements TicketUsecase {
         }
 
         // Bước 2: Gọi repository để filter tickets theo userIds (nếu có) + các filter khác
-        return ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
+        PaginatedData<TicketModel> result = ticketRepository.findAllPaginated(page, size, userIds, typeName, status);
+        if (result.getItems() != null && !result.getItems().isEmpty()) {
+            enrichWithApproverId(new java.util.ArrayList<>(result.getItems()));
+        }
+        return result;
     }
 
     @Override
@@ -285,6 +293,7 @@ public class TicketUseCaseImpl implements TicketUsecase {
         if (!tickets.isEmpty()) {
             enrichWithUserInfo(tickets);
             enrichWithTypeName(tickets);
+            enrichWithApproverId(tickets);
         }
 
         return result;
@@ -333,6 +342,34 @@ public class TicketUseCaseImpl implements TicketUsecase {
             com.intern.hub.ticket.core.domain.model.TicketTypeModel type = typeMap.get(ticket.getTicketTypeId());
             if (type != null) {
                 ticket.setTypeName(type.getTypeName());
+            }
+        });
+    }
+
+    private void enrichWithApproverId(List<TicketModel> tickets) {
+        List<Long> ticketIds = tickets.stream()
+                .map(TicketModel::getTicketId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        if (ticketIds.isEmpty()) {
+            return;
+        }
+
+        List<Object[]> approverRows = ticketApprovalRepository.findLatestApproverIdsByTicketIds(ticketIds);
+
+        Map<Long, Long> approverMap = approverRows.stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> row[1] != null ? ((Number) row[1]).longValue() : null,
+                        (a, b) -> a
+                ));
+
+        tickets.forEach(ticket -> {
+            Long approverId = approverMap.get(ticket.getTicketId());
+            if (approverId != null) {
+                ticket.setApproverId(approverId);
             }
         });
     }

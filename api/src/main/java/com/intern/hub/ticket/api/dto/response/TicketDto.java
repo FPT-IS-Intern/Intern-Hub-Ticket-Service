@@ -15,6 +15,7 @@ public record TicketDto(
         Long createdAt,
         Long updatedAt,
         Long createdBy,
-        Long updatedBy
+        Long updatedBy,
+        @JsonSerialize(using = ToStringSerializer.class) Long approverId
         ) {
 }
