@@ -71,21 +71,42 @@ public class HrmServiceAdapter implements HrmServicePort {
             return Collections.emptyMap();
         }
 
+        Map<Long, HrmUserSearchResponse> result = userIds.stream()
+                .filter(id -> id != null)
+                .distinct()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        this::fetchUserById,
+                        (a, b) -> a
+                ));
+
+        long nullCount = result.values().stream().filter(v -> v == null).count();
+        if (nullCount > 0) {
+            log.warn("[HrmServiceAdapter] getUsersByIds: {} out of {} userIds returned null from HRM",
+                    nullCount, userIds.size());
+        }
+
+        return result;
+    }
+
+    private HrmUserSearchResponse fetchUserById(Long userId) {
         try {
-            ResponseApi<List<HrmUserSearchResponseInfra>> response = hrmFeignClient.getUsersByIds(userIds);
+            ResponseApi<HrmUserByIdResponse> response = hrmFeignClient.getUserByIdInternal(userId);
             if (response == null || response.data() == null) {
-                log.warn("[HrmServiceAdapter] getUsersByIds returned null — returning empty map");
-                return Collections.emptyMap();
+                log.warn("[HrmServiceAdapter] getUserByIdInternal returned null for userId={}", userId);
+                return null;
             }
-            return response.data().stream()
-                    .filter(u -> u.getId() != null)
-                    .collect(Collectors.toMap(
-                            HrmUserSearchResponseInfra::getId,
-                            this::toCoreDto,
-                            (a, b) -> a));
+            HrmUserByIdResponse data = response.data();
+            log.info("[HrmServiceAdapter] HRM /{}/ returned: fullName='{}', email='{}'",
+                    userId, data.getFullName(), data.getEmail());
+            return HrmUserSearchResponse.builder()
+                    .id(data.getUserId())
+                    .fullName(data.getFullName())
+                    .email(data.getEmail())
+                    .build();
         } catch (Exception ex) {
-            log.error("[HrmServiceAdapter] getUsersByIds failed: {}", ex.getMessage(), ex);
-            return Collections.emptyMap();
+            log.error("[HrmServiceAdapter] getUserByIdInternal failed for userId={}: {}", userId, ex.getMessage());
+            return null;
         }
     }
 

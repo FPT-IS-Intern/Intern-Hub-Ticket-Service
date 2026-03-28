@@ -322,6 +322,8 @@ public class TicketUseCaseImpl implements TicketUsecase {
         tickets.forEach(ticket -> {
             HrmUserSearchResponse user = userMap.get(ticket.getUserId());
             if (user != null) {
+                log.info("[get full name] fullname: {}", user.getFullName());
+                log.info("[get email] email: {}", user.getEmail());
                 ticket.setFullName(user.getFullName());
                 ticket.setEmail(user.getEmail());
             }
@@ -402,6 +404,7 @@ public class TicketUseCaseImpl implements TicketUsecase {
             if (ticket.getApproverId() != null) {
                 HrmUserSearchResponse approver = approverMap.get(ticket.getApproverId());
                 if (approver != null) {
+                    log.info("[get full name] fullname: {}", approver.getFullName());
                     ticket.setApproverFullName(approver.getFullName());
                 }
             }
