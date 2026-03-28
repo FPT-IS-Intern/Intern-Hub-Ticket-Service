@@ -11,4 +11,10 @@ import lombok.Setter;
 public class TicketDetailResponse {
     TicketModel ticketDetail;
     ApprovalInfoCoreResponse ticketApprovalInfo;
+
+    String senderFullName;
+    String fullName;
+    String email;
+    String approverFullNameLevel1;
+    String approverFullNameLevel2;
 }

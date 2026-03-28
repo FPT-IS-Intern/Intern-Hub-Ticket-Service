@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.starter.security.annotation.Authenticated;
-import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
+import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.api.mapper.TicketApiMapper;
@@ -95,11 +94,9 @@ public class TicketQueryController {
     }
 
     @GetMapping("/{ticketId}")
-    public ResponseApi<TicketDetailResponse> getTicketDetail(@PathVariable Long ticketId) {
-
+    public ResponseApi<TicketDetailResponseDto> getTicketDetail(@PathVariable Long ticketId) {
         TicketDetailResponse response = ticketUsecase.getTicketDetail(ticketId);
-
-        return ResponseApi.ok(response);
+        return ResponseApi.ok(mapper.toDetailResponseDto(response));
     }
 
     @GetMapping("/me")

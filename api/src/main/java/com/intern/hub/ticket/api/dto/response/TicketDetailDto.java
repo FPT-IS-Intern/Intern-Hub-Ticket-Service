@@ -22,5 +22,12 @@ public record TicketDetailDto(
                 Integer requiredApprovals,
                 Integer currentApprovalLevel,
                 Long approverId,
-                Integer version) {
+                Integer version,
+
+                String senderFullName,
+                String fullName,
+                String email,
+                String approverFullNameLevel1,
+                String approverFullNameLevel2
+        ) {
 }

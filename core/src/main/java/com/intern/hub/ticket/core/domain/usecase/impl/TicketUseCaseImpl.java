@@ -64,9 +64,57 @@ public class TicketUseCaseImpl implements TicketUsecase {
         if (ticket == null) {
             throw new ConflictDataException("not.found", "Ticket not found");
         }
+
+        // Gọi HRM lấy fullName cho sender và approvers
+        String senderFullName = null;
+        String approverFullNameLevel1 = null;
+        String approverFullNameLevel2 = null;
+
+        HrmUserSearchResponse senderInfo = hrmServicePort.getUserById(ticket.getUserId());
+        log.info("[getTicketDetail] ticketId={}, sender userId={}, senderInfo={}", ticketId, ticket.getUserId(), senderInfo);
+        if (senderInfo != null) {
+            senderFullName = senderInfo.getFullName();
+            log.info("[getTicketDetail] sender fullName: {}", senderFullName);
+        } else {
+            log.warn("[getTicketDetail] senderInfo is null for userId={}", ticket.getUserId());
+        }
+
+        if (ticketApprovalModel.getApproverIdLevel1() != null) {
+            HrmUserSearchResponse approver1Info = hrmServicePort.getUserById(ticketApprovalModel.getApproverIdLevel1());
+            if (approver1Info != null) {
+                approverFullNameLevel1 = approver1Info.getFullName();
+                log.info("[getTicketDetail] approverLevel1 fullName: {}", approverFullNameLevel1);
+            }
+        }
+
+        if (ticketApprovalModel.getApproverIdLevel2() != null) {
+            HrmUserSearchResponse approver2Info = hrmServicePort.getUserById(ticketApprovalModel.getApproverIdLevel2());
+            if (approver2Info != null) {
+                approverFullNameLevel2 = approver2Info.getFullName();
+                log.info("[getTicketDetail] approverLevel2 fullName: {}", approverFullNameLevel2);
+            }
+        }
+
+        // Gán fullName vào ticketApprovalModel để map sang DTO
+        ticketApprovalModel.setApproverFullNameLevel1(approverFullNameLevel1);
+        ticketApprovalModel.setApproverFullNameLevel2(approverFullNameLevel2);
+        ticketApprovalModel.setSenderFullName(senderFullName);
+
+        // Gán vào TicketModel để MapStruct map sang TicketDetailDto
+        ticket.setSenderFullName(senderFullName);
+        ticket.setFullName(senderFullName);
+        ticket.setEmail(senderInfo != null ? senderInfo.getEmail() : null);
+        ticket.setApproverFullNameLevel1(approverFullNameLevel1);
+        ticket.setApproverFullNameLevel2(approverFullNameLevel2);
+
         return TicketDetailResponse.builder()
                 .ticketDetail(ticket)
                 .ticketApprovalInfo(ticketApprovalModel)
+                .senderFullName(senderFullName)
+                .fullName(senderFullName)
+                .email(senderInfo != null ? senderInfo.getEmail() : null)
+                .approverFullNameLevel1(approverFullNameLevel1)
+                .approverFullNameLevel2(approverFullNameLevel2)
                 .build();
     }
 

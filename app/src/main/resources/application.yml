@@ -110,7 +110,7 @@ feign:
 
 service:
   hrm:
-    url: ${HRM_SERVICE_URL:http://localhost:8082}
+    url: ${HRM_SERVICE_URL:http://localhost:8081}
   dms:
     url: ${DMS_SERVICE_URL:http://localhost:8084}
   auth:

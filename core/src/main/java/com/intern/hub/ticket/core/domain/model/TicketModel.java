@@ -40,4 +40,7 @@ public class TicketModel extends AuditEntity {
     String email;      // from HRM
     String typeName;   // from TicketType (loaded at query time)
     String approverFullName; // from HRM (approver's fullName)
+    String senderFullName;  // from HRM (sender's fullName, used in ticket detail)
+    String approverFullNameLevel1;  // from HRM (level 1 approver fullName)
+    String approverFullNameLevel2;  // from HRM (level 2 approver fullName)
 }

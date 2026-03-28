@@ -119,11 +119,14 @@ public class HrmServiceAdapter implements HrmServicePort {
 
         try {
             ResponseApi<HrmUserByIdResponse> response = hrmFeignClient.getUserByIdInternal(userId);
+            log.info("[HrmServiceAdapter] getUserById userId={}, response={}", userId, response);
             if (response == null || response.data() == null) {
                 log.warn("[HrmServiceAdapter] getUserById returned null for userId={}", userId);
                 return null;
             }
             HrmUserByIdResponse data = response.data();
+            log.info("[HrmServiceAdapter] HRM /{}/ returned: fullName='{}', email='{}'",
+                    userId, data.getFullName(), data.getEmail());
             return HrmUserSearchResponse.builder()
                     .id(data.getUserId())
                     .fullName(data.getFullName())

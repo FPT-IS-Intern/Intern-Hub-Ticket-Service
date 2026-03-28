@@ -10,10 +10,14 @@ import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.intern.hub.library.common.dto.PaginatedData;
+import com.intern.hub.ticket.api.dto.response.TicketApprovalInfoDto;
 import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
+import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
+import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface TicketApiMapper {
@@ -40,4 +44,10 @@ public interface TicketApiMapper {
     PaginatedData<TicketManagementDto> toPaginatedManagementDto(PaginatedData<TicketModel> modelPage);
 
     StatCardApiResponse toStatCardApiResponse(StatCardCoreResponse coreResponse);
+
+    TicketDetailDto toDetailDto(TicketDetailResponse response);
+
+    TicketDetailResponseDto toDetailResponseDto(TicketDetailResponse response);
+
+    TicketApprovalInfoDto toApprovalInfoDto(ApprovalInfoCoreResponse response);
 }
