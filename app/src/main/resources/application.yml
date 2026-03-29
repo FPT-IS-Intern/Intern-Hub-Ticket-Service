@@ -96,6 +96,7 @@ security:
     - /swagger-ui/**
     - /swagger-ui.html
     - /ticket/internal/**
+    - /internal/**
 
 feign:
   client:
