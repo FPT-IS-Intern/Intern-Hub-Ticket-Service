@@ -1,6 +1,5 @@
 package com.intern.hub.ticket.api.controller.internal;
 
-
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/internal/tickets")
+@RequestMapping("/ticket/internal")
 @RequiredArgsConstructor
 public class InternalTicketCommandController {
 
