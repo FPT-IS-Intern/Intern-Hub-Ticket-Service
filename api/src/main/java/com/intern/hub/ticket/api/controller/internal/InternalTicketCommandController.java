@@ -3,12 +3,7 @@ package com.intern.hub.ticket.api.controller.internal;
 
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.intern.hub.library.common.dto.ResponseApi;
@@ -34,7 +29,7 @@ public class InternalTicketCommandController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Internal
     public ResponseApi<TicketResponse> createTicketInternal(
-            @RequestPart("creatorId") Long creatorId,
+            @RequestParam("creatorId") Long creatorId,
             @RequestPart("request") @Valid CreateTicketRequest request,
             @RequestPart(value = "evidences", required = false) MultipartFile[] evidences) {
 
