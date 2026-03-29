@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("${security.internal-path-prefix:/ticket/internal}")
+@RequestMapping("/internal/tickets")
 @RequiredArgsConstructor
 public class InternalTicketCommandController {
 
