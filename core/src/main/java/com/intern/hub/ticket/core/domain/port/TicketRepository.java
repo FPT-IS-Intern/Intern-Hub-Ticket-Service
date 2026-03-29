@@ -10,6 +10,7 @@ import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatisticsTicketCoreResponse;
 import org.springframework.data.repository.query.Param;
 
 public interface TicketRepository {
@@ -43,4 +44,6 @@ public interface TicketRepository {
     ApprovalInfoCoreResponse getApprovalInfo(Long ticketId);
 
     TicketModel getTicketDetail(Long ticketId);
+
+    StatisticsTicketCoreResponse statisticsTicket(List<Long> userIds);
 }

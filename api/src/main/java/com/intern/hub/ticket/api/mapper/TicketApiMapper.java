@@ -2,19 +2,15 @@ package com.intern.hub.ticket.api.mapper;
 
 import java.util.List;
 
-import com.intern.hub.ticket.api.dto.response.StatCardApiResponse;
+import com.intern.hub.ticket.api.dto.response.*;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatisticsTicketCoreResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.intern.hub.library.common.dto.PaginatedData;
-import com.intern.hub.ticket.api.dto.response.TicketApprovalInfoDto;
-import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
-import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
-import com.intern.hub.ticket.api.dto.response.TicketDto;
-import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
@@ -50,4 +46,6 @@ public interface TicketApiMapper {
     TicketDetailResponseDto toDetailResponseDto(TicketDetailResponse response);
 
     TicketApprovalInfoDto toApprovalInfoDto(ApprovalInfoCoreResponse response);
+
+    TicketStatisticApiResponse toTicketStatisticApiResponse(StatisticsTicketCoreResponse coreResponse);
 }

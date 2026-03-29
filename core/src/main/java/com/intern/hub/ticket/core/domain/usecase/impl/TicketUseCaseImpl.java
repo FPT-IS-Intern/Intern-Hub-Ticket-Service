@@ -13,6 +13,7 @@ import com.intern.hub.ticket.core.domain.model.*;
 import com.intern.hub.ticket.core.domain.model.enums.EvidenceStatus;
 import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatisticsTicketCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import com.intern.hub.ticket.core.domain.port.*;
 import lombok.AccessLevel;
@@ -462,5 +463,11 @@ public class TicketUseCaseImpl implements TicketUsecase {
     @Override
     public StatCardCoreResponse getStatCardData() {
         return ticketRepository.getStatCardData();
+    }
+
+    @Override
+    public StatisticsTicketCoreResponse statisticsTicket() {
+        List<Long> userIds = hrmServicePort.getAllUserId();
+        return ticketRepository.statisticsTicket(userIds);
     }
 }

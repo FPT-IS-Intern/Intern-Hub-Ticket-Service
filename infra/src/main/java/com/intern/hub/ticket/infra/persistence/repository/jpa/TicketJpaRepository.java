@@ -53,27 +53,45 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
     @Query(value = """
     SELECT COUNT(*)
     FROM unnest(:userIds) AS u(user_id)
-    WHERE u.user_id NOT IN (
-        SELECT t.user_id
+    WHERE NOT EXISTS (
+        SELECT 1
         FROM tickets t
         JOIN ticket_types tt ON t.ticket_type_id = tt.ticket_type_id
-        WHERE t.created_at >= (EXTRACT(EPOCH FROM CURRENT_DATE) * 1000)
-          AND t.created_at < (EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day') * 1000)
-          AND tt.type_name IN ('Phiếu nghỉ phép', 'Phiếu Remote - WFH')
+        WHERE t.user_id = u.user_id
+          AND tt.type_name = 'Phiếu nghỉ phép'
+          AND (
+              (t.payload->>'start_date')::date <= CURRENT_DATE
+              AND (t.payload->>'end_date')::date >= CURRENT_DATE
+          )
     )
 """, nativeQuery = true)
-    int countEmployeesWorkingToday(@Param("userIds") List<Long> userIds);
+    int countEmployeesWorkingToday(@Param("userIds") Long[] userIds);
 
 
     @Query(value = """
                 SELECT COUNT(DISTINCT t.user_id)
                 FROM tickets t
                 JOIN ticket_types tt ON t.ticket_type_id = tt.ticket_type_id
-                WHERE t.created_at >= (EXTRACT(EPOCH FROM CURRENT_DATE) * 1000)
-                  AND t.created_at < (EXTRACT(EPOCH FROM CURRENT_DATE + INTERVAL '1 day') * 1000)
-                  AND tt.type_name = 'Phiếu Remote - WFH'
+                WHERE tt.type_name = 'Phiếu Remote - WFH'
+                AND (
+                    (t.payload->>'start_date')::date <= CURRENT_DATE
+                    AND (t.payload->>'end_date')::date >= CURRENT_DATE
+                );
             """, nativeQuery = true)
     int totalPeopleWorkInHome();
+
+    @Query(value = """
+                SELECT COUNT(DISTINCT t.user_id)
+                FROM tickets t
+                JOIN ticket_types tt ON t.ticket_type_id = tt.ticket_type_id
+                WHERE tt.type_name = 'Phiếu Remote - Onsite'
+                AND (t.payload->>'location') = 'Onsite'
+                AND (
+                    (t.payload->>'start_date')::date <= CURRENT_DATE
+                    AND (t.payload->>'end_date')::date >= CURRENT_DATE
+                );
+            """, nativeQuery = true)
+    int totalWorkingOnsite();
 
     @Query(value = """
             SELECT 

@@ -15,7 +15,6 @@ import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.infra.feignClient.dto.reponse.HrmUserByIdResponse;
 import com.intern.hub.ticket.infra.feignClient.dto.request.HrmUserSearchResponseInfra;
 
-//@FeignClient(name = "hrm-service", url = "http://localhost:8081")
 @FeignClient(name = "hrm-service", url = "${service.hrm.url:http://localhost:8082}")
 public interface HrmFeignClient {
 
@@ -65,5 +64,16 @@ public interface HrmFeignClient {
             List<String> roles,
             List<String> positions
     ) {}
-}
 
+    @GetMapping("/hrm/internal/users/get-user-id")
+    ResponseApi<List<Long>> getUserIdList();
+
+    /**
+     * Callback từ Ticket Service khi profile ticket được approve.
+     * HRM endpoint: POST /hrm/internal/tickets/profile-approved
+     */
+    @PostMapping(value = "/hrm/internal/tickets/profile-approved")
+    ResponseApi<Void> onProfileTicketApproved(@RequestBody ApproveProfileTicketRequest request);
+
+    record ApproveProfileTicketRequest(Long ticketId, java.util.Map<String, Object> payload) {}
+}

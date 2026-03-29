@@ -26,6 +26,7 @@ public class TicketQueryController {
 
     private final TicketUsecase ticketUsecase;
     private final TicketApiMapper mapper;
+    private final TicketApiMapper ticketApiMapper;
 
     /**
      * Lấy tất cả tickets có filter & phân trang.
@@ -106,6 +107,11 @@ public class TicketQueryController {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
         return ResponseApi.ok(response);
+    }
+
+    @GetMapping("/ticket-statistic")
+    public ResponseApi<?> getTicketStatistic() {
+        return ResponseApi.ok(ticketApiMapper.toTicketStatisticApiResponse(ticketUsecase.statisticsTicket()));
     }
 
     private TicketDto mapToDto(TicketModel model) {

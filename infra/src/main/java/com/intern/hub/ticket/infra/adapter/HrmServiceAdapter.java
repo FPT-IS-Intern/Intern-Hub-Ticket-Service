@@ -138,6 +138,25 @@ public class HrmServiceAdapter implements HrmServicePort {
         }
     }
 
+    @Override
+    public List<Long> getAllUserId() {
+        return hrmFeignClient.getUserIdList().data();
+    }
+
+    @Override
+    public void callHrmProfileApproved(Long ticketId, Map<String, Object> payload) {
+        log.info("[HrmServiceAdapter] Calling HRM profile approved callback. ticketId={}", ticketId);
+        try {
+            HrmFeignClient.ApproveProfileTicketRequest request =
+                    new HrmFeignClient.ApproveProfileTicketRequest(ticketId, payload);
+            hrmFeignClient.onProfileTicketApproved(request);
+            log.info("[HrmServiceAdapter] HRM profile approved callback succeeded. ticketId={}", ticketId);
+        } catch (Exception ex) {
+            log.error("[HrmServiceAdapter] HRM profile approved callback threw exception. ticketId={}: {}",
+                    ticketId, ex.getMessage(), ex);
+        }
+    }
+
     private HrmUserSearchResponse toCoreDto(HrmUserSearchResponseInfra infra) {
         return HrmUserSearchResponse.builder()
                 .id(infra.getId())

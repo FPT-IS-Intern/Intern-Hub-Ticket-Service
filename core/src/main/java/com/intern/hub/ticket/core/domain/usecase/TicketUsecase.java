@@ -7,6 +7,7 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.command.CreateTicketCommand;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatisticsTicketCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 
 public interface TicketUsecase {
@@ -31,4 +32,6 @@ public interface TicketUsecase {
             Long startDate, Long endDate, String sortBy, String sortDirection);
 
     StatCardCoreResponse getStatCardData();
+
+    StatisticsTicketCoreResponse statisticsTicket();
 }

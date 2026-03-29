@@ -1,6 +1,5 @@
 package com.intern.hub.ticket.api.controller.internal;
 
-import java.util.Set;
 
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
 import org.springframework.http.MediaType;
@@ -15,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.starter.security.annotation.Internal;
 import com.intern.hub.ticket.api.dto.request.CreateTicketRequest;
-import com.intern.hub.ticket.api.dto.response.TicketDetailDto;
 import com.intern.hub.ticket.api.dto.response.TicketResponse;
 import com.intern.hub.ticket.api.mapper.TicketApiMapper;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -30,33 +28,32 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InternalTicketCommandController {
 
-        private static final Long SYSTEM_USER_ID = 0L;
+    private final TicketUsecase ticketUsecase;
+    private final TicketApiMapper ticketApiMapper;
 
-        private final TicketUsecase ticketUsecase;
-        private final TicketApiMapper ticketApiMapper;
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Internal
+    public ResponseApi<TicketResponse> createTicketInternal(
+            @RequestPart("creatorId") Long creatorId,
+            @RequestPart("request") @Valid CreateTicketRequest request,
+            @RequestPart(value = "evidences", required = false) MultipartFile[] evidences) {
 
-        @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-        @Internal
-        public ResponseApi<TicketResponse> createTicketInternal(
-                        @RequestPart("request") @Valid CreateTicketRequest request,
-                        @RequestPart(value = "evidences", required = false) MultipartFile[] evidences) {
+        CreateTicketCommand command = new CreateTicketCommand(
+                creatorId,
+                request.ticketTypeId(),
+                request.payload(),
+                evidences);
 
-                CreateTicketCommand command = new CreateTicketCommand(
-                                SYSTEM_USER_ID,
-                                request.ticketTypeId(),
-                                request.payload(),
-                                evidences);
+        TicketModel createdTicket = ticketUsecase.create(command);
+        return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
+    }
 
-                TicketModel createdTicket = ticketUsecase.create(command);
-                return ResponseApi.ok(new TicketResponse(createdTicket.getTicketId(), createdTicket.getStatus()));
-        }
+    @GetMapping("/{ticketId}")
+    @Internal
+    public ResponseApi<TicketDetailResponse> getTicketDetail(@PathVariable Long ticketId) {
 
-        @GetMapping("/{ticketId}")
-        @Internal
-        public ResponseApi<TicketDetailResponse> getTicketDetail(@PathVariable Long ticketId) {
+        TicketDetailResponse response = ticketUsecase.getTicketDetail(ticketId);
 
-                TicketDetailResponse response = ticketUsecase.getTicketDetail(ticketId);
-
-                return ResponseApi.ok(response);
-        }
+        return ResponseApi.ok(response);
+    }
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.ticket.core.domain.model.response.ApprovalInfoCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.StatCardCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.StatisticsTicketCoreResponse;
 import com.intern.hub.ticket.infra.model.ressponse.ApprovalDetailInfoProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -185,4 +186,15 @@ public class TicketRepositoryImpl implements TicketRepository {
         return jpaRepository.findById(ticketId).map(mapper::toModel).orElseThrow(null);
     }
 
+    @Override
+    public StatisticsTicketCoreResponse statisticsTicket(List<Long> userIds) {
+
+        Long[] userLongs = userIds.toArray(Long[]::new);
+
+        return StatisticsTicketCoreResponse.builder()
+                .workOffSite(jpaRepository.countEmployeesWorkingToday(userLongs))
+                .workOnSite(jpaRepository.totalWorkingOnsite())
+                .workFromHome(jpaRepository.totalPeopleWorkInHome())
+                .build();
+    }
 }

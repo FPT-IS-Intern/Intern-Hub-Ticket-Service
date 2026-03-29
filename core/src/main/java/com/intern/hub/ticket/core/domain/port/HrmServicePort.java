@@ -33,4 +33,15 @@ public interface HrmServicePort {
      * @return HrmUserSearchResponse chứa id, fullName, email; hoặc null nếu không tìm thấy
      */
     HrmUserSearchResponse getUserById(Long userId);
+
+    List<Long> getAllUserId();
+
+    /**
+     * Gọi callback đến HRM khi profile ticket được approve thành công.
+     * HRM sẽ apply các thay đổi vào database.
+     *
+     * @param ticketId ID của ticket vừa được approve
+     * @param payload  Map chứa userId, oldProfile, newProfile
+     */
+    void callHrmProfileApproved(Long ticketId, Map<String, Object> payload);
 }

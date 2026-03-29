@@ -2,6 +2,7 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -22,6 +23,7 @@ import com.intern.hub.ticket.core.domain.model.command.TicketApproveItem;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -38,6 +40,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
+    private final HrmServicePort hrmServicePort;
 
     private ApproveTicketUsecase self;
 
@@ -85,6 +88,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         if (ticket.getCurrentApprovalLevel() >= ticket.getRequiredApprovals()) {
             ticket.setStatus(TicketStatus.APPROVED);
+            callHrmProfileUpdateCallbackIfNeeded(ticket);
         } else {
             ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
             ticket.setStatus(TicketStatus.REVIEWING);
@@ -94,6 +98,16 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         ticketRepository.save(ticket);
 
         ticketEventPublisher.publishTicketApprovedEvent(snowflake.next(), ticket.getTicketId(), command.approverId());
+    }
+
+    @SuppressWarnings("unchecked")
+    private void callHrmProfileUpdateCallbackIfNeeded(TicketModel ticket) {
+        if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 3L) {
+            Map<String, Object> payload = ticket.getPayload();
+            if (payload != null) {
+                hrmServicePort.callHrmProfileApproved(ticket.getTicketId(), payload);
+            }
+        }
     }
 
     @Override
