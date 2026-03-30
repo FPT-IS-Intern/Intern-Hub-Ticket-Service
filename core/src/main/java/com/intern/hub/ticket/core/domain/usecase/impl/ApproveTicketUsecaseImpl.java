@@ -88,7 +88,9 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         if (ticket.getCurrentApprovalLevel() >= ticket.getRequiredApprovals()) {
             ticket.setStatus(TicketStatus.APPROVED);
-            callHrmProfileUpdateCallbackIfNeeded(ticket);
+            if (ticket.getTicketTypeId() == 6L) {
+                callHrmProfileUpdateCallbackIfNeeded(ticket);
+            }
         } else {
             ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
             ticket.setStatus(TicketStatus.REVIEWING);
@@ -102,7 +104,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
     @SuppressWarnings("unchecked")
     private void callHrmProfileUpdateCallbackIfNeeded(TicketModel ticket) {
-        if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 3L) {
+        if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 6L) {
             Map<String, Object> payload = ticket.getPayload();
             if (payload != null) {
                 hrmServicePort.callHrmProfileApproved(ticket.getTicketId(), payload);
