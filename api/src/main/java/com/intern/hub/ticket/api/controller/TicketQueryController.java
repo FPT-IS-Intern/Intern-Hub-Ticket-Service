@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
+import com.intern.hub.ticket.api.dto.response.MyTicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
@@ -101,10 +102,10 @@ public class TicketQueryController {
     }
 
     @GetMapping("/me")
-    public ResponseApi<List<TicketDto>> getMyTickets() {
+    public ResponseApi<List<MyTicketDto>> getMyTickets() {
         Long userId = UserContext.requiredUserId();
-        List<TicketDto> response = ticketUsecase.getMyTickets(userId).stream()
-                .map(this::mapToDto)
+        List<MyTicketDto> response = ticketUsecase.getMyTickets(userId).stream()
+                .map(this::mapToMyTicketDto)
                 .collect(Collectors.toList());
         return ResponseApi.ok(response);
     }
@@ -126,6 +127,20 @@ public class TicketQueryController {
                 model.getCreatedBy(),
                 model.getUpdatedBy(),
                 model.getApproverFullName());
+    }
+
+    private MyTicketDto mapToMyTicketDto(TicketModel model) {
+        return new MyTicketDto(
+                model.getTicketId(),
+                model.getTypeName(),
+                model.getSenderFullName(),
+                model.getCreatedAt(),
+                model.getReason(),
+                model.getApproverFullNameLevel1(),
+                model.getApproverFullNameLevel2(),
+                model.getStatusLevel1(),
+                model.getStatusLevel2(),
+                model.getStatus());
     }
 
     private PaginatedData<TicketDto> mapToPaginatedDto(PaginatedData<TicketModel> modelPage) {

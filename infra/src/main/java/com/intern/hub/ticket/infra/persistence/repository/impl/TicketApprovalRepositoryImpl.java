@@ -44,4 +44,9 @@ public class TicketApprovalRepositoryImpl implements TicketApprovalRepository {
     public List<Object[]> findLatestApproverIdsByTicketIds(List<Long> ticketIds) {
         return jpaRepository.findLatestApproverIdsByTicketIds(ticketIds);
     }
+
+    @Override
+    public List<Object[]> findApprovalInfoByTicketIds(List<Long> ticketIds) {
+        return jpaRepository.findApprovalInfoByTicketIds(ticketIds);
+    }
 }

@@ -28,4 +28,32 @@ public interface TicketApprovalJpaRepository extends JpaRepository<TicketApprova
             ) latest ON ta.ticket_id = latest.ticket_id AND ta.created_at = latest.max_created_at
             """, nativeQuery = true)
     List<Object[]> findLatestApproverIdsByTicketIds(@Param("ticketIds") List<Long> ticketIds);
+
+    @Query(value = """
+            SELECT
+                t.ticket_id,
+                t.user_id,
+                t.created_at,
+                l1.approver_id AS approverIdLevel1,
+                l1.status AS statusLevel1,
+                l2.approver_id AS approverIdLevel2,
+                l2.status AS statusLevel2
+            FROM tickets t
+            LEFT JOIN LATERAL (
+                SELECT approver_id, status
+                FROM ticket_approvals ta
+                WHERE ta.ticket_id = t.ticket_id AND ta.approval_level = 1
+                ORDER BY ta.created_at DESC
+                LIMIT 1
+            ) l1 ON true
+            LEFT JOIN LATERAL (
+                SELECT approver_id, status
+                FROM ticket_approvals ta
+                WHERE ta.ticket_id = t.ticket_id AND ta.approval_level = 2
+                ORDER BY ta.created_at DESC
+                LIMIT 1
+            ) l2 ON true
+            WHERE t.ticket_id IN :ticketIds
+            """, nativeQuery = true)
+    List<Object[]> findApprovalInfoByTicketIds(@Param("ticketIds") List<Long> ticketIds);
 }

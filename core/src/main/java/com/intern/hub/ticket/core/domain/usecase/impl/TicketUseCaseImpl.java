@@ -307,8 +307,87 @@ public class TicketUseCaseImpl implements TicketUsecase {
     @Override
     @Transactional(readOnly = true)
     public Collection<TicketModel> getMyTickets(Long userId) {
-        return ticketRepository.findByUserId(userId);
+        Collection<TicketModel> tickets = ticketRepository.findByUserId(userId);
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        List<Long> ticketIds = tickets.stream().map(TicketModel::getTicketId).toList();
+
+        // Batch-fetch approval info cho tất cả tickets
+        List<Object[]> approvalRows = ticketApprovalRepository.findApprovalInfoByTicketIds(ticketIds);
+        Map<Long, ApprovalRow> approvalMap = approvalRows.stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> new ApprovalRow(
+                                row[1] != null ? ((Number) row[1]).longValue() : null, // senderId
+                                row[2] != null ? ((Number) row[2]).longValue() : null, // createdAt
+                                row[3] != null ? ((Number) row[3]).longValue() : null, // approverIdLevel1
+                                (String) row[4], // statusLevel1
+                                row[5] != null ? ((Number) row[5]).longValue() : null, // approverIdLevel2
+                                (String) row[6]  // statusLevel2
+                        )
+                ));
+
+        // Collect all unique userIds: sender + approverLevel1 + approverLevel2
+        Set<Long> allUserIds = approvalRows.stream()
+                .flatMap(row -> java.util.stream.Stream.of(
+                        row[1] != null ? ((Number) row[1]).longValue() : null,
+                        row[3] != null ? ((Number) row[3]).longValue() : null,
+                        row[5] != null ? ((Number) row[5]).longValue() : null
+                ))
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+
+        // Batch-fetch user info từ HRM
+        Map<Long, HrmUserSearchResponse> userMap = hrmServicePort.getUsersByIds(List.copyOf(allUserIds));
+
+        // Batch-fetch typeNames
+        List<Long> typeIds = tickets.stream().map(TicketModel::getTicketTypeId).distinct().toList();
+        Map<Long, String> typeNameMap = ticketTypeRepository.findAllByIds(typeIds).stream()
+                .collect(Collectors.toMap(tt -> tt.getTicketTypeId(), tt -> tt.getTypeName()));
+
+        // Enrich each ticket
+        for (TicketModel ticket : tickets) {
+            ApprovalRow ar = approvalMap.get(ticket.getTicketId());
+
+            if (ar != null) {
+                HrmUserSearchResponse senderInfo = userMap.get(ar.senderId);
+                ticket.setSenderFullName(senderInfo != null ? senderInfo.getFullName() : null);
+                ticket.setFullName(senderInfo != null ? senderInfo.getFullName() : null);
+                ticket.setEmail(senderInfo != null ? senderInfo.getEmail() : null);
+                ticket.setCreatedAt(ar.createdAt);
+
+                HrmUserSearchResponse approver1Info = userMap.get(ar.approverIdLevel1);
+                ticket.setApproverFullNameLevel1(approver1Info != null ? approver1Info.getFullName() : null);
+
+                HrmUserSearchResponse approver2Info = userMap.get(ar.approverIdLevel2);
+                ticket.setApproverFullNameLevel2(approver2Info != null ? approver2Info.getFullName() : null);
+                ticket.setStatusLevel1(ar.statusLevel1);
+                ticket.setStatusLevel2(ar.statusLevel2);
+
+                // Set reason từ payload (ticket.payload["reason"])
+                if (ticket.getPayload() != null && ticket.getPayload().containsKey("reason")) {
+                    Object reason = ticket.getPayload().get("reason");
+                    ticket.setReason(reason != null ? reason.toString() : null);
+                }
+            }
+
+            ticket.setTypeName(typeNameMap.get(ticket.getTicketTypeId()));
+        }
+
+        return tickets;
     }
+
+    private record ApprovalRow(
+            Long senderId,
+            Long createdAt,
+            Long approverIdLevel1,
+            String statusLevel1,
+            Long approverIdLevel2,
+            String statusLevel2
+    ) {}
 
     @Override
     @Transactional(readOnly = true)

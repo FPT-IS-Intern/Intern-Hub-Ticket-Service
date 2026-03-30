@@ -13,4 +13,6 @@ public interface TicketApprovalRepository {
     Optional<TicketApprovalModel> findByTicketId(Long ticketId);
 
     List<Object[]> findLatestApproverIdsByTicketIds(List<Long> ticketIds);
+
+    List<Object[]> findApprovalInfoByTicketIds(List<Long> ticketIds);
 }

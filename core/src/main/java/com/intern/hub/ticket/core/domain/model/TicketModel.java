@@ -43,4 +43,7 @@ public class TicketModel extends AuditEntity {
     String senderFullName;  // from HRM (sender's fullName, used in ticket detail)
     String approverFullNameLevel1;  // from HRM (level 1 approver fullName)
     String approverFullNameLevel2;  // from HRM (level 2 approver fullName)
+    String reason;             // extracted from payload["reason"] at query time
+    String statusLevel1;       // from ticket_approvals (level 1 approval status)
+    String statusLevel2;       // from ticket_approvals (level 2 approval status)
 }
