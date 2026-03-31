@@ -57,58 +57,87 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     }
 
     @Override
-    @Transactional
-    public void approve(ApproveTicketCommand command) {
-        if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
-            throw new ConflictDataException("conflict.data", "Request has already been processed");
-        }
+@Transactional(rollbackFor = Exception.class)
+public void approve(ApproveTicketCommand command) {
 
-        TicketModel ticket = ticketRepository.findById(command.ticketId())
-                .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
-
-        if (TicketStatus.APPROVED.equals(ticket.getStatus()) || TicketStatus.REJECTED.equals(ticket.getStatus())) {
-            throw new BadRequestException("bad.request", "Ticket has been approved or rejected");
-        }
-
-        if (!ticket.getVersion().equals(command.version())) {
-            throw new ConflictDataException("conflict.data", "The request form has been changed");
-        }
-
-        boolean isAuthorized = permissionPort.hasPermission(ticket.getTicketId(), command.approverId(),
-                ticket.getCurrentApprovalLevel());
-        if (!isAuthorized) {
-            throw new ForbiddenException("forbidden", "You do not have the authority at this level");
-        }
-
-        TicketApprovalModel approval = TicketApprovalModel.builder()
-                .approvalId(snowflake.next())
-                .ticketId(ticket.getTicketId())
-                .approverId(command.approverId())
-                .action(TicketApprovalAction.APPROVE)
-                .comment(command.comment())
-                .idempotencyKey(command.idempotencyKey())
-                .actionAt(System.currentTimeMillis())
-                .status(TicketApprovalStatus.SUCCESS)
-                .approvalLevel(ticket.getCurrentApprovalLevel())
-                .build();
-        ticketApprovalRepository.save(approval);
-
-        if (ticket.getCurrentApprovalLevel() >= ticket.getRequiredApprovals()) {
-            checkLevel2ApprovalPermission(command.approverId());
-            ticket.setStatus(TicketStatus.APPROVED);
-            if (ticket.getTicketTypeId() == 6L) {
-                callHrmProfileUpdateCallbackIfNeeded(ticket);
-            }
-        } else {
-            ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
-            ticket.setStatus(TicketStatus.REVIEWING);
-        }
-
-        ticket.setUpdatedBy(command.approverId());
-        ticketRepository.save(ticket);
-
-        ticketEventPublisher.publishTicketApprovedEvent(snowflake.next(), ticket.getTicketId(), command.approverId());
+    // 1. Idempotency (DB UNIQUE key)
+    if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
+        return; // đã xử lý → bỏ qua (KHÔNG throw)
     }
+
+    // 2. Lock row (QUAN TRỌNG)
+    TicketModel ticket = ticketRepository.findByIdForUpdate(command.ticketId())
+            .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
+
+    // 3. Validate status
+    if (TicketStatus.APPROVED.equals(ticket.getStatus()) ||
+        TicketStatus.REJECTED.equals(ticket.getStatus())) {
+        return; // đã xử lý rồi → ignore
+    }
+
+    // 4. Optimistic lock
+    if (!ticket.getVersion().equals(command.version())) {
+        throw new ConflictDataException("conflict.data", "The request form has been changed");
+    }
+
+    // 5. Check permission theo level hiện tại
+    boolean isAuthorized = permissionPort.hasPermission(
+            ticket.getTicketId(),
+            command.approverId(),
+            ticket.getCurrentApprovalLevel()
+    );
+
+    if (!isAuthorized) {
+        throw new ForbiddenException("forbidden", "No permission");
+    }
+
+    // 6. Save approval log (idempotent)
+    TicketApprovalModel approval = TicketApprovalModel.builder()
+            .approvalId(snowflake.next())
+            .ticketId(ticket.getTicketId())
+            .approverId(command.approverId())
+            .action(TicketApprovalAction.APPROVE)
+            .comment(command.comment())
+            .idempotencyKey(command.idempotencyKey())
+            .actionAt(System.currentTimeMillis())
+            .status(TicketApprovalStatus.SUCCESS)
+            .approvalLevel(ticket.getCurrentApprovalLevel())
+            .build();
+
+    ticketApprovalRepository.save(approval);
+
+    // 7. Core logic (FIX CHÍNH Ở ĐÂY)
+    if (ticket.getCurrentApprovalLevel() < ticket.getRequiredApprovals()) {
+
+        // chưa phải level cuối → lên level tiếp
+        ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
+        ticket.setStatus(TicketStatus.REVIEWING);
+
+    } else {
+
+        // level cuối
+        checkLevel2ApprovalPermission(command.approverId());
+        ticket.setStatus(TicketStatus.APPROVED);
+
+        if (ticket.getTicketTypeId() == 6L) {
+            callHrmProfileUpdateCallbackIfNeeded(ticket);
+        }
+    }
+
+    ticket.setUpdatedBy(command.approverId());
+
+    // 8. Save ticket
+    ticketRepository.save(ticket);
+
+    // 9. Publish event (chỉ khi final approve)
+    if (TicketStatus.APPROVED.equals(ticket.getStatus())) {
+        ticketEventPublisher.publishTicketApprovedEvent(
+                snowflake.next(),
+                ticket.getTicketId(),
+                command.approverId()
+        );
+    }
+}
 
     @SuppressWarnings("unchecked")
     private void callHrmProfileUpdateCallbackIfNeeded(TicketModel ticket) {
