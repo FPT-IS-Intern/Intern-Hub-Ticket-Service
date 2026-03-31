@@ -144,6 +144,37 @@ public class TicketRepositoryImpl implements TicketRepository {
     }
 
     @Override
+    public Collection<TicketModel> findByUserIdWithFilters(Long userId, String typeName, String status) {
+        TicketStatus ticketStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                ticketStatus = TicketStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
+        boolean hasTypeName = typeName != null && !typeName.isBlank();
+        boolean hasStatus = ticketStatus != null;
+
+        if (!hasTypeName && !hasStatus) {
+            return findByUserId(userId);
+        }
+
+        return jpaRepository.findByUserIdWithFilters(userId, hasTypeName ? typeName : null, ticketStatus)
+                .stream()
+                .map(mapper::toModel)
+                .toList();
+    }
+
+    @Override
+    public Collection<TicketModel> findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(List<String> typeNames, int limit) {
+        return jpaRepository.findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(typeNames, org.springframework.data.domain.PageRequest.of(0, limit))
+                .stream()
+                .map(mapper::toModel)
+                .toList();
+    }
+
+    @Override
     public int rejectTicket(Long ticketId, TicketStatus status, Long updatedBy, Long updatedAt, Integer version) {
         return jpaRepository.rejectTicket(ticketId, status, updatedBy, updatedAt, version);
     }

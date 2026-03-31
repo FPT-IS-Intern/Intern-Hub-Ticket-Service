@@ -32,6 +32,10 @@ public interface TicketRepository {
 
     Collection<TicketModel> findByUserId(Long userId);
 
+    Collection<TicketModel> findByUserIdWithFilters(Long userId, String typeName, String status);
+
+    Collection<TicketModel> findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(List<String> typeNames, int limit);
+
     int rejectTicket(
             Long ticketId,
             TicketStatus status,

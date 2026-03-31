@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.api.dto.response.MyTicketDto;
+import com.intern.hub.ticket.api.dto.response.QuickTicketSummaryDto;
 import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
 import com.intern.hub.ticket.api.dto.response.TicketDto;
 import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
@@ -102,10 +103,36 @@ public class TicketQueryController {
     }
 
     @GetMapping("/me")
-    public ResponseApi<List<MyTicketDto>> getMyTickets() {
+    public ResponseApi<List<MyTicketDto>> getMyTickets(
+            @RequestParam(required = false) String typeName,
+            @RequestParam(required = false) String status) {
         Long userId = UserContext.requiredUserId();
-        List<MyTicketDto> response = ticketUsecase.getMyTickets(userId).stream()
+        List<MyTicketDto> response = ticketUsecase.getMyTickets(userId, typeName, status).stream()
                 .map(this::mapToMyTicketDto)
+                .collect(Collectors.toList());
+        return ResponseApi.ok(response);
+    }
+
+    @GetMapping("/me/first-three-explanation-tickets")
+    public ResponseApi<List<QuickTicketSummaryDto>> getFirstThreeExplanationTickets() {
+        List<QuickTicketSummaryDto> response = ticketUsecase.getTop3ExplanationTickets().stream()
+                .map(this::mapToQuickTicketSummaryDto)
+                .collect(Collectors.toList());
+        return ResponseApi.ok(response);
+    }
+
+    @GetMapping("/me/first-three-remote-tickets")
+    public ResponseApi<List<QuickTicketSummaryDto>> getFirstThreeRemoteTickets() {
+        List<QuickTicketSummaryDto> response = ticketUsecase.getTop3RemoteTickets().stream()
+                .map(this::mapToQuickTicketSummaryDto)
+                .collect(Collectors.toList());
+        return ResponseApi.ok(response);
+    }
+
+    @GetMapping("/me/first-three-leave-tickets")
+    public ResponseApi<List<QuickTicketSummaryDto>> getFirstThreeLeaveTickets() {
+        List<QuickTicketSummaryDto> response = ticketUsecase.getTop3LeaveTickets().stream()
+                .map(this::mapToQuickTicketSummaryDto)
                 .collect(Collectors.toList());
         return ResponseApi.ok(response);
     }
@@ -140,6 +167,14 @@ public class TicketQueryController {
                 model.getApproverFullNameLevel2(),
                 model.getStatusLevel1(),
                 model.getStatusLevel2(),
+                model.getStatus());
+    }
+
+    private QuickTicketSummaryDto mapToQuickTicketSummaryDto(TicketModel model) {
+        return new QuickTicketSummaryDto(
+                model.getTicketId(),
+                model.getCreatedAt(),
+                model.getFullName(),
                 model.getStatus());
     }
 

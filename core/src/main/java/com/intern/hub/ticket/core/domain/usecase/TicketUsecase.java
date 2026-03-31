@@ -23,6 +23,23 @@ public interface TicketUsecase {
 
     Collection<TicketModel> getMyTickets(Long userId);
 
+    Collection<TicketModel> getMyTickets(Long userId, String typeName, String status);
+
+    /**
+     * Lấy 3 phiếu mới nhất có typeName là "Phiếu nghỉ phép" của user.
+     */
+    Collection<TicketModel> getTop3ExplanationTickets();
+
+    /**
+     * Lấy 3 phiếu mới nhất có typeName là "Phiếu Remote - Onsite" hoặc "Phiếu Remote - WFH" của user.
+     */
+    Collection<TicketModel> getTop3RemoteTickets();
+
+    /**
+     * Lấy 3 phiếu mới nhất có typeName là "Phiếu nghỉ phép" của user (alias).
+     */
+    Collection<TicketModel> getTop3LeaveTickets();
+
     /**
      * Lấy tickets cho trang quản lý phiếu — đã enrich với fullName, email (từ HRM)
      * và typeName (từ TicketType). Dùng chung filter params với getAllTickets.

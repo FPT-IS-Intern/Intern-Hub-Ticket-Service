@@ -391,6 +391,154 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
     @Override
     @Transactional(readOnly = true)
+    public Collection<TicketModel> getMyTickets(Long userId, String typeName, String status) {
+        Collection<TicketModel> tickets = ticketRepository.findByUserIdWithFilters(userId, typeName, status);
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        return enrichTickets(tickets);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<TicketModel> getTop3ExplanationTickets() {
+        Collection<TicketModel> tickets = ticketRepository.findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(List.of("Phiếu nghỉ phép"), 3);
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        return enrichTicketsWithSender(tickets);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<TicketModel> getTop3RemoteTickets() {
+        Collection<TicketModel> tickets = ticketRepository.findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(
+                List.of("Phiếu Remote - Onsite", "Phiếu Remote - WFH"), 3);
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        return enrichTicketsWithSender(tickets);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<TicketModel> getTop3LeaveTickets() {
+        Collection<TicketModel> tickets = ticketRepository.findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(
+                List.of("Phiếu nghỉ phép"), 3);
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        return enrichTicketsWithSender(tickets);
+    }
+
+    private Collection<TicketModel> enrichTickets(Collection<TicketModel> tickets) {
+        List<Long> ticketIds = tickets.stream().map(TicketModel::getTicketId).toList();
+        List<Long> typeIds = tickets.stream().map(TicketModel::getTicketTypeId).distinct().toList();
+
+        List<Object[]> approvalRows = ticketApprovalRepository.findApprovalInfoByTicketIds(ticketIds);
+        Map<Long, ApprovalRow> approvalMap = approvalRows.stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> new ApprovalRow(
+                                row[1] != null ? ((Number) row[1]).longValue() : null,
+                                row[2] != null ? ((Number) row[2]).longValue() : null,
+                                row[3] != null ? ((Number) row[3]).longValue() : null,
+                                (String) row[4],
+                                row[5] != null ? ((Number) row[5]).longValue() : null,
+                                (String) row[6]
+                        )
+                ));
+
+        Set<Long> allUserIds = approvalRows.stream()
+                .flatMap(row -> java.util.stream.Stream.of(
+                        row[1] != null ? ((Number) row[1]).longValue() : null,
+                        row[3] != null ? ((Number) row[3]).longValue() : null,
+                        row[5] != null ? ((Number) row[5]).longValue() : null
+                ))
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+
+        Map<Long, HrmUserSearchResponse> userMap = hrmServicePort.getUsersByIds(List.copyOf(allUserIds));
+        Map<Long, String> typeNameMap = ticketTypeRepository.findAllByIds(typeIds).stream()
+                .collect(Collectors.toMap(com.intern.hub.ticket.core.domain.model.TicketTypeModel::getTicketTypeId,
+                        com.intern.hub.ticket.core.domain.model.TicketTypeModel::getTypeName));
+
+        for (TicketModel ticket : tickets) {
+            ApprovalRow ar = approvalMap.get(ticket.getTicketId());
+            if (ar != null) {
+                HrmUserSearchResponse senderInfo = userMap.get(ar.senderId);
+                ticket.setSenderFullName(senderInfo != null ? senderInfo.getFullName() : null);
+                ticket.setFullName(senderInfo != null ? senderInfo.getFullName() : null);
+                ticket.setEmail(senderInfo != null ? senderInfo.getEmail() : null);
+                ticket.setCreatedAt(ar.createdAt);
+
+                HrmUserSearchResponse approver1Info = userMap.get(ar.approverIdLevel1);
+                ticket.setApproverFullNameLevel1(approver1Info != null ? approver1Info.getFullName() : null);
+
+                HrmUserSearchResponse approver2Info = userMap.get(ar.approverIdLevel2);
+                ticket.setApproverFullNameLevel2(approver2Info != null ? approver2Info.getFullName() : null);
+                ticket.setStatusLevel1(ar.statusLevel1);
+                ticket.setStatusLevel2(ar.statusLevel2);
+
+                if (ticket.getPayload() != null && ticket.getPayload().containsKey("reason")) {
+                    Object reason = ticket.getPayload().get("reason");
+                    ticket.setReason(reason != null ? reason.toString() : null);
+                }
+            }
+            ticket.setTypeName(typeNameMap.get(ticket.getTicketTypeId()));
+        }
+
+        return tickets;
+    }
+
+    private Collection<TicketModel> enrichTicketsWithSender(Collection<TicketModel> tickets) {
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        List<Long> ticketIds = tickets.stream().map(TicketModel::getTicketId).toList();
+        List<Long> userIds = tickets.stream()
+                .map(TicketModel::getUserId)
+                .filter(id -> id != null)
+                .distinct()
+                .toList();
+
+        List<Object[]> approvalRows = ticketApprovalRepository.findApprovalInfoByTicketIds(ticketIds);
+        Map<Long, Long> createdAtMap = approvalRows.stream()
+                .collect(Collectors.toMap(
+                        row -> ((Number) row[0]).longValue(),
+                        row -> row[2] != null ? ((Number) row[2]).longValue() : null,
+                        (a, b) -> a
+                ));
+
+        Map<Long, HrmUserSearchResponse> userMap = hrmServicePort.getUsersByIds(userIds);
+
+        for (TicketModel ticket : tickets) {
+            Long createdAt = createdAtMap.get(ticket.getTicketId());
+            if (createdAt != null) {
+                ticket.setCreatedAt(createdAt);
+            }
+
+            HrmUserSearchResponse user = userMap.get(ticket.getUserId());
+            if (user != null) {
+                ticket.setSenderFullName(user.getFullName());
+                ticket.setFullName(user.getFullName());
+            }
+        }
+
+        return tickets;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PaginatedData<TicketModel> getAllTicketsForManagement(
             int page,
             int size,

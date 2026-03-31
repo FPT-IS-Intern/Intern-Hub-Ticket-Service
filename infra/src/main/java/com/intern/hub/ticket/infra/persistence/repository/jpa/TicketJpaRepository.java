@@ -3,6 +3,7 @@ package com.intern.hub.ticket.infra.persistence.repository.jpa;
 import java.util.List;
 
 import com.intern.hub.ticket.infra.model.ressponse.ApprovalDetailInfoProjection;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +19,31 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
     List<Ticket> findByStatus(TicketStatus status);
 
     List<Ticket> findByUserId(Long userId);
+
+    @Query("""
+        SELECT t FROM Ticket t
+        JOIN t.ticketType tt
+        WHERE t.userId = :userId
+          AND (:typeName IS NULL OR LOWER(tt.typeName) LIKE LOWER(CONCAT('%', :typeName, '%')))
+          AND (:status IS NULL OR t.status = :status)
+        ORDER BY t.createdAt DESC
+    """)
+    List<Ticket> findByUserIdWithFilters(
+            @Param("userId") Long userId,
+            @Param("typeName") String typeName,
+            @Param("status") TicketStatus status
+    );
+
+    @Query("""
+        SELECT t FROM Ticket t
+        JOIN t.ticketType tt
+        WHERE tt.typeName IN :typeNames
+        ORDER BY t.createdAt DESC
+    """)
+    List<Ticket> findTopByUserIdAndTypeNameInOrderByCreatedAtDesc(
+            @Param("typeNames") List<String> typeNames,
+            Pageable pageable
+    );
 
     @Modifying
     @Query("""
