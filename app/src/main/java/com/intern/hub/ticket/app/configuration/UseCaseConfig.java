@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.intern.hub.library.common.utils.Snowflake;
+import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
@@ -41,14 +42,16 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             TicketTaskPermissionPort permissionPort,
-            HrmServicePort hrmServicePort) {
+            HrmServicePort hrmServicePort,
+            AuthIdentityPort authIdentityPort) {
         return new ApproveTicketUsecaseImpl(
                 ticketRepository,
                 ticketApprovalRepository,
                 ticketEventPublisher,
                 snowflake,
                 permissionPort,
-                hrmServicePort);
+                hrmServicePort,
+                authIdentityPort);
     }
 
     @Bean

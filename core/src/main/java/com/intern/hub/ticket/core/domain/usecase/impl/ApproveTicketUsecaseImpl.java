@@ -23,6 +23,9 @@ import com.intern.hub.ticket.core.domain.model.command.TicketApproveItem;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.response.RolePermissionCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.UserRoleCoreResponse;
+import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
@@ -35,12 +38,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
+    private static final Long LEVEL_2_APPROVAL_RESOURCE_ID = 162752348429488128L;
+    private static final String REVIEW_PERMISSION = "review";
+
     private final TicketRepository ticketRepository;
     private final TicketApprovalRepository ticketApprovalRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
     private final HrmServicePort hrmServicePort;
+    private final AuthIdentityPort authIdentityPort;
 
     private ApproveTicketUsecase self;
 
@@ -87,6 +94,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         ticketApprovalRepository.save(approval);
 
         if (ticket.getCurrentApprovalLevel() >= ticket.getRequiredApprovals()) {
+            checkLevel2ApprovalPermission(command.approverId());
             ticket.setStatus(TicketStatus.APPROVED);
             if (ticket.getTicketTypeId() == 6L) {
                 callHrmProfileUpdateCallbackIfNeeded(ticket);
@@ -190,5 +198,24 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
             }
         }
         return new BulkApproveResponse(command.tickets().size(), successCount, failedTickets);
+    }
+
+    private void checkLevel2ApprovalPermission(Long approverId) {
+        UserRoleCoreResponse userRole = authIdentityPort.getRoleByUserId(approverId);
+        if (userRole == null || userRole.getId() == null) {
+            throw new ForbiddenException("forbidden", "User role not found");
+        }
+
+        Long roleId = Long.parseLong(userRole.getId());
+        List<RolePermissionCoreResponse> permissions = authIdentityPort.getRolePermissions(roleId);
+
+        boolean hasLevel2Permission = permissions.stream()
+                .anyMatch(p -> LEVEL_2_APPROVAL_RESOURCE_ID.equals(p.getResourceId())
+                        && p.getPermissions() != null
+                        && p.getPermissions().contains(REVIEW_PERMISSION));
+
+        if (!hasLevel2Permission) {
+            throw new ForbiddenException("forbidden", "You do not have level 2 approval permission");
+        }
     }
 }
