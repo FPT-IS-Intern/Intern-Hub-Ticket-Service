@@ -32,16 +32,14 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             TicketTaskPermissionPort permissionPort,
-            HrmServicePort hrmServicePort,
-            AuthIdentityPort authIdentityPort) {
+            HrmServicePort hrmServicePort) {
         return new ApproveTicketUsecaseImpl(
                 ticketRepository,
                 ticketApprovalRepository,
                 ticketEventPublisher,
                 snowflake,
                 permissionPort,
-                hrmServicePort,
-                authIdentityPort);
+                hrmServicePort);
     }
 
     @Bean
