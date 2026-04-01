@@ -107,7 +107,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         ticketApprovalRepository.save(approval);
 
         // 7. Core logic (FIX CHÍNH Ở ĐÂY)
-        if (ticket.getCurrentApprovalLevel() < ticket.getRequiredApprovals()) {
+        if (ticket.getCurrentApprovalLevel() <= ticket.getRequiredApprovals()) {
 
             // chưa phải level cuối → lên level tiếp
             ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
