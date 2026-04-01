@@ -14,10 +14,7 @@ public interface ManageTicketGlobalApproverUseCase {
     void assignApprover(Long approverId, Integer level, Long actorId);
 
     /**
-     * Remove or downgrade:
-     * level=1 -> remove approval right entirely.
-     * level=2 -> downgrade from 2 to 1 if exists.
+     * Remove approval right entirely (for both level=1 and level=2 actions).
      */
     void removeApprover(Long approverId, Integer level, Long actorId);
 }
-

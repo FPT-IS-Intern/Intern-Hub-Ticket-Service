@@ -45,30 +45,9 @@ public class ManageTicketGlobalApproverUseCaseImpl implements ManageTicketGlobal
         if (approverId == null || approverId <= 0) {
             throw new BadRequestException("bad.request", "ApproverId is required");
         }
-        int l = normalizeLevel(level);
-
-        Optional<TicketGlobalApproverModel> existing = repository.findByApproverId(approverId);
-        if (existing.isEmpty()) return;
-
-        Integer current = existing.get().getMaxApprovalLevel();
-        if (current == null) {
-            repository.deleteByApproverId(approverId);
-            return;
-        }
-
-        if (l <= 1) {
-            // Remove completely (also removes level2)
-            repository.deleteByApproverId(approverId);
-            return;
-        }
-
-        // level2 removal -> downgrade to level1 if currently level2
-        if (current >= 2) {
-            repository.save(TicketGlobalApproverModel.builder()
-                    .approverId(approverId)
-                    .maxApprovalLevel(1)
-                    .build());
-        }
+        normalizeLevel(level);
+        // Business rule: remove action always removes approval permission completely.
+        repository.deleteByApproverId(approverId);
     }
 
     private int normalizeLevel(Integer level) {
@@ -79,4 +58,3 @@ public class ManageTicketGlobalApproverUseCaseImpl implements ManageTicketGlobal
         return level;
     }
 }
-
