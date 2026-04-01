@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.intern.hub.ticket.core.domain.model.response.RolePermissionCoreResponse;
 import com.intern.hub.ticket.core.domain.model.response.UserRoleCoreResponse;
 import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
+import com.intern.hub.ticket.core.domain.port.TicketGlobalApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
 
@@ -20,6 +21,7 @@ public class TicketTaskPermissionAdapter implements TicketTaskPermissionPort {
     private static final String REVIEW_PERMISSION = "review";
 
     private final TicketTypeApproverRepository ticketTypeApproverRepository;
+    private final TicketGlobalApproverRepository ticketGlobalApproverRepository;
     private final AuthIdentityPort authIdentityPort;
 
     @Value("${ticket.approval.level1-resource-id:0}")
@@ -30,10 +32,22 @@ public class TicketTaskPermissionAdapter implements TicketTaskPermissionPort {
 
     @Override
     public boolean hasPermission(Long ticketId, Long ticketTypeId, Long approverId, int currentLevel) {
-        if (ticketTypeId == null || ticketTypeId <= 0) return false;
+        boolean assignedLevel1 = false;
+        boolean assignedLevel2 = false;
 
-        List<Integer> levels = ticketTypeApproverRepository.findApprovalLevels(ticketTypeId, approverId);
-        if (levels == null || levels.isEmpty()) return false;
+        // Prefer global approver config. Fallback to per-ticket-type config for backward compatibility.
+        com.intern.hub.ticket.core.domain.model.TicketGlobalApproverModel global =
+                ticketGlobalApproverRepository.findByApproverId(approverId).orElse(null);
+        if (global != null && global.getMaxApprovalLevel() != null && global.getMaxApprovalLevel() > 0) {
+            assignedLevel1 = true;
+            assignedLevel2 = global.getMaxApprovalLevel() >= 2;
+        } else {
+            if (ticketTypeId == null || ticketTypeId <= 0) return false;
+            List<Integer> levels = ticketTypeApproverRepository.findApprovalLevels(ticketTypeId, approverId);
+            if (levels == null || levels.isEmpty()) return false;
+            assignedLevel1 = levels.contains(1) || levels.contains(2);
+            assignedLevel2 = levels.contains(2);
+        }
 
         UserRoleCoreResponse userRole = authIdentityPort.getRoleByUserId(approverId);
         if (userRole == null || userRole.getId() == null) {
@@ -52,11 +66,9 @@ public class TicketTaskPermissionAdapter implements TicketTaskPermissionPort {
         boolean hasLevel2Permission = hasReviewPermission(permissions, level2ResourceId);
 
         if (currentLevel <= 1) {
-            boolean assigned = levels.contains(1) || levels.contains(2);
-            return assigned && (hasLevel1Permission || hasLevel2Permission);
+            return assignedLevel1 && (hasLevel1Permission || hasLevel2Permission);
         }
 
-        boolean assignedLevel2 = levels.contains(2);
         return assignedLevel2 && hasLevel2Permission;
     }
 
