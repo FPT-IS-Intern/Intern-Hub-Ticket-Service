@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.intern.hub.library.common.utils.Snowflake;
-import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
 import com.intern.hub.ticket.core.domain.port.DmsPort;
 import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
@@ -13,6 +12,7 @@ import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
 import com.intern.hub.ticket.core.domain.port.StorageLifecyclePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
+import com.intern.hub.ticket.core.domain.port.TicketGlobalApproverRepository;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
 import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
 import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
@@ -21,11 +21,13 @@ import com.intern.hub.ticket.core.domain.service.DocumentService;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.EvidenceUsecase;
+import com.intern.hub.ticket.core.domain.usecase.ManageTicketGlobalApproverUseCase;
 import com.intern.hub.ticket.core.domain.usecase.ManageTicketTypeApproverUseCase;
 import com.intern.hub.ticket.core.domain.usecase.TicketTypeUseCase;
 import com.intern.hub.ticket.core.domain.usecase.TicketUsecase;
 import com.intern.hub.ticket.core.domain.usecase.impl.ApproveTicketUsecaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.EvidenceUsecaseImpl;
+import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketGlobalApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.ManageTicketTypeApproverUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketTypeUseCaseImpl;
 import com.intern.hub.ticket.core.domain.usecase.impl.TicketUseCaseImpl;
@@ -42,16 +44,14 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             TicketTaskPermissionPort permissionPort,
-            HrmServicePort hrmServicePort,
-            AuthIdentityPort authIdentityPort) {
+            HrmServicePort hrmServicePort) {
         return new ApproveTicketUsecaseImpl(
                 ticketRepository,
                 ticketApprovalRepository,
                 ticketEventPublisher,
                 snowflake,
                 permissionPort,
-                hrmServicePort,
-                authIdentityPort);
+                hrmServicePort);
     }
 
     @Bean
@@ -111,6 +111,12 @@ public class UseCaseConfig {
             TicketTypeApproverRepository approverRepository,
             Snowflake snowflake) {
         return new ManageTicketTypeApproverUseCaseImpl(approverRepository, snowflake);
+    }
+
+    @Bean
+    public ManageTicketGlobalApproverUseCase manageTicketGlobalApproverUseCase(
+            TicketGlobalApproverRepository approverRepository) {
+        return new ManageTicketGlobalApproverUseCaseImpl(approverRepository);
     }
 
     @Bean

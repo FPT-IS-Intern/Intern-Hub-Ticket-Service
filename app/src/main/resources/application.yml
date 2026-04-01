@@ -60,6 +60,9 @@ ticket:
   kafka:
     approval-requests-topic: ticket.ticket.approved
     approval-consumer-group: ${spring.application.name}-approval-worker
+  approval:
+    level1-resource-id: ${TICKET_APPROVAL_LEVEL1_RESOURCE_ID:0}
+    level2-resource-id: ${TICKET_APPROVAL_LEVEL2_RESOURCE_ID:162752348429488128}
 
 management:
   opentelemetry:

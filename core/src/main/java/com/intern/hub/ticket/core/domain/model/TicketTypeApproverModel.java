@@ -19,4 +19,5 @@ public class TicketTypeApproverModel extends AuditEntity {
     Long ticketTypeApproverId;
     Long ticketTypeId;
     Long approverId;
+    Integer approvalLevel;
 }

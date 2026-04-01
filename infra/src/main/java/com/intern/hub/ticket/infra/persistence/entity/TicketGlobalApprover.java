@@ -24,20 +24,15 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "ticket_type_approvers")
+@Table(name = "ticket_global_approvers")
 @EntityListeners(AuditingEntityListener.class)
-public class TicketTypeApprover extends AuditEntity {
+public class TicketGlobalApprover extends AuditEntity {
 
     @Id
-    @Column(name = "id")
-    Long ticketTypeApproverId;
-
-    @Column(nullable = false)
-    Long ticketTypeId;
-
-    @Column(nullable = false)
+    @Column(name = "approver_id")
     Long approverId;
 
-    @Column(name = "approval_level", nullable = false)
-    Integer approvalLevel;
+    @Column(name = "max_approval_level", nullable = false)
+    Integer maxApprovalLevel;
 }
+

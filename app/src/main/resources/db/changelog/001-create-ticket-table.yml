@@ -260,3 +260,43 @@ databaseChangeLog:
             newColumnName: form_config
             columnDataType: jsonb
 
+  - changeSet:
+      id: 015-add-approval-level-to-ticket-type-approvers
+      author: internhub-team
+      changes:
+        - addColumn:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            columns:
+              - column:
+                  name: approval_level
+                  type: int
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - dropUniqueConstraint:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            constraintName: uk_ticket_type_approver
+        - addUniqueConstraint:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            constraintName: uk_ticket_type_approver_level
+            columnNames: ticket_type_id, approver_id, approval_level
+
+  - changeSet:
+      id: 016-create-ticket-global-approvers-table
+      author: internhub-team
+      changes:
+        - createTable:
+            tableName: ticket_global_approvers
+            schemaName: ih_ticket
+            columns:
+              - column: { name: approver_id, type: bigint, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: max_approval_level, type: int, defaultValueNumeric: 1, constraints: { nullable: false } }
+              - column: { name: created_at, type: bigint }
+              - column: { name: updated_at, type: bigint }
+              - column: { name: created_by, type: bigint }
+              - column: { name: updated_by, type: bigint }
+
+
