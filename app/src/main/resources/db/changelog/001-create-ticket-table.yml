@@ -281,8 +281,8 @@ databaseChangeLog:
         - addUniqueConstraint:
             schemaName: ih_ticket
             tableName: ticket_type_approvers
-          constraintName: uk_ticket_type_approver_level
-          columnNames: ticket_type_id, approver_id, approval_level
+            constraintName: uk_ticket_type_approver_level
+            columnNames: ticket_type_id, approver_id, approval_level
 
   - changeSet:
       id: 016-create-ticket-global-approvers-table
