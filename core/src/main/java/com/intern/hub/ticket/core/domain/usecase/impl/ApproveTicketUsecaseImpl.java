@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.library.common.exception.ForbiddenException;
 import com.intern.hub.library.common.exception.NotFoundException;
@@ -22,6 +23,9 @@ import com.intern.hub.ticket.core.domain.model.command.TicketApproveItem;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
+import com.intern.hub.ticket.core.domain.model.response.RolePermissionCoreResponse;
+import com.intern.hub.ticket.core.domain.model.response.UserRoleCoreResponse;
+import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
@@ -34,12 +38,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
+    private static final Long LEVEL_2_APPROVAL_RESOURCE_ID = 162752348429488128L;
+    private static final String REVIEW_PERMISSION = "review";
+
     private final TicketRepository ticketRepository;
     private final TicketApprovalRepository ticketApprovalRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
     private final HrmServicePort hrmServicePort;
+    private final AuthIdentityPort authIdentityPort;
 
     private ApproveTicketUsecase self;
 
@@ -54,17 +62,17 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         // 1. Idempotency (DB UNIQUE key)
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
-            return; // Ä‘Ã£ xá»­ lÃ½ â†’ bá» qua (KHÃ”NG throw)
+            return; // đã xử lý → bỏ qua (KHÔNG throw)
         }
 
-        // 2. Lock row (QUAN TRá»ŒNG)
+        // 2. Lock row (QUAN TRỌNG)
         TicketModel ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
         // 3. Validate status
         if (TicketStatus.APPROVED.equals(ticket.getStatus()) ||
             TicketStatus.REJECTED.equals(ticket.getStatus())) {
-            return; // Ä‘Ã£ xá»­ lÃ½ rá»“i â†’ ignore
+            return; // đã xử lý rồi → ignore
         }
 
         // 4. Optimistic lock
@@ -72,10 +80,9 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
             throw new ConflictDataException("conflict.data", "The request form has been changed");
         }
 
-        // 5. Check permission theo level hiá»‡n táº¡i
+        // 5. Check permission theo level hiện tại
         boolean isAuthorized = permissionPort.hasPermission(
                 ticket.getTicketId(),
-                ticket.getTicketTypeId(),
                 command.approverId(),
                 ticket.getCurrentApprovalLevel()
         );
@@ -99,16 +106,17 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         ticketApprovalRepository.save(approval);
 
-        // 7. Core logic (FIX CHÃNH á»ž ÄÃ‚Y)
-        if (ticket.getCurrentApprovalLevel() < ticket.getRequiredApprovals()) {
+        // 7. Core logic (FIX CHÍNH Ở ĐÂY)
+        if (ticket.getCurrentApprovalLevel() <= ticket.getRequiredApprovals()) {
 
-            // chÆ°a pháº£i level cuá»‘i â†’ lÃªn level tiáº¿p
+            // chưa phải level cuối → lên level tiếp
             ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
             ticket.setStatus(TicketStatus.REVIEWING);
 
         } else {
 
-            // level cuá»‘i
+            // level cuối
+            checkLevel2ApprovalPermission(command.approverId());
             ticket.setStatus(TicketStatus.APPROVED);
 
             if (ticket.getTicketTypeId() == 6L) {
@@ -121,7 +129,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         // 8. Save ticket
         ticketRepository.save(ticket);
 
-        // 9. Publish event (chá»‰ khi final approve)
+        // 9. Publish event (chỉ khi final approve)
         if (TicketStatus.APPROVED.equals(ticket.getStatus())) {
             ticketEventPublisher.publishTicketApprovedEvent(
                     snowflake.next(),
@@ -153,10 +161,9 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         TicketModel ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
-        // 2. Validate quyá»n
+        // 2. Validate quyền
         boolean isAuthorized = permissionPort.hasPermission(
                 command.ticketId(),
-                ticket.getTicketTypeId(),
                 command.approverId(),
                 ticket.getCurrentApprovalLevel()
         );
@@ -220,5 +227,24 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
             }
         }
         return new BulkApproveResponse(command.tickets().size(), successCount, failedTickets);
+    }
+
+    private void checkLevel2ApprovalPermission(Long approverId) {
+        UserRoleCoreResponse userRole = authIdentityPort.getRoleByUserId(approverId);
+        if (userRole == null || userRole.getId() == null) {
+            throw new ForbiddenException("forbidden", "User role not found");
+        }
+
+        Long roleId = Long.parseLong(userRole.getId());
+        List<RolePermissionCoreResponse> permissions = authIdentityPort.getRolePermissions(roleId);
+
+        boolean hasLevel2Permission = permissions.stream()
+                .anyMatch(p -> LEVEL_2_APPROVAL_RESOURCE_ID.equals(p.getResourceId())
+                        && p.getPermissions() != null
+                        && p.getPermissions().contains(REVIEW_PERMISSION));
+
+        if (!hasLevel2Permission) {
+            throw new ForbiddenException("forbidden", "You do not have level 2 approval permission");
+        }
     }
 }
