@@ -25,12 +25,13 @@ public class AdminTicketTypeApproverController {
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<?> assignApprover(
             @PathVariable Long ticketTypeId,
-            @PathVariable Long approverId) {
+            @PathVariable Long approverId,
+            @RequestParam(value = "level", required = false) Integer approvalLevel) {
 
         Long adminId = UserContext.requiredUserId();
         //Long adminId = 1L;
 
-        manageUseCase.assignApprover(ticketTypeId, approverId, adminId);
+        manageUseCase.assignApprover(ticketTypeId, approverId, approvalLevel, adminId);
         return ResponseApi.noContent();
     }
 
@@ -39,17 +40,20 @@ public class AdminTicketTypeApproverController {
     // @HasPermission(resource = "ticket-type", action = Action.UPDATE)
     public ResponseApi<?> removeApprover(
             @PathVariable Long ticketTypeId,
-            @PathVariable Long approverId) {
+            @PathVariable Long approverId,
+            @RequestParam(value = "level", required = false) Integer approvalLevel) {
 
-        manageUseCase.removeApprover(ticketTypeId, approverId);
+        manageUseCase.removeApprover(ticketTypeId, approverId, approvalLevel);
         return ResponseApi.noContent();
     }
 
     @GetMapping
 //    @Authenticated
     // @HasPermission(resource = "ticket-type", action = Action.READ)
-    public ResponseApi<ApproverIdsResponse> getApproverIds(@PathVariable Long ticketTypeId) {
-        List<Long> approverIds = manageUseCase.getApproverIds(ticketTypeId);
+    public ResponseApi<ApproverIdsResponse> getApproverIds(
+            @PathVariable Long ticketTypeId,
+            @RequestParam(value = "level", required = false) Integer approvalLevel) {
+        List<Long> approverIds = manageUseCase.getApproverIds(ticketTypeId, approvalLevel);
         return ResponseApi.ok(new ApproverIdsResponse(approverIds));
     }
 }

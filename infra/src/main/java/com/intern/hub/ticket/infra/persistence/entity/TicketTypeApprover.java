@@ -37,4 +37,7 @@ public class TicketTypeApprover extends AuditEntity {
 
     @Column(nullable = false)
     Long approverId;
+
+    @Column(name = "approval_level", nullable = false)
+    Integer approvalLevel;
 }

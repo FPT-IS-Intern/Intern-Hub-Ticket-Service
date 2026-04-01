@@ -260,3 +260,28 @@ databaseChangeLog:
             newColumnName: form_config
             columnDataType: jsonb
 
+  - changeSet:
+      id: 015-add-approval-level-to-ticket-type-approvers
+      author: internhub-team
+      changes:
+        - addColumn:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            columns:
+              - column:
+                  name: approval_level
+                  type: int
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false
+        - dropUniqueConstraint:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            constraintName: uk_ticket_type_approver
+        - addUniqueConstraint:
+            schemaName: ih_ticket
+            tableName: ticket_type_approvers
+            constraintName: uk_ticket_type_approver_level
+            columnNames: ticket_type_id, approver_id, approval_level
+
+

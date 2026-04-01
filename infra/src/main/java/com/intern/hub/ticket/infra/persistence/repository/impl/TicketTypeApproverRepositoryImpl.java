@@ -20,8 +20,8 @@ public class TicketTypeApproverRepositoryImpl implements TicketTypeApproverRepos
     private final TicketTypeApproverMapper mapper;
 
     @Override
-    public boolean exists(Long ticketTypeId, Long approverId) {
-        return jpaRepository.existsByTicketTypeIdAndApproverId(ticketTypeId, approverId);
+    public boolean exists(Long ticketTypeId, Long approverId, Integer approvalLevel) {
+        return jpaRepository.existsByTicketTypeIdAndApproverIdAndApprovalLevel(ticketTypeId, approverId, approvalLevel);
     }
 
     @Override
@@ -31,12 +31,26 @@ public class TicketTypeApproverRepositoryImpl implements TicketTypeApproverRepos
     }
 
     @Override
-    public void delete(Long ticketTypeId, Long approverId) {
-        jpaRepository.deleteByTicketTypeIdAndApproverId(ticketTypeId, approverId);
+    public void delete(Long ticketTypeId, Long approverId, Integer approvalLevel) {
+        if (approvalLevel == null) {
+            jpaRepository.deleteByTicketTypeIdAndApproverId(ticketTypeId, approverId);
+        } else {
+            jpaRepository.deleteByTicketTypeIdAndApproverIdAndApprovalLevel(ticketTypeId, approverId, approvalLevel);
+        }
     }
 
     @Override
     public List<Long> findApproverIdsByTicketTypeId(Long ticketTypeId) {
         return jpaRepository.findApproverIdsByTicketTypeId(ticketTypeId);
+    }
+
+    @Override
+    public List<Long> findApproverIdsByTicketTypeIdAndApprovalLevel(Long ticketTypeId, Integer approvalLevel) {
+        return jpaRepository.findApproverIdsByTicketTypeIdAndApprovalLevel(ticketTypeId, approvalLevel);
+    }
+
+    @Override
+    public List<Integer> findApprovalLevels(Long ticketTypeId, Long approverId) {
+        return jpaRepository.findApprovalLevels(ticketTypeId, approverId);
     }
 }
