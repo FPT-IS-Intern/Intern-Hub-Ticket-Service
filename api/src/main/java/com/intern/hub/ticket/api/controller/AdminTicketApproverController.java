@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.api.dto.response.ApproverIdsResponse;
+import com.intern.hub.ticket.api.dto.response.ApproverPermissionResponse;
 import com.intern.hub.ticket.api.util.UserContext;
 import com.intern.hub.ticket.core.domain.usecase.ManageTicketGlobalApproverUseCase;
 
@@ -29,6 +30,18 @@ public class AdminTicketApproverController {
             @RequestParam(value = "level", required = false) Integer level) {
         List<Long> ids = useCase.getApproverIds(level);
         return ResponseApi.ok(new ApproverIdsResponse(ids));
+    }
+
+    @GetMapping("/me")
+    public ResponseApi<ApproverPermissionResponse> getMyApproverPermission() {
+        Long userId = UserContext.requiredUserId();
+        int maxApprovalLevel = useCase.getApproverLevel(userId);
+        return ResponseApi.ok(new ApproverPermissionResponse(
+                userId,
+                maxApprovalLevel,
+                maxApprovalLevel >= 1,
+                maxApprovalLevel >= 2
+        ));
     }
 
     @PostMapping("/{approverId}")

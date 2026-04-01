@@ -22,6 +22,17 @@ public class ManageTicketGlobalApproverUseCaseImpl implements ManageTicketGlobal
     }
 
     @Override
+    public int getApproverLevel(Long approverId) {
+        if (approverId == null || approverId <= 0) {
+            return 0;
+        }
+        return repository.findByApproverId(approverId)
+                .map(TicketGlobalApproverModel::getMaxApprovalLevel)
+                .filter(level -> level != null && level > 0)
+                .orElse(0);
+    }
+
+    @Override
     public void assignApprover(Long approverId, Integer level, Long actorId) {
         if (approverId == null || approverId <= 0) {
             throw new BadRequestException("bad.request", "ApproverId is required");
