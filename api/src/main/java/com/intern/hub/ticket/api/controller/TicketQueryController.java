@@ -3,16 +3,15 @@ package com.intern.hub.ticket.api.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.intern.hub.starter.security.annotation.Internal;
+import com.intern.hub.ticket.api.dto.response.*;
+import com.intern.hub.ticket.core.domain.model.BranchModel;
 import com.intern.hub.ticket.core.domain.model.response.TicketDetailResponse;
+import com.intern.hub.ticket.core.domain.port.BoPortalServicePort;
 import org.springframework.web.bind.annotation.*;
 
 import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.library.common.dto.ResponseApi;
-import com.intern.hub.ticket.api.dto.response.MyTicketDto;
-import com.intern.hub.ticket.api.dto.response.QuickTicketSummaryDto;
-import com.intern.hub.ticket.api.dto.response.TicketDetailResponseDto;
-import com.intern.hub.ticket.api.dto.response.TicketDto;
-import com.intern.hub.ticket.api.dto.response.TicketManagementDto;
 import com.intern.hub.ticket.api.mapper.TicketApiMapper;
 import com.intern.hub.ticket.api.util.UserContext;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
@@ -29,6 +28,7 @@ public class TicketQueryController {
     private final TicketUsecase ticketUsecase;
     private final TicketApiMapper mapper;
     private final TicketApiMapper ticketApiMapper;
+    private final BoPortalServicePort boPortalServicePort;
 
     /**
      * Lấy tất cả tickets có filter & phân trang.
@@ -189,5 +189,28 @@ public class TicketQueryController {
                 .totalItems(modelPage.getTotalItems())
                 .totalPages(modelPage.getTotalPages())
                 .build();
+    }
+
+    /**
+     * Lấy danh sách tất cả branches (công ty/chi nhánh) từ BoPortal Service.
+     * Endpoint: GET /ticket/internal/branches
+     * Gọi nội bộ qua Feign đến BoPortal Service.
+     *
+     * @return danh sách BranchDto
+     */
+    @GetMapping("/branches")
+    @Internal
+    public ResponseApi<List<BranchDto>> getAllBranches() {
+        List<BranchModel> branches = boPortalServicePort.getAllBranches();
+
+        List<BranchDto> dtos = branches.stream()
+                .map(model -> new BranchDto(
+                        model.getId(),
+                        model.getName(),
+                        model.getDescription(),
+                        model.getIsActive()))
+                .toList();
+
+        return ResponseApi.ok(dtos);
     }
 }

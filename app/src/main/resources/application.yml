@@ -116,6 +116,8 @@ service:
     url: ${DMS_SERVICE_URL:http://localhost:8084}
   auth:
     url: ${AUTH_SERVICE_URL:http://localhost:8888}
+  boPortal:
+    url: ${BOPORTAL_SERVICE_URL:http://localhost:8080}
 
 services:
   gateway:
