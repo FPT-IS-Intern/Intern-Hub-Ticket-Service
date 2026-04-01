@@ -35,7 +35,7 @@ public class AdminTicketApproverController {
     public ResponseApi<?> assignApprover(
             @PathVariable Long approverId,
             @RequestParam(value = "level", required = false) Integer level) {
-        Long actorId = UserContext.requiredUserId();
+        Long actorId = resolveActorId();
         useCase.assignApprover(approverId, level, actorId);
         return ResponseApi.noContent();
     }
@@ -44,9 +44,19 @@ public class AdminTicketApproverController {
     public ResponseApi<?> removeApprover(
             @PathVariable Long approverId,
             @RequestParam(value = "level", required = false) Integer level) {
-        Long actorId = UserContext.requiredUserId();
+        Long actorId = resolveActorId();
         useCase.removeApprover(approverId, level, actorId);
         return ResponseApi.noContent();
     }
-}
 
+    private Long resolveActorId() {
+        if (UserContext.userId().isPresent()) {
+            return UserContext.userId().get();
+        }
+        // Internal Feign calls may not carry end-user principal.
+        if (UserContext.isInternal()) {
+            return 0L;
+        }
+        return UserContext.requiredUserId();
+    }
+}
