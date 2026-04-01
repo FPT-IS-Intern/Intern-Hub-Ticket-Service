@@ -83,8 +83,10 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         // 5. Check permission theo level hiện tại
         boolean isAuthorized = permissionPort.hasPermission(
                 ticket.getTicketId(),
+                ticket.getTicketTypeId(),
                 command.approverId(),
                 ticket.getCurrentApprovalLevel()
+
         );
 
         if (!isAuthorized) {
@@ -164,6 +166,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         // 2. Validate quyền
         boolean isAuthorized = permissionPort.hasPermission(
                 command.ticketId(),
+                ticket.getTicketTypeId(),
                 command.approverId(),
                 ticket.getCurrentApprovalLevel()
         );

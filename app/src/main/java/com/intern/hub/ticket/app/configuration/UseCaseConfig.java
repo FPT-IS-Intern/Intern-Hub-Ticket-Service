@@ -1,22 +1,10 @@
 package com.intern.hub.ticket.app.configuration;
 
+import com.intern.hub.ticket.core.domain.port.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.intern.hub.library.common.utils.Snowflake;
-import com.intern.hub.ticket.core.domain.port.DmsPort;
-import com.intern.hub.ticket.core.domain.port.EvidenceRepository;
-import com.intern.hub.ticket.core.domain.port.HrmServicePort;
-import com.intern.hub.ticket.core.domain.port.InternalUploadDirectPort;
-import com.intern.hub.ticket.core.domain.port.RuleEvaluatorPort;
-import com.intern.hub.ticket.core.domain.port.StorageLifecyclePort;
-import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
-import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
-import com.intern.hub.ticket.core.domain.port.TicketGlobalApproverRepository;
-import com.intern.hub.ticket.core.domain.port.TicketRepository;
-import com.intern.hub.ticket.core.domain.port.TicketTaskPermissionPort;
-import com.intern.hub.ticket.core.domain.port.TicketTypeApproverRepository;
-import com.intern.hub.ticket.core.domain.port.TicketTypeRepository;
 import com.intern.hub.ticket.core.domain.service.DocumentService;
 import com.intern.hub.ticket.core.domain.service.TicketTemplateValidator;
 import com.intern.hub.ticket.core.domain.usecase.ApproveTicketUsecase;
@@ -44,14 +32,16 @@ public class UseCaseConfig {
             TicketEventPublisher ticketEventPublisher,
             Snowflake snowflake,
             TicketTaskPermissionPort permissionPort,
-            HrmServicePort hrmServicePort) {
+            HrmServicePort hrmServicePort,
+            AuthIdentityPort authIdentityPort) {
         return new ApproveTicketUsecaseImpl(
                 ticketRepository,
                 ticketApprovalRepository,
                 ticketEventPublisher,
                 snowflake,
                 permissionPort,
-                hrmServicePort);
+                hrmServicePort,
+                authIdentityPort);
     }
 
     @Bean
