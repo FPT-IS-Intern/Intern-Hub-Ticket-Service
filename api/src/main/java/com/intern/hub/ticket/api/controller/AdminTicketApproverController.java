@@ -50,13 +50,8 @@ public class AdminTicketApproverController {
     }
 
     private Long resolveActorId() {
-        if (UserContext.userId().isPresent()) {
-            return UserContext.userId().get();
-        }
-        // Internal Feign calls may not carry end-user principal.
-        if (UserContext.isInternal()) {
-            return 0L;
-        }
-        return UserContext.requiredUserId();
+        // Feign internal calls from bo-portal may not propagate end-user principal.
+        // For this admin-config endpoint, fallback to system actor id when principal is absent.
+        return UserContext.userId().orElse(0L);
     }
 }
