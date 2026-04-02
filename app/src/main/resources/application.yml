@@ -120,7 +120,7 @@ service:
   auth:
     url: ${AUTH_SERVICE_URL:http://localhost:8888}
   boPortal:
-    url: ${BOPORTAL_SERVICE_URL:http://localhost:8080}
+    url: ${BO_PORTAL_SERVICE_URL:http://localhost:8080}
 
 services:
   gateway:
