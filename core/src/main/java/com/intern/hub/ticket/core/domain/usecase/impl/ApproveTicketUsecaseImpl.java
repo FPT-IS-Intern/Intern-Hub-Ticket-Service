@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.intern.hub.library.common.exception.BadRequestException;
 import com.intern.hub.library.common.exception.ConflictDataException;
 import com.intern.hub.library.common.exception.ForbiddenException;
 import com.intern.hub.library.common.exception.NotFoundException;
@@ -23,9 +22,6 @@ import com.intern.hub.ticket.core.domain.model.command.TicketApproveItem;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
-import com.intern.hub.ticket.core.domain.model.response.RolePermissionCoreResponse;
-import com.intern.hub.ticket.core.domain.model.response.UserRoleCoreResponse;
-import com.intern.hub.ticket.core.domain.port.AuthIdentityPort;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
@@ -38,16 +34,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
-    private static final Long LEVEL_2_APPROVAL_RESOURCE_ID = 162752348429488128L;
-    private static final String REVIEW_PERMISSION = "review";
-
     private final TicketRepository ticketRepository;
     private final TicketApprovalRepository ticketApprovalRepository;
     private final TicketEventPublisher ticketEventPublisher;
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
     private final HrmServicePort hrmServicePort;
-    private final AuthIdentityPort authIdentityPort;
 
     private ApproveTicketUsecase self;
 
@@ -59,41 +51,38 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void approve(ApproveTicketCommand command) {
-
-        // 1. Idempotency (DB UNIQUE key)
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
-            return; // đã xử lý → bỏ qua (KHÔNG throw)
+            return;
         }
 
-        // 2. Lock row (QUAN TRỌNG)
         TicketModel ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
-        // 3. Validate status
-        if (TicketStatus.APPROVED.equals(ticket.getStatus()) ||
-            TicketStatus.REJECTED.equals(ticket.getStatus())) {
-            return; // đã xử lý rồi → ignore
+        if (TicketStatus.APPROVED.equals(ticket.getStatus()) || TicketStatus.REJECTED.equals(ticket.getStatus())) {
+            return;
         }
 
-        // 4. Optimistic lock
         if (!ticket.getVersion().equals(command.version())) {
             throw new ConflictDataException("conflict.data", "The request form has been changed");
         }
 
-        // 5. Check permission theo level hiện tại
+        int currentApprovalLevel = normalizeApprovalLevel(ticket.getCurrentApprovalLevel());
+        int requiredApprovals = normalizeApprovalLevel(ticket.getRequiredApprovals());
+        boolean hasLevel2Permission = permissionPort.hasPermission(
+                ticket.getTicketId(),
+                ticket.getTicketTypeId(),
+                command.approverId(),
+                2);
+
         boolean isAuthorized = permissionPort.hasPermission(
                 ticket.getTicketId(),
                 ticket.getTicketTypeId(),
                 command.approverId(),
-                ticket.getCurrentApprovalLevel()
-
-        );
-
+                currentApprovalLevel);
         if (!isAuthorized) {
             throw new ForbiddenException("forbidden", "No permission");
         }
 
-        // 6. Save approval log (idempotent)
         TicketApprovalModel approval = TicketApprovalModel.builder()
                 .approvalId(snowflake.next())
                 .ticketId(ticket.getTicketId())
@@ -103,41 +92,53 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
                 .idempotencyKey(command.idempotencyKey())
                 .actionAt(System.currentTimeMillis())
                 .status(TicketApprovalStatus.SUCCESS)
-                .approvalLevel(ticket.getCurrentApprovalLevel())
+                .approvalLevel(currentApprovalLevel)
                 .build();
-
         ticketApprovalRepository.save(approval);
 
-        // 7. Core logic (FIX CHÍNH Ở ĐÂY)
-        if (ticket.getCurrentApprovalLevel() <= ticket.getRequiredApprovals()) {
+        boolean canAutoFinalizeAsLevel2 = requiredApprovals == 2
+                && currentApprovalLevel == 1
+                && hasLevel2Permission;
 
-            // chưa phải level cuối → lên level tiếp
-            ticket.setCurrentApprovalLevel(ticket.getCurrentApprovalLevel() + 1);
-            ticket.setStatus(TicketStatus.REVIEWING);
+        if (canAutoFinalizeAsLevel2) {
+            TicketApprovalModel level2Approval = TicketApprovalModel.builder()
+                    .approvalId(snowflake.next())
+                    .ticketId(ticket.getTicketId())
+                    .approverId(command.approverId())
+                    .action(TicketApprovalAction.APPROVE)
+                    .comment(command.comment())
+                    .idempotencyKey(command.idempotencyKey() + ":L2")
+                    .actionAt(System.currentTimeMillis())
+                    .status(TicketApprovalStatus.SUCCESS)
+                    .approvalLevel(2)
+                    .build();
+            ticketApprovalRepository.save(level2Approval);
+        }
 
-        } else {
-
-            // level cuối
-            checkLevel2ApprovalPermission(command.approverId());
+        if (canAutoFinalizeAsLevel2) {
+            ticket.setCurrentApprovalLevel(2);
             ticket.setStatus(TicketStatus.APPROVED);
-
-            if (ticket.getTicketTypeId() == 6L) {
+            if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 6L) {
+                callHrmProfileUpdateCallbackIfNeeded(ticket);
+            }
+        } else if (currentApprovalLevel < requiredApprovals) {
+            ticket.setCurrentApprovalLevel(currentApprovalLevel + 1);
+            ticket.setStatus(TicketStatus.REVIEWING);
+        } else {
+            ticket.setStatus(TicketStatus.APPROVED);
+            if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 6L) {
                 callHrmProfileUpdateCallbackIfNeeded(ticket);
             }
         }
 
         ticket.setUpdatedBy(command.approverId());
-
-        // 8. Save ticket
         ticketRepository.save(ticket);
 
-        // 9. Publish event (chỉ khi final approve)
         if (TicketStatus.APPROVED.equals(ticket.getStatus())) {
             ticketEventPublisher.publishTicketApprovedEvent(
                     snowflake.next(),
                     ticket.getTicketId(),
-                    command.approverId()
-            );
+                    command.approverId());
         }
     }
 
@@ -154,8 +155,6 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     @Override
     @Transactional
     public void reject(RejectTicketCommand command) {
-
-        // 1. Idempotency
         if (ticketApprovalRepository.existsByIdempotencyKey(command.idempotencyKey())) {
             throw new ConflictDataException("conflict.data", "Request has already been processed");
         }
@@ -163,32 +162,26 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         TicketModel ticket = ticketRepository.findById(command.ticketId())
                 .orElseThrow(() -> new NotFoundException("resource.not.found", "Ticket not found"));
 
-        // 2. Validate quyền
+        int currentApprovalLevel = normalizeApprovalLevel(ticket.getCurrentApprovalLevel());
         boolean isAuthorized = permissionPort.hasPermission(
-                command.ticketId(),
+                ticket.getTicketId(),
                 ticket.getTicketTypeId(),
                 command.approverId(),
-                ticket.getCurrentApprovalLevel()
-        );
-
+                currentApprovalLevel);
         if (!isAuthorized) {
             throw new ForbiddenException("forbidden", "No permission");
         }
 
-        // 3. Update ticket (NO LOAD ENTITY)
         int updated = ticketRepository.rejectTicket(
                 command.ticketId(),
                 TicketStatus.REJECTED,
                 command.approverId(),
                 System.currentTimeMillis(),
-                command.version()
-        );
-
+                command.version());
         if (updated == 0) {
             throw new ConflictDataException("conflict.data", "Ticket changed or already processed");
         }
 
-        // 4. Insert approval log
         TicketApprovalModel approval = TicketApprovalModel.builder()
                 .approvalId(snowflake.next())
                 .ticketId(command.ticketId())
@@ -198,11 +191,10 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
                 .idempotencyKey(command.idempotencyKey())
                 .actionAt(System.currentTimeMillis())
                 .status(TicketApprovalStatus.SUCCESS)
+                .approvalLevel(currentApprovalLevel)
                 .build();
-
         ticketApprovalRepository.save(approval);
 
-        // 5. publish event
         ticketEventPublisher.publishTicketApprovedEvent(snowflake.next(), ticket.getTicketId(), command.approverId());
     }
 
@@ -213,7 +205,6 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         for (TicketApproveItem item : command.tickets()) {
             try {
-
                 String subIdempotencyKey = command.idempotencyKey() + ":" + item.ticketId();
                 ApproveTicketCommand singleCommand = new ApproveTicketCommand(
                         item.ticketId(),
@@ -224,7 +215,6 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
                 self.approve(singleCommand);
                 successCount++;
-
             } catch (Exception e) {
                 failedTickets.add(new BulkApproveResponse.TicketErrorDetail(item.ticketId(), e.getMessage()));
             }
@@ -232,22 +222,10 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         return new BulkApproveResponse(command.tickets().size(), successCount, failedTickets);
     }
 
-    private void checkLevel2ApprovalPermission(Long approverId) {
-        UserRoleCoreResponse userRole = authIdentityPort.getRoleByUserId(approverId);
-        if (userRole == null || userRole.getId() == null) {
-            throw new ForbiddenException("forbidden", "User role not found");
+    private int normalizeApprovalLevel(Integer level) {
+        if (level == null || level <= 1) {
+            return 1;
         }
-
-        Long roleId = Long.parseLong(userRole.getId());
-        List<RolePermissionCoreResponse> permissions = authIdentityPort.getRolePermissions(roleId);
-
-        boolean hasLevel2Permission = permissions.stream()
-                .anyMatch(p -> LEVEL_2_APPROVAL_RESOURCE_ID.equals(p.getResourceId())
-                        && p.getPermissions() != null
-                        && p.getPermissions().contains(REVIEW_PERMISSION));
-
-        if (!hasLevel2Permission) {
-            throw new ForbiddenException("forbidden", "You do not have level 2 approval permission");
-        }
+        return 2;
     }
 }

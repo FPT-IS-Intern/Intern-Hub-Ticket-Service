@@ -112,29 +112,31 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
                 t.user_id AS userId,
                 t.created_at AS createdAt,
             
-                ta_first.approver_id AS approverIdLevel1,
-                ta_first.created_at AS approvedAt,
-                ta_first.status AS statusLevel1,
+                l1.approver_id AS approverIdLevel1,
+                l1.created_at AS approvedAt,
+                l1.status AS statusLevel1,
             
-                ta_last.approver_id AS approverIdLevel2,
-                ta_last.created_at AS approvedAtLevel2,
-                ta_last.status AS statusLevel2
+                l2.approver_id AS approverIdLevel2,
+                l2.created_at AS approvedAtLevel2,
+                l2.status AS statusLevel2
             
             FROM tickets t
             
             LEFT JOIN LATERAL (
-                SELECT * FROM ticket_approvals 
-                WHERE ticket_id = t.ticket_id 
-                ORDER BY created_at ASC 
+                SELECT * FROM ticket_approvals
+                WHERE ticket_id = t.ticket_id
+                  AND approval_level = 1
+                ORDER BY created_at DESC
                 LIMIT 1
-            ) ta_first ON true
+            ) l1 ON true
             
             LEFT JOIN LATERAL (
-                SELECT * FROM ticket_approvals 
-                WHERE ticket_id = t.ticket_id 
-                ORDER BY created_at DESC 
+                SELECT * FROM ticket_approvals
+                WHERE ticket_id = t.ticket_id
+                  AND approval_level = 2
+                ORDER BY created_at DESC
                 LIMIT 1
-            ) ta_last ON true
+            ) l2 ON true
             
             WHERE t.ticket_id = :ticketId
             """, nativeQuery = true)
