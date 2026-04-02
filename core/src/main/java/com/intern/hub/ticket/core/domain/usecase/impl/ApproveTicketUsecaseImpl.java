@@ -68,6 +68,11 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
 
         int currentApprovalLevel = normalizeApprovalLevel(ticket.getCurrentApprovalLevel());
         int requiredApprovals = normalizeApprovalLevel(ticket.getRequiredApprovals());
+        boolean hasLevel2Permission = permissionPort.hasPermission(
+                ticket.getTicketId(),
+                ticket.getTicketTypeId(),
+                command.approverId(),
+                2);
 
         boolean isAuthorized = permissionPort.hasPermission(
                 ticket.getTicketId(),
@@ -91,7 +96,32 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
                 .build();
         ticketApprovalRepository.save(approval);
 
-        if (currentApprovalLevel < requiredApprovals) {
+        boolean canAutoFinalizeAsLevel2 = requiredApprovals == 2
+                && currentApprovalLevel == 1
+                && hasLevel2Permission;
+
+        if (canAutoFinalizeAsLevel2) {
+            TicketApprovalModel level2Approval = TicketApprovalModel.builder()
+                    .approvalId(snowflake.next())
+                    .ticketId(ticket.getTicketId())
+                    .approverId(command.approverId())
+                    .action(TicketApprovalAction.APPROVE)
+                    .comment(command.comment())
+                    .idempotencyKey(command.idempotencyKey() + ":L2")
+                    .actionAt(System.currentTimeMillis())
+                    .status(TicketApprovalStatus.SUCCESS)
+                    .approvalLevel(2)
+                    .build();
+            ticketApprovalRepository.save(level2Approval);
+        }
+
+        if (canAutoFinalizeAsLevel2) {
+            ticket.setCurrentApprovalLevel(2);
+            ticket.setStatus(TicketStatus.APPROVED);
+            if (ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 6L) {
+                callHrmProfileUpdateCallbackIfNeeded(ticket);
+            }
+        } else if (currentApprovalLevel < requiredApprovals) {
             ticket.setCurrentApprovalLevel(currentApprovalLevel + 1);
             ticket.setStatus(TicketStatus.REVIEWING);
         } else {
