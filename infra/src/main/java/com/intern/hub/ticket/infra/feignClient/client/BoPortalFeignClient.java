@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.intern.hub.library.common.dto.ResponseApi;
 import com.intern.hub.ticket.infra.feignClient.dto.reponse.BoPortalBranchResponse;
 
-@FeignClient(name = "bo-portal-service", url = "${service.boPortal.url:http://localhost:8080}")
+@FeignClient(name = "bo-portal-service", url = "${service.boPortal.url}")
 public interface BoPortalFeignClient {
 
     /**
      * Lấy danh sách tất cả branches (công ty/chi nhánh) từ BoPortal Service.
      * BoPortal endpoint: GET /bo-portal/internal/branches
      */
-    @GetMapping(value = "/bo-portal/internal/branches")
+    @GetMapping(value = "/bo-portal/branches")
     ResponseApi<List<BoPortalBranchResponse>> getAllBranches();
 
     default ResponseApi<List<BoPortalBranchResponse>> getAllBranchesFallback(Throwable t) {
