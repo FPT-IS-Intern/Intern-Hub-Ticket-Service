@@ -16,7 +16,7 @@ public interface BoPortalFeignClient {
      * Lấy danh sách tất cả branches (công ty/chi nhánh) từ BoPortal Service.
      * BoPortal endpoint: GET /bo-portal/internal/branches
      */
-    @GetMapping(value = "/bo-portal/branches")
+    @GetMapping(value = "/bo-portal/internal/branches")
     ResponseApi<List<BoPortalBranchResponse>> getAllBranches();
 
     default ResponseApi<List<BoPortalBranchResponse>> getAllBranchesFallback(Throwable t) {
