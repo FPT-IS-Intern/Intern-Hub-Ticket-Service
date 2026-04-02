@@ -210,6 +210,7 @@ public class TicketUseCaseImpl implements TicketUsecase {
                 requiredApprovals = levels;
             }
         }
+        requiredApprovals = normalizeRequiredApprovals(requiredApprovals);
 
         TicketModel ticket = TicketModel.builder()
                 .ticketId(snowflake.next())
@@ -696,5 +697,12 @@ public class TicketUseCaseImpl implements TicketUsecase {
     public StatisticsTicketCoreResponse statisticsTicket() {
         List<Long> userIds = hrmServicePort.getAllUserId();
         return ticketRepository.statisticsTicket(userIds);
+    }
+
+    private int normalizeRequiredApprovals(Integer levels) {
+        if (levels == null || levels <= 1) {
+            return 1;
+        }
+        return 2;
     }
 }

@@ -193,6 +193,9 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     }
 
     private int normalizeApprovalLevel(Integer level) {
-        return level == null || level < 1 ? 1 : level;
+        if (level == null || level <= 1) {
+            return 1;
+        }
+        return 2;
     }
 }
