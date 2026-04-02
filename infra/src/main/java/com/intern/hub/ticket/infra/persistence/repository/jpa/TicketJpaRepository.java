@@ -20,19 +20,6 @@ public interface TicketJpaRepository extends JpaRepository<Ticket, Long>, JpaSpe
 
     List<Ticket> findByUserId(Long userId);
 
-    @Query("""
-        SELECT t FROM Ticket t
-        JOIN t.ticketType tt
-        WHERE t.userId = :userId
-          AND (:typeName IS NULL OR LOWER(tt.typeName) LIKE LOWER(CONCAT('%', :typeName, '%')))
-          AND (:status IS NULL OR t.status = :status)
-        ORDER BY t.createdAt DESC
-    """)
-    List<Ticket> findByUserIdWithFilters(
-            @Param("userId") Long userId,
-            @Param("typeName") String typeName,
-            @Param("status") TicketStatus status
-    );
 
     @Query("""
         SELECT t FROM Ticket t

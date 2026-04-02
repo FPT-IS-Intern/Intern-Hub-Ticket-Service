@@ -19,6 +19,8 @@ import com.intern.hub.library.common.dto.PaginatedData;
 import com.intern.hub.ticket.core.domain.model.TicketModel;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
+import com.intern.hub.ticket.core.domain.model.HrmUserSearchResponse;
+import com.intern.hub.ticket.core.domain.port.HrmServicePort;
 import com.intern.hub.ticket.infra.mapper.TicketMapper;
 import com.intern.hub.ticket.infra.persistence.entity.Ticket;
 import com.intern.hub.ticket.infra.persistence.entity.TicketType;
@@ -36,6 +38,7 @@ public class TicketRepositoryImpl implements TicketRepository {
     private final TicketJpaRepository jpaRepository;
     private final TicketTypeJpaRepository ticketTypeJpaRepository;
     private final TicketMapper mapper;
+    private final HrmServicePort hrmServicePort;
 
     @Override
     public TicketModel save(TicketModel model) {
@@ -67,7 +70,7 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public PaginatedData<TicketModel> findAllPaginated(int page, int size) {
-        Page<Ticket> ticketPage = jpaRepository.findAll(PageRequest.of(page, size));
+        Page<Ticket> ticketPage = jpaRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
         return mapper.toPaginatedModel(ticketPage);
     }
 
@@ -75,7 +78,7 @@ public class TicketRepositoryImpl implements TicketRepository {
     public PaginatedData<TicketModel> findAllPaginated(int page, int size, List<Long> userIds, String typeName, String status) {
         Specification<Ticket> spec = buildFilterSpecification(userIds, typeName, status, null, null);
 
-        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size));
+        Page<Ticket> ticketPage = jpaRepository.findAll(spec, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
         return mapper.toPaginatedModel(ticketPage);
     }
 
@@ -145,25 +148,35 @@ public class TicketRepositoryImpl implements TicketRepository {
 
     @Override
     public Collection<TicketModel> findByUserIdWithFilters(Long userId, String typeName, String status) {
-        TicketStatus ticketStatus = null;
-        if (status != null && !status.isBlank()) {
-            try {
-                ticketStatus = TicketStatus.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
+        Specification<Ticket> spec = buildFilterSpecification(userId != null ? List.of(userId) : null, typeName, status, null, null);
 
-        boolean hasTypeName = typeName != null && !typeName.isBlank();
-        boolean hasStatus = ticketStatus != null;
-
-        if (!hasTypeName && !hasStatus) {
-            return findByUserId(userId);
-        }
-
-        return jpaRepository.findByUserIdWithFilters(userId, hasTypeName ? typeName : null, ticketStatus)
+        List<TicketModel> tickets = jpaRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
                 .map(mapper::toModel)
                 .toList();
+
+        if (tickets.isEmpty()) {
+            return tickets;
+        }
+
+        List<Long> userIds = tickets.stream()
+                .map(TicketModel::getUserId)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (!userIds.isEmpty()) {
+            java.util.Map<Long, HrmUserSearchResponse> userMap = hrmServicePort.getUsersByIds(userIds);
+            tickets.forEach(ticket -> {
+                HrmUserSearchResponse userInfo = userMap.get(ticket.getUserId());
+                if (userInfo != null) {
+                    ticket.setFullName(userInfo.getFullName());
+                    ticket.setEmail(userInfo.getEmail());
+                }
+            });
+        }
+
+        return tickets;
     }
 
     @Override

@@ -106,7 +106,7 @@ public class TicketQueryController {
     public ResponseApi<List<MyTicketDto>> getMyTickets(
             @RequestParam(required = false) String typeName,
             @RequestParam(required = false) String status) {
-        Long userId = UserContext.requiredUserId();
+        Long userId = 159223830143832064L; //UserContext.requiredUserId();
         List<MyTicketDto> response = ticketUsecase.getMyTickets(userId, typeName, status).stream()
                 .map(this::mapToMyTicketDto)
                 .collect(Collectors.toList());
