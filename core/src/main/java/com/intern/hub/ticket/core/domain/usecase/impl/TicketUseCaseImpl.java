@@ -645,17 +645,23 @@ public class TicketUseCaseImpl implements TicketUsecase {
 
         List<Object[]> approverRows = ticketApprovalRepository.findLatestApproverIdsByTicketIds(ticketIds);
 
-        Map<Long, Long> approverMap = approverRows.stream()
+        Map<Long, ApprovalInfo> approvalInfoMap = approverRows.stream()
                 .collect(Collectors.toMap(
                         row -> ((Number) row[0]).longValue(),
-                        row -> row[1] != null ? ((Number) row[1]).longValue() : null,
+                        row -> new ApprovalInfo(
+                                row[1] != null ? ((Number) row[1]).longValue() : null,
+                                row.length > 2 && row[2] != null ? ((Number) row[2]).longValue() : null
+                        ),
                         (a, b) -> a
                 ));
 
         tickets.forEach(ticket -> {
-            Long approverId = approverMap.get(ticket.getTicketId());
-            if (approverId != null) {
-                ticket.setApproverId(approverId);
+            ApprovalInfo approvalInfo = approvalInfoMap.get(ticket.getTicketId());
+            if (approvalInfo != null) {
+                if (approvalInfo.approverId() != null) {
+                    ticket.setApproverId(approvalInfo.approverId());
+                }
+                ticket.setApprovedAt(approvalInfo.approvedAt());
             }
         });
     }
@@ -705,4 +711,6 @@ public class TicketUseCaseImpl implements TicketUsecase {
         }
         return 2;
     }
+
+    private record ApprovalInfo(Long approverId, Long approvedAt) {}
 }

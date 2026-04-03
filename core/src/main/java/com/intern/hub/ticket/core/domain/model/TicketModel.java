@@ -34,6 +34,7 @@ public class TicketModel extends AuditEntity {
     @Builder.Default
     Boolean isDeleted = false;
     Long approverId;
+    Long approvedAt;
 
     // ---- Transient fields: populated at query time from HRM Service (NOT persisted) ----
     String fullName;   // from HRM

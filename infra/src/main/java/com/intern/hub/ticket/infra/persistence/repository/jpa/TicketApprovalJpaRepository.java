@@ -18,7 +18,7 @@ public interface TicketApprovalJpaRepository extends JpaRepository<TicketApprova
     Optional<TicketApproval> findByTicketId(Long ticketId);
 
     @Query(value = """
-            SELECT ta.ticket_id AS ticketId, ta.approver_id AS approverId
+            SELECT ta.ticket_id AS ticketId, ta.approver_id AS approverId, ta.created_at AS approvedAt
             FROM ticket_approvals ta
             INNER JOIN (
                 SELECT ticket_id, MAX(created_at) AS max_created_at
