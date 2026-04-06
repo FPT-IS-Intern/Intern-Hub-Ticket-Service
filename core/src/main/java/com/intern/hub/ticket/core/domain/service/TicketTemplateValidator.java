@@ -68,6 +68,12 @@ public class TicketTemplateValidator {
                     "Field " + fieldCode + " must be a text value.");
         }
 
+        // Location options are dynamic and fetched from BO Portal branches at runtime.
+        // Keep type validation only, skip static option constraint from form_config.
+        if ("location".equalsIgnoreCase(fieldCode)) {
+            return;
+        }
+
         Set<String> validOptions = optionValueSet(field);
         if (!validOptions.contains(str)) {
             throw new BadRequestException(
