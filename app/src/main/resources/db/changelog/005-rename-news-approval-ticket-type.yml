@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-rename-news-approval-type-to-news-post
+      author: internhub-team
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              UPDATE ih_ticket.ticket_types
+              SET
+                type_name = 'Phiếu đăng tin tức',
+                description = 'Phiếu yêu cầu phê duyệt đăng bài từ News Service',
+                updated_at = EXTRACT(EPOCH FROM NOW()) * 1000
+              WHERE type_name = 'Phiếu duyệt đăng bài';
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: |
+              UPDATE ih_ticket.ticket_types
+              SET
+                type_name = 'Phiếu duyệt đăng bài',
+                updated_at = EXTRACT(EPOCH FROM NOW()) * 1000
+              WHERE type_name = 'Phiếu đăng tin tức';

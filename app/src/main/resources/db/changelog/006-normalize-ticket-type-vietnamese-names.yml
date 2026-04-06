@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-normalize-news-ticket-type-name
+      author: internhub-team
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: true
+            stripComments: true
+            sql: |
+              UPDATE ih_ticket.ticket_types
+              SET
+                type_name = 'Phiếu đăng tin tức',
+                description = 'Phiếu yêu cầu phê duyệt đăng bài từ News Service',
+                updated_at = EXTRACT(EPOCH FROM NOW()) * 1000
+              WHERE form_config IS NOT NULL
+                AND form_config::text ILIKE '%news_id%'
+                AND form_config::text ILIKE '%thumbnail_url%';

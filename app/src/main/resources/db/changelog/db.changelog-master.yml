@@ -11,4 +11,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/004-add-news-approval-ticket-type.yml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/005-rename-news-approval-ticket-type.yml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/006-normalize-ticket-type-vietnamese-names.yml
+      relativeToChangelogFile: false
 
