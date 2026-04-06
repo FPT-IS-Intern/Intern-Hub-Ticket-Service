@@ -1,0 +1,61 @@
+﻿databaseChangeLog:
+  - changeSet:
+      id: 001-add-news-approval-ticket-type
+      author: internhub-team
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            stripComments: true
+            sql: |
+              INSERT INTO ih_ticket.ticket_types
+              (
+                type_name,
+                description,
+                form_config,
+                approval_rule,
+                require_evidence,
+                version,
+                is_deleted,
+                created_at,
+                updated_at,
+                created_by,
+                updated_by
+              )
+              SELECT
+                'Phiếu duyệt đăng bài',
+                'Phiếu yêu cầu phê duyệt đăng bài từ News Service',
+                '[
+                  {"fieldCode":"news_id","fieldName":"Mã bài viết","type":"TEXT","required":true},
+                  {"fieldCode":"title","fieldName":"Tiêu đề","type":"TEXT","required":true},
+                  {"fieldCode":"summary","fieldName":"Tóm tắt","type":"TEXT","required":true},
+                  {"fieldCode":"category","fieldName":"Danh mục","type":"TEXT","required":false},
+                  {"fieldCode":"content","fieldName":"Nội dung","type":"TEXT","required":true},
+                  {"fieldCode":"reason","fieldName":"Lý do đăng","type":"TEXT","required":true},
+                  {"fieldCode":"thumbnail_url","fieldName":"Ảnh đại diện","type":"TEXT","required":true},
+                  {"fieldCode":"image_urls","fieldName":"Danh sách ảnh","type":"CHECKBOX","required":false,"options":[]},
+                  {"fieldCode":"preview_url","fieldName":"Link xem trước","type":"TEXT","required":false}
+                ]'::jsonb,
+                jsonb_build_object(
+                  'condition', 'true',
+                  'levelsIfTrue', 2,
+                  'levelsIfFalse', 2
+                ),
+                false,
+                0,
+                false,
+                EXTRACT(EPOCH FROM NOW()) * 1000,
+                EXTRACT(EPOCH FROM NOW()) * 1000,
+                0,
+                0
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM ih_ticket.ticket_types
+                WHERE type_name = 'Phiếu duyệt đăng bài'
+              );
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: |
+              DELETE FROM ih_ticket.ticket_types
+              WHERE type_name = 'Phiếu duyệt đăng bài';
