@@ -3,6 +3,7 @@ package com.intern.hub.ticket.core.domain.usecase.impl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -280,9 +281,16 @@ public class TicketUseCaseImpl implements TicketUsecase {
         Set<String> validFieldCodes = template.stream()
                 .map(TicketTemplateField::getFieldCode)
                 .collect(Collectors.toSet());
+        Set<String> computedFieldCodes = new HashSet<>();
+
+        boolean hasRangeDateField = validFieldCodes.contains("dateRange")
+                || (validFieldCodes.contains("start_date") && validFieldCodes.contains("end_date"));
+        if (hasRangeDateField) {
+            computedFieldCodes.add("total_days");
+        }
 
         for (String payloadKey : safePayload.keySet()) {
-            if (!validFieldCodes.contains(payloadKey)) {
+            if (!validFieldCodes.contains(payloadKey) && !computedFieldCodes.contains(payloadKey)) {
                 throw new BadRequestException("invalid.field", "Payload contains unknown field: " + payloadKey);
             }
         }
