@@ -23,6 +23,7 @@ import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalAction;
 import com.intern.hub.ticket.core.domain.model.enums.TicketApprovalStatus;
 import com.intern.hub.ticket.core.domain.model.enums.TicketStatus;
 import com.intern.hub.ticket.core.domain.port.HrmServicePort;
+import com.intern.hub.ticket.core.domain.port.NewsApprovalPort;
 import com.intern.hub.ticket.core.domain.port.TicketApprovalRepository;
 import com.intern.hub.ticket.core.domain.port.TicketEventPublisher;
 import com.intern.hub.ticket.core.domain.port.TicketRepository;
@@ -40,6 +41,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
     private final Snowflake snowflake;
     private final TicketTaskPermissionPort permissionPort;
     private final HrmServicePort hrmServicePort;
+    private final NewsApprovalPort newsApprovalPort;
 
     private ApproveTicketUsecase self;
 
@@ -135,6 +137,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         ticketRepository.save(ticket);
 
         if (TicketStatus.APPROVED.equals(ticket.getStatus())) {
+            notifyNewsApprovalIfNeeded(ticket);
             ticketEventPublisher.publishTicketApprovedEvent(
                     snowflake.next(),
                     ticket.getTicketId(),
@@ -149,6 +152,20 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
             if (payload != null) {
                 hrmServicePort.callHrmProfileApproved(ticket.getTicketId(), payload);
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void notifyNewsApprovalIfNeeded(TicketModel ticket) {
+        if (ticket == null) {
+            return;
+        }
+
+        boolean isNewsTicketType = ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 5L;
+        boolean hasNewsPayload = ticket.getPayload() != null && ticket.getPayload().containsKey("news_id");
+
+        if (isNewsTicketType || hasNewsPayload) {
+            newsApprovalPort.notifyNewsApproved(ticket.getTicketId());
         }
     }
 
