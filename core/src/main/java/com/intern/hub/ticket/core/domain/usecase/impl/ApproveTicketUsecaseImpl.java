@@ -194,8 +194,6 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
                 .approvalLevel(currentApprovalLevel)
                 .build();
         ticketApprovalRepository.save(approval);
-
-        ticketEventPublisher.publishTicketApprovedEvent(snowflake.next(), ticket.getTicketId(), command.approverId());
     }
 
     @Override
