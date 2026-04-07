@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:6789}
   tomcat:
     connection-timeout: 20000
     accept-count: 30
@@ -121,6 +121,8 @@ service:
     url: ${AUTH_SERVICE_URL:http://localhost:8888}
   boPortal:
     url: ${BO_PORTAL_SERVICE_URL:http://localhost:8080}
+  news:
+    url: ${NEWS_SERVICE_URL:${services.gateway.url:http://localhost:8765}/api}
 
 services:
   gateway:
