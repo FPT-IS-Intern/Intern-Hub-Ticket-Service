@@ -13,4 +13,9 @@ public interface NewsFeignClient {
     ResponseApi<String> notifyNewsApproved(
             @PathVariable("ticketId") Long ticketId,
             @RequestHeader("X-Internal-Secret") String internalSecret);
+
+    @PostMapping("/news/internal/tickets/{ticketId}/rejected")
+    ResponseApi<String> notifyNewsRejected(
+            @PathVariable("ticketId") Long ticketId,
+            @RequestHeader("X-Internal-Secret") String internalSecret);
 }

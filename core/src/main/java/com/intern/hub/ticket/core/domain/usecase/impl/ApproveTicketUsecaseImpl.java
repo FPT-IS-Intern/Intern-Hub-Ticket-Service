@@ -169,6 +169,20 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void notifyNewsRejectionIfNeeded(TicketModel ticket) {
+        if (ticket == null) {
+            return;
+        }
+
+        boolean isNewsTicketType = ticket.getTicketTypeId() != null && ticket.getTicketTypeId() == 5L;
+        boolean hasNewsPayload = ticket.getPayload() != null && ticket.getPayload().containsKey("news_id");
+
+        if (isNewsTicketType || hasNewsPayload) {
+            newsApprovalPort.notifyNewsRejected(ticket.getTicketId());
+        }
+    }
+
     @Override
     @Transactional
     public void reject(RejectTicketCommand command) {
@@ -211,6 +225,7 @@ public class ApproveTicketUsecaseImpl implements ApproveTicketUsecase {
                 .approvalLevel(currentApprovalLevel)
                 .build();
         ticketApprovalRepository.save(approval);
+        notifyNewsRejectionIfNeeded(ticket);
     }
 
     @Override

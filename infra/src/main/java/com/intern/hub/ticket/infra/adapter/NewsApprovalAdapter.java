@@ -29,4 +29,17 @@ public class NewsApprovalAdapter implements NewsApprovalPort {
             log.error("[NewsApprovalAdapter] Failed to notify news-service for ticketId={}: {}", ticketId, ex.getMessage());
         }
     }
+
+    @Override
+    public void notifyNewsRejected(Long ticketId) {
+        if (ticketId == null) {
+            return;
+        }
+        try {
+            newsFeignClient.notifyNewsRejected(ticketId, internalSecret);
+            log.info("[NewsApprovalAdapter] Notified news-service for rejected ticketId={}", ticketId);
+        } catch (Exception ex) {
+            log.error("[NewsApprovalAdapter] Failed to notify news-service for rejected ticketId={}: {}", ticketId, ex.getMessage());
+        }
+    }
 }
