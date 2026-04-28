@@ -2,15 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 001-update-level2-threshold-to-gt-10-days
       author: internhub-team
-      validCheckSum:
-        - "9:317fb4110f98478580db2bd579f24be9"
-        - "9:ce40575c48695e785498b6e612f15440"
       changes:
         - sql:
             splitStatements: true
             stripComments: true
             sql: |
-              UPDATE ih_ticket.ticket_types
+              UPDATE ticket_types
               SET approval_rule = jsonb_build_object(
                 'condition', '#payload[''total_days''] > 10',
                 'levelsIfTrue', 2,
@@ -27,7 +24,7 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             sql: |
-              UPDATE ih_ticket.ticket_types
+              UPDATE ticket_types
               SET approval_rule = jsonb_build_object(
                 'condition', '#payload[''total_days''] > 10',
                 'levelsIfTrue', 2,
@@ -44,7 +41,7 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             sql: |
-              UPDATE ih_ticket.ticket_types
+              UPDATE ticket_types
               SET approval_rule = jsonb_build_object(
                 'condition', '#payload[''total_days''] > 10',
                 'levelsIfTrue', 2,

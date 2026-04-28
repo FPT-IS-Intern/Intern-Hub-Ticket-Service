@@ -8,7 +8,7 @@
             splitStatements: false
             stripComments: true
             sql: |
-              INSERT INTO ih_ticket.ticket_types
+              INSERT INTO ticket_types
               (
                 type_name,
                 description,
@@ -50,12 +50,12 @@
                 0
               WHERE NOT EXISTS (
                 SELECT 1
-                FROM ih_ticket.ticket_types
+                FROM ticket_types
                 WHERE type_name = 'Phiếu duyệt đăng bài'
               );
       rollback:
         - sql:
             dbms: postgresql
             sql: |
-              DELETE FROM ih_ticket.ticket_types
+              DELETE FROM ticket_types
               WHERE type_name = 'Phiếu duyệt đăng bài';

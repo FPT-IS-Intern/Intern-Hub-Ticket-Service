@@ -5,7 +5,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: ticket_types
-            schemaName: ih_ticket
             columns:
               - column: { name: ticket_type_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: type_name, type: varchar(255), constraints: { nullable: false } }
@@ -23,7 +22,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: tickets
-            schemaName: ih_ticket
             columns:
               - column: { name: ticket_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: user_id, type: bigint, constraints: { nullable: false } }
@@ -38,10 +36,8 @@ databaseChangeLog:
               - column: { name: updated_by, type: bigint }
         - addForeignKeyConstraint:
             constraintName: fk_tickets_ticket_type
-            baseTableSchemaName: ih_ticket
             baseTableName: tickets
             baseColumnNames: ticket_type_id
-            referencedTableSchemaName: ih_ticket
             referencedTableName: ticket_types
             referencedColumnNames: ticket_type_id
 
@@ -51,7 +47,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: ticket_approvals
-            schemaName: ih_ticket
             columns:
               - column: { name: approval_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: ticket_id, type: bigint, constraints: { nullable: false } }
@@ -67,10 +62,8 @@ databaseChangeLog:
               - column: { name: updated_by, type: bigint }
         - addForeignKeyConstraint:
             constraintName: fk_ticket_approvals_ticket
-            baseTableSchemaName: ih_ticket
             baseTableName: ticket_approvals
             baseColumnNames: ticket_id
-            referencedTableSchemaName: ih_ticket
             referencedTableName: tickets
             referencedColumnNames: ticket_id
 
@@ -80,7 +73,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: evidences
-            schemaName: ih_ticket
             columns:
               - column: { name: evidence_id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: ticket_id, type: bigint }
@@ -94,10 +86,8 @@ databaseChangeLog:
               - column: { name: updated_by, type: bigint }
         - addForeignKeyConstraint:
             constraintName: fk_evidences_ticket
-            baseTableSchemaName: ih_ticket
             baseTableName: evidences
             baseColumnNames: ticket_id
-            referencedTableSchemaName: ih_ticket
             referencedTableName: tickets
             referencedColumnNames: ticket_id
 
@@ -107,7 +97,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: outbox_events
-            schemaName: ih_ticket
             columns:
               - column: { name: event_id, type: bigint, constraints: { primaryKey: true, nullable: false } }
               - column: { name: aggregate_type, type: varchar(255), constraints: { nullable: false } }
@@ -126,7 +115,6 @@ databaseChangeLog:
       changes:
         - createIndex:
             indexName: idx_tickets_user_status
-            schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
@@ -136,7 +124,6 @@ databaseChangeLog:
 
         - createIndex:
             indexName: idx_tickets_ticket_type
-            schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
@@ -144,14 +131,13 @@ databaseChangeLog:
 
         - createIndex:
             indexName: idx_tickets_created_at
-            schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
                   name: created_at
 
         - sql:
-            sql: CREATE INDEX idx_tickets_payload_gin ON ih_ticket.tickets USING GIN (payload);
+            sql: CREATE INDEX idx_tickets_payload_gin ON tickets USING GIN (payload);
   
   - changeSet:
       id: 008-create-ticket-type-approvers-table
@@ -159,7 +145,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: ticket_type_approvers
-            schemaName: ih_ticket
             columns:
               - column: { name: id, type: bigint, constraints: { primaryKey: true, nullable: false } }
               - column: { name: ticket_type_id, type: bigint, constraints: { nullable: false } }
@@ -171,16 +156,13 @@ databaseChangeLog:
 
         - addForeignKeyConstraint:
             constraintName: fk_ticket_type_approvers_type
-            baseTableSchemaName: ih_ticket
             baseTableName: ticket_type_approvers
             baseColumnNames: ticket_type_id
-            referencedTableSchemaName: ih_ticket
             referencedTableName: ticket_types
             referencedColumnNames: ticket_type_id
 
         - addUniqueConstraint:
             constraintName: uk_ticket_type_approver
-            schemaName: ih_ticket
             tableName: ticket_type_approvers
             columnNames: ticket_type_id, approver_id
 
@@ -189,7 +171,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: ticket_types
             columns:
               - column:
@@ -201,7 +182,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: ticket_types
             columns:
               - column:
@@ -213,7 +193,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: tickets
             columns:
               - column:
@@ -229,7 +208,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: ticket_approvals
             columns:
               - column:
@@ -241,7 +219,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: ticket_types
             columns:
               - column:
@@ -265,7 +242,6 @@ databaseChangeLog:
       author: internhub-team
       changes:
         - addColumn:
-            schemaName: ih_ticket
             tableName: ticket_type_approvers
             columns:
               - column:
@@ -275,11 +251,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - dropUniqueConstraint:
-            schemaName: ih_ticket
             tableName: ticket_type_approvers
             constraintName: uk_ticket_type_approver
         - addUniqueConstraint:
-            schemaName: ih_ticket
             tableName: ticket_type_approvers
             constraintName: uk_ticket_type_approver_level
             columnNames: ticket_type_id, approver_id, approval_level
@@ -290,7 +264,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: ticket_global_approvers
-            schemaName: ih_ticket
             columns:
               - column: { name: approver_id, type: bigint, constraints: { primaryKey: true, nullable: false } }
               - column: { name: max_approval_level, type: int, defaultValueNumeric: 1, constraints: { nullable: false } }

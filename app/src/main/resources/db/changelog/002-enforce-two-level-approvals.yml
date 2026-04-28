@@ -7,30 +7,30 @@ databaseChangeLog:
             splitStatements: true
             stripComments: true
             sql: |
-              UPDATE ih_ticket.tickets
+              UPDATE tickets
               SET required_approvals =
                 CASE
                   WHEN COALESCE(required_approvals, 1) <= 1 THEN 1
                   ELSE 2
                 END;
 
-              UPDATE ih_ticket.tickets
+              UPDATE tickets
               SET current_approval_level =
                 CASE
                   WHEN COALESCE(current_approval_level, 1) <= 1 THEN 1
                   ELSE 2
                 END;
 
-              ALTER TABLE ih_ticket.tickets
+              ALTER TABLE tickets
                 ALTER COLUMN required_approvals SET NOT NULL;
 
-              ALTER TABLE ih_ticket.tickets
+              ALTER TABLE tickets
                 ALTER COLUMN current_approval_level SET NOT NULL;
 
-              ALTER TABLE ih_ticket.tickets
+              ALTER TABLE tickets
                 ADD CONSTRAINT ck_tickets_required_approvals_1_2
                 CHECK (required_approvals IN (1, 2));
 
-              ALTER TABLE ih_ticket.tickets
+              ALTER TABLE tickets
                 ADD CONSTRAINT ck_tickets_current_approval_level_1_2
                 CHECK (current_approval_level IN (1, 2));
